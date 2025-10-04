@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://bb1u28yniteh2"]
 
-[ext_resource type="Script" path="res://scripts/main_menu.gd" id="1_w2v8a"]
+[ext_resource type="Script" uid="uid://dj7ybfoxwp2w0" path="res://scripts/main_menu.gd" id="1_w2v8a"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -11,7 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_w2v8a")
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="MainScreen" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -19,14 +19,73 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBox" type="VBoxContainer" parent="CenterContainer"]
+[node name="MainVBox" type="VBoxContainer" parent="MainScreen"]
 layout_mode = 2
 alignment = 1
 
-[node name="NewLobbyButton" type="Button" parent="CenterContainer/VBox" groups=["ui"]]
-text = "New lobby"
+[node name="NewGameButton" type="Button" parent="MainScreen/MainVBox" groups=["ui"]]
+layout_mode = 2
 size_flags_horizontal = 4
+text = "New game"
 
-[node name="ExitButton" type="Button" parent="CenterContainer/VBox" groups=["ui"]]
-text = "Exit"
+[node name="ExitButton" type="Button" parent="MainScreen/MainVBox" groups=["ui"]]
+layout_mode = 2
 size_flags_horizontal = 4
+text = "Exit"
+
+[node name="GameScreen" type="CenterContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GameVBox" type="VBoxContainer" parent="GameScreen"]
+layout_mode = 2
+alignment = 1
+
+[node name="CreateLobbyButton" type="Button" parent="GameScreen/GameVBox" groups=["ui"]]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "New lobby"
+
+[node name="ConnectLobbyButton" type="Button" parent="GameScreen/GameVBox" groups=["ui"]]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Connect to lobby"
+
+[node name="BackButton" type="Button" parent="GameScreen/GameVBox" groups=["ui"]]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Back"
+
+[node name="ConnectDialog" type="Window" parent="."]
+title = "Connect to Lobby"
+initial_position = 1
+size = Vector2i(360, 140)
+visible = false
+
+[node name="ConnectVBox" type="VBoxContainer" parent="ConnectDialog"]
+layout_mode = 2
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 348.0
+offset_bottom = 128.0
+
+[node name="InviteCodeEdit" type="LineEdit" parent="ConnectDialog/ConnectVBox" groups=["ui"]]
+layout_mode = 2
+placeholder_text = "Enter invite code"
+
+[node name="ConnectButtons" type="HBoxContainer" parent="ConnectDialog/ConnectVBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="ConnectConfirmButton" type="Button" parent="ConnectDialog/ConnectVBox/ConnectButtons" groups=["ui"]]
+layout_mode = 2
+text = "Connect"
+
+[node name="ConnectCancelButton" type="Button" parent="ConnectDialog/ConnectVBox/ConnectButtons" groups=["ui"]]
+layout_mode = 2
+text = "Cancel"
