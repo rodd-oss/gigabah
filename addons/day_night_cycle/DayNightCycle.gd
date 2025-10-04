@@ -21,6 +21,9 @@ enum Phase {
 var current_phase: Phase = Phase.MORNING : set = _set_current_phase
 var current_day: int = 1
 
+# Fallback duration used only if an unknown phase is encountered (should never happen).
+const DEFAULT_PHASE_DURATION: float = 10.0
+
 @export var morning_duration: float = 20.0
 @export var day_duration: float = 30.0
 @export var evening_duration: float = 20.0
@@ -103,7 +106,8 @@ func _get_phase_duration(phase: Phase) -> float:
         Phase.DAY: return day_duration
         Phase.EVENING: return evening_duration
         Phase.NIGHT: return night_duration
-    return 10.0
+    assert(false, "Unhandled phase in _get_phase_duration: %s" % [phase])
+    return DEFAULT_PHASE_DURATION
 
 func _phase_name(phase: Phase) -> StringName:
     match phase:
