@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://clesdfb83mbew"
-path="res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex"
+uid="uid://ebbqnccpkctv"
+path="res://.godot/imported/icon.svg-156dd4ce154bffe660c6c4d870dfd7b7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://icon.svg"
-dest_files=["res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex"]
+source_file="res://addons/day_night_cycle/icon.svg"
+dest_files=["res://.godot/imported/icon.svg-156dd4ce154bffe660c6c4d870dfd7b7.ctex"]
 
 [params]
 

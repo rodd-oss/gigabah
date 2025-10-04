@@ -2,35 +2,32 @@
 class_name DayNightCycle
 extends Node
 
-# ...existing code will be brought over below (kept identical except minor header adjusted)...
-## Универсальный компонент цикла День/Ночь для Godot 4.5 (Addon Version)
-## (См. README в папке плагина)
+## DayNightCycle (data-driven)
+## Как добавить / изменить фазы:
+##   1. В инспекторе у узла выбери массив phase_configs.
+##   2. Добавь новый ресурс DayPhaseConfig (Right Click -> New -> DayPhaseConfig).
+##   3. Задай name (например AFTERNOON), duration, dir_energy, point_energy, ambient_color.
+##   4. Перетащи ресурс в нужное место массива (порядок = порядок проигрывания).
+##   5. (Опционально) Удали legacy поля, если не нужны — они используются только для автогенерации 4 дефолтов при пустом списке.
+## Пример добавления AFTERNOON между DAY и EVENING: вставь новый ресурс на индекс 2.
+## Fail-fast стратегия: некорректный индекс или пустой список в рантайме — фатальное завершение.
 
 signal phase_changed(phase: StringName, state_index: int, day_index: int)
 signal new_day_started(day_index: int)
 
-@export_enum("MORNING", "DAY", "EVENING", "NIGHT") var _dummy_enum:int = 0
+@export var phase_configs: Array[DayPhaseConfig] = [] ## Data-driven phases; if empty defaults will be built.
 
-enum Phase {
-    MORNING,
-    DAY,
-    EVENING,
-    NIGHT,
-}
-
-var current_phase: Phase = Phase.MORNING : set = _set_current_phase
+var current_phase_index: int = 0 : set = _set_current_phase_index
 var current_day: int = 1
-
-# Fallback duration used only if an unknown phase is encountered (should never happen).
-const DEFAULT_PHASE_DURATION: float = 10.0
 
 @export var morning_duration: float = 20.0
 @export var day_duration: float = 30.0
 @export var evening_duration: float = 20.0
 @export var night_duration: float = 30.0
 
-@export var directional_light: Node = null
-@export var point_lights: Array[Node] = []
+@export var directional_light: NodePath ## Can be left empty; resolved at runtime.
+@export var directional_lights: Array[NodePath] = [] ## Optional multiple directional lights (processed in addition to single directional_light for backward compatibility).
+@export var point_lights: Array[NodePath] = [] ## Optional additional lights.
 @export var canvas_modulate: CanvasModulate = null
 @export var world_environment: WorldEnvironment = null
 
@@ -51,6 +48,7 @@ const DEFAULT_PHASE_DURATION: float = 10.0
 
 @export var transition_time: float = 5.0
 @export var autostart: bool = true
+@export var debug_log: bool = false ## Enable verbose runtime logging.
 
 var _phase_timer: float = 0.0
 var _phase_target_duration: float = 0.0
@@ -58,153 +56,240 @@ var _active: bool = false
 var _tween: Tween
 
 func _ready() -> void:
-    if Engine.is_editor_hint():
-        return
-    if autostart:
-        start_cycle()
+	if Engine.is_editor_hint():
+		_ensure_defaults_if_empty()
+		return
+	_ensure_defaults_if_empty()
+	if autostart:
+		start_cycle()
+
+func _enter_tree() -> void:
+	pass
 
 func start_cycle(reset: bool = true) -> void:
-    if reset:
-        current_phase = Phase.MORNING
-        current_day = 1
-    _active = true
-    _enter_phase(current_phase, true)
+	if _active:
+		if debug_log:
+			print("[DayNightCycle] start_cycle ignored (already active)")
+		return
+	if reset:
+		current_phase_index = 0
+		current_day = 1
+	if phase_configs.is_empty():
+		_fatal("No phases configured")
+	_active = true
+	set_process(true)
+	_enter_phase(current_phase_index, true)
 
 func stop_cycle() -> void:
-    _active = false
+	_active = false
+	set_process(false)
 
 func _process(delta: float) -> void:
-    if Engine.is_editor_hint():
-        return
-    if not _active:
-        return
-    _phase_timer += delta
-    if _phase_timer >= _phase_target_duration:
-        _advance_phase()
+	if Engine.is_editor_hint() or not _active:
+		return
+	_phase_timer += delta
+	if _phase_timer >= _phase_target_duration:
+		_advance_phase()
 
 func _advance_phase() -> void:
-    var next_index := int(current_phase) + 1
-    if next_index >= Phase.size():
-        current_day += 1
-        emit_signal("new_day_started", current_day)
-        next_index = Phase.MORNING
-    current_phase = next_index as Phase
-    _enter_phase(current_phase)
+	if phase_configs.is_empty():
+		return
+	var next_index := current_phase_index + 1
+	if next_index >= phase_configs.size():
+		current_day += 1
+		emit_signal("new_day_started", current_day)
+		next_index = 0
+	current_phase_index = next_index
+	_enter_phase(current_phase_index)
 
-func _enter_phase(phase: Phase, first: bool = false) -> void:
-    _phase_timer = 0.0
-    _phase_target_duration = _get_phase_duration(phase)
-    _apply_phase_transition(phase, first)
-    emit_signal("phase_changed", _phase_name(phase), int(phase), current_day)
+func _enter_phase(index: int, first: bool = false) -> void:
+	if index < 0 or index >= phase_configs.size():
+		_fatal("Phase index %d out of range" % index)
+	current_phase_index = index
+	var cfg := phase_configs[index]
+	_phase_timer = 0.0
+	_phase_target_duration = cfg.duration
+	_apply_phase_transition(cfg, first)
+	emit_signal("phase_changed", cfg.name, index, current_day)
+	if debug_log:
+		var peer := 0
+		if Engine.has_singleton("ENetMultiplayerPeer") and get_tree().get_multiplayer():
+			peer = get_tree().get_multiplayer().get_unique_id()
+		print("[DayNightCycle] Enter phase %s (index=%d day=%d duration=%.2f peer=%d)" % [cfg.name, index, current_day, cfg.duration, peer])
 
-func _set_current_phase(value: Phase) -> void:
-    current_phase = value
+func _set_current_phase_index(value: int) -> void:
+	if value < 0 or value >= phase_configs.size():
+		_fatal("Phase index %d out of range (set)" % value)
+	current_phase_index = value
 
-func _get_phase_duration(phase: Phase) -> float:
-    match phase:
-        Phase.MORNING: return morning_duration
-        Phase.DAY: return day_duration
-        Phase.EVENING: return evening_duration
-        Phase.NIGHT: return night_duration
-    var msg := "FATAL: Unhandled phase in _get_phase_duration: %s" % [phase]
-    push_error(msg)  
-    get_tree().quit(1) 
-    assert(false, msg)  # Also trip in debug builds.
-    return 0.0  # Unreachable; added only to satisfy return expectation.
+func _get_phase_duration(index: int) -> float:
+	if index < 0 or index >= phase_configs.size():
+		_fatal("Phase index %d out of range in duration" % index)
+	return phase_configs[index].duration
 
-func _phase_name(phase: Phase) -> StringName:
-    match phase:
-        Phase.MORNING: return &"MORNING"
-        Phase.DAY: return &"DAY"
-        Phase.EVENING: return &"EVENING"
-        Phase.NIGHT: return &"NIGHT"
-    return &"UNKNOWN"
+func _phase_name(index: int) -> StringName:
+	if index < 0 or index >= phase_configs.size():
+		return &"UNKNOWN"
+	return phase_configs[index].name
 
-func _apply_phase_transition(phase: Phase, instant: bool) -> void:
-    if _tween and _tween.is_running():
-        _tween.kill()
-    _tween = null
+func _apply_phase_transition(cfg: DayPhaseConfig, instant: bool) -> void:
+	if _tween and _tween.is_running():
+		_tween.kill()
+	_tween = null
 
-    var target_dir_energy := _energy_for_phase(phase)
-    var target_point_energy := _point_energy_for_phase(phase)
-    var target_ambient_color := _ambient_for_phase(phase)
+	var target_dir_energy := cfg.dir_energy
+	var target_point_energy := cfg.point_energy
+	var target_ambient_color := cfg.ambient_color
+	var target_ambient_energy := cfg.ambient_energy
 
-    var has_transition := transition_time > 0.0 and not instant
-    if has_transition:
-        _tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	var has_transition := transition_time > 0.0 and not instant
 
-    if directional_light and directional_light.has_method("set"):
-        _tween_property_or_set(directional_light, "energy", target_dir_energy, has_transition)
+	var dir_node := _resolve_node(directional_light)
+	if dir_node:
+		_tween_light_energy(dir_node, target_dir_energy, has_transition)
+		# Optional per-phase light color tint
+		if cfg.dir_color != Color.WHITE and _has_property(dir_node, "light_color"):
+			_tween_property_or_set(dir_node, "light_color", cfg.dir_color, has_transition)
+	# Additional directional lights
+	for dl_path in directional_lights:
+		var dl_node := _resolve_node(dl_path)
+		if dl_node and dl_node != dir_node: # avoid double-processing same node
+			_tween_light_energy(dl_node, target_dir_energy, has_transition)
+			if cfg.dir_color != Color.WHITE and _has_property(dl_node, "light_color"):
+				_tween_property_or_set(dl_node, "light_color", cfg.dir_color, has_transition)
 
-    for pl in point_lights:
-        if pl and pl.has_method("set"):
-            _tween_property_or_set(pl, "energy", target_point_energy, has_transition)
+	for pl_path in point_lights:
+		var pl_node := _resolve_node(pl_path)
+		if pl_node:
+			_tween_light_energy(pl_node, target_point_energy, has_transition)
 
-    if canvas_modulate:
-        _tween_property_or_set(canvas_modulate, "color", target_ambient_color, has_transition)
+	if canvas_modulate:
+		_tween_property_or_set(canvas_modulate, "color", target_ambient_color, has_transition)
 
-    if world_environment and world_environment.environment:
-        var env := world_environment.environment
-        _tween_property_or_set(env, "ambient_light_color", target_ambient_color, has_transition)
-        var brightness := (target_ambient_color.r + target_ambient_color.g + target_ambient_color.b) / 3.0
-        _tween_property_or_set(env, "ambient_light_energy", clamp(brightness, 0.05, 1.2), has_transition)
+	if world_environment and world_environment.environment:
+		var env := world_environment.environment
+		_tween_property_or_set(env, "ambient_light_color", target_ambient_color, has_transition)
+		var brightness := (target_ambient_color.r + target_ambient_color.g + target_ambient_color.b) / 3.0
+		var computed := clamp(brightness, 0.02, 1.2)
+		if target_ambient_energy >= 0.0:
+			computed = target_ambient_energy
+		_tween_property_or_set(env, "ambient_light_energy", computed, has_transition)
 
 func _tween_property_or_set(obj: Object, prop: String, value, use_tween: bool) -> void:
-    if use_tween and _tween:
-        _tween.tween_property(obj, prop, value, transition_time)
-    else:
-        obj.set(prop, value)
+	if obj == null:
+		return
+	if not obj.has_method("set"):
+		return
+	if not _has_property(obj, prop):
+		return
+	if use_tween:
+		if not _tween:
+			_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		_tween.tween_property(obj, prop, value, transition_time)
+	else:
+		obj.set(prop, value)
 
-func _energy_for_phase(phase: Phase) -> float:
-    match phase:
-        Phase.MORNING: return dir_energy_morning
-        Phase.DAY: return dir_energy_day
-        Phase.EVENING: return dir_energy_evening
-        Phase.NIGHT: return dir_energy_night
-    return 1.0
+func _tween_light_energy(light: Object, value: float, use_tween: bool) -> void:
+	var prop := ""
+	if _has_property(light, "light_energy"):
+		prop = "light_energy"
+	elif _has_property(light, "energy"):
+		prop = "energy"
+	if prop == "":
+		return
+	_tween_property_or_set(light, prop, value, use_tween)
 
-func _point_energy_for_phase(phase: Phase) -> float:
-    match phase:
-        Phase.MORNING: return point_energy_morning
-        Phase.DAY: return point_energy_day
-        Phase.EVENING: return point_energy_evening
-        Phase.NIGHT: return point_energy_night
-    return 0.0
+func _has_property(obj: Object, prop: String) -> bool:
+	if obj == null:
+		return false
+	for p in obj.get_property_list():
+		if typeof(p) == TYPE_DICTIONARY and p.has("name") and p.name == prop:
+			return true
+	return false
 
-func _ambient_for_phase(phase: Phase) -> Color:
-    match phase:
-        Phase.MORNING: return ambient_color_morning
-        Phase.DAY: return ambient_color_day
-        Phase.EVENING: return ambient_color_evening
-        Phase.NIGHT: return ambient_color_night
-    return Color.WHITE
+func _resolve_node(value) -> Node:
+	if value is Node:
+		return value
+	if value is NodePath and value != NodePath(""):
+		return get_node_or_null(value)
+	return null
 
-func force_phase(phase: Phase, preserve_timer: bool = false) -> void:
-    current_phase = phase
-    if not preserve_timer:
-        _enter_phase(phase)
-    else:
-        _apply_phase_transition(phase, false)
-        emit_signal("phase_changed", _phase_name(phase), int(phase), current_day)
+
+
+func force_phase(index: int, preserve_timer: bool = false) -> void:
+	if index < 0 or index >= phase_configs.size():
+		_fatal("Phase index %d out of range (force_phase)" % index)
+	current_phase_index = index
+	var cfg := phase_configs[index]
+	if not preserve_timer:
+		_enter_phase(index)
+	else:
+		_apply_phase_transition(cfg, false)
+		emit_signal("phase_changed", cfg.name, index, current_day)
 
 func phase_progress() -> float:
-    if _phase_target_duration <= 0.0:
-        return 1.0
-    return clamp(_phase_timer / _phase_target_duration, 0.0, 1.0)
+	if _phase_target_duration <= 0.0:
+		return 1.0
+	return clamp(_phase_timer / _phase_target_duration, 0.0, 1.0)
 
 func serialize_state() -> Dictionary:
-    return {
-        "current_phase": int(current_phase),
-        "current_day": current_day,
-        "phase_timer": _phase_timer
-    }
+	return {
+		"current_phase_index": current_phase_index,
+		"current_day": current_day,
+		"phase_timer": _phase_timer,
+		"current_phase_name": phase_configs.size() > 0 and phase_configs[current_phase_index].name or StringName()
+	}
 
 func restore_state(data: Dictionary) -> void:
-    if data.has("current_phase"):
-        current_phase = data["current_phase"]
-    if data.has("current_day"):
-        current_day = data["current_day"]
-    if data.has("phase_timer"):
-        _phase_timer = data["phase_timer"]
-    _phase_target_duration = _get_phase_duration(current_phase)
-    _apply_phase_transition(current_phase, true)
+	_ensure_defaults_if_empty()
+	if data.has("current_phase_index"):
+		current_phase_index = int(data["current_phase_index"])
+	if data.has("current_day"):
+		current_day = int(data["current_day"])
+	if data.has("phase_timer"):
+		_phase_timer = float(data["phase_timer"])
+	if current_phase_index < 0 or current_phase_index >= phase_configs.size():
+		current_phase_index = 0
+	var cfg := phase_configs[current_phase_index]
+	_phase_target_duration = cfg.duration
+	_apply_phase_transition(cfg, true)
+
+func add_phase(cfg: DayPhaseConfig, index: int = -1) -> void:
+	if index < 0 or index > phase_configs.size():
+		index = phase_configs.size()
+	phase_configs.insert(index, cfg)
+
+func remove_phase(index: int) -> void:
+	if index < 0 or index >= phase_configs.size():
+		_fatal("Phase index %d out of range (remove_phase)" % index)
+	phase_configs.remove_at(index)
+	if phase_configs.is_empty():
+		_fatal("All phases removed")
+	if current_phase_index >= phase_configs.size():
+		current_phase_index = phase_configs.size() - 1
+
+func find_phase_index(name: StringName) -> int:
+	for i in phase_configs.size():
+		if phase_configs[i].name == name:
+			return i
+	return -1
+
+func force_phase_by_name(name: StringName, preserve_timer: bool = false) -> void:
+	var i := find_phase_index(name)
+	if i == -1:
+		_fatal("Phase '%s' not found" % [name])
+	force_phase(i, preserve_timer)
+
+func _fatal(msg: String) -> void:
+	push_error("[DayNightCycle:FATAL] %s" % msg)
+	if OS.is_debug_build():
+		assert(false, msg)
+	get_tree().quit(1)
+
+func _ensure_defaults_if_empty() -> void:
+	if phase_configs.is_empty():
+		var morning := DayPhaseConfig.new(); morning.name = &"MORNING"; morning.duration = morning_duration; morning.dir_energy = dir_energy_morning; morning.point_energy = point_energy_morning; morning.ambient_color = ambient_color_morning
+		var day := DayPhaseConfig.new(); day.name = &"DAY"; day.duration = day_duration; day.dir_energy = dir_energy_day; day.point_energy = point_energy_day; day.ambient_color = ambient_color_day
+		var evening := DayPhaseConfig.new(); evening.name = &"EVENING"; evening.duration = evening_duration; evening.dir_energy = dir_energy_evening; evening.point_energy = point_energy_evening; evening.ambient_color = ambient_color_evening
+		var night := DayPhaseConfig.new(); night.name = &"NIGHT"; night.duration = night_duration; night.dir_energy = dir_energy_night; night.point_energy = point_energy_night; night.ambient_color = ambient_color_night
+		phase_configs.append_array([morning, day, evening, night])
