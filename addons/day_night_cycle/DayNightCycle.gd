@@ -106,8 +106,11 @@ func _get_phase_duration(phase: Phase) -> float:
         Phase.DAY: return day_duration
         Phase.EVENING: return evening_duration
         Phase.NIGHT: return night_duration
-    assert(false, "Unhandled phase in _get_phase_duration: %s" % [phase])
-    return DEFAULT_PHASE_DURATION
+    var msg := "FATAL: Unhandled phase in _get_phase_duration: %s" % [phase]
+    push_error(msg)  
+    get_tree().quit(1) 
+    assert(false, msg)  # Also trip in debug builds.
+    return 0.0  # Unreachable; added only to satisfy return expectation.
 
 func _phase_name(phase: Phase) -> StringName:
     match phase:
