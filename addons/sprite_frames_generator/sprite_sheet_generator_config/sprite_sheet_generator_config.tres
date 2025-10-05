@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SpriteSheetGeneratorConfig" load_steps=3 format=3 uid="uid://cp6ylmqh8a12"]
+
+[ext_resource type="Script" uid="uid://lhjwx6on360b" path="res://addons/sprite_frames_generator/sprite_sheet_generator_config/sprite_sheet_generator_config.gd" id="2_swoar"]
+[ext_resource type="Script" uid="uid://day2vxmnlqaxp" path="res://addons/sprite_frames_generator/sprite_sheet_generator_config/sprite_sheet_entry.gd" id="3_6y45l"]
+
+[resource]
+script = ExtResource("2_swoar")
+scan_from_directory = false
+directory = "res://scenes/characters/player/assets/Player/Legs/Farmer_Pants/"
+file_extensions = Array[String](["png", "jpg", "jpeg"])
+naming_convention = 0
+sprite_sheets = Array[ExtResource("3_6y45l")]([])
+animations_names = Array[String]([])
+output_directory = "res://sprite_frames_sheet_generator_output"
+metadata/_custom_type_script = "uid://lhjwx6on360b"
