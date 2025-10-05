@@ -54,6 +54,11 @@ layout_mode = 2
 size_flags_horizontal = 4
 text = "Connection"
 
+[node name="SettingsButton" type="Button" parent="Center/VBox" groups=["ui"]]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Settings"
+
 [node name="ExitButton" type="Button" parent="Center/VBox" groups=["ui"]]
 layout_mode = 2
 size_flags_horizontal = 4

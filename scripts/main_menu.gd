@@ -15,6 +15,7 @@ extends Control
 @onready var server_id_label: Label = $Center/VBox/ServerInfo/ServerIdLabel
 @onready var server_status_label: Label = $Center/VBox/ServerInfo/ServerStatusLabel
 @onready var ping_label: Label = $Center/VBox/ServerInfo/PingLabel
+@onready var settings_button: Button = $Center/VBox/SettingsButton
 
 const SERVER_ID: String = "#0001" # Заглушка до интеграции реального списка серверов
 var _last_ping_ms: int = -1 # Последний пинг полученный извне (через сигнал NetworkManager)
@@ -24,6 +25,7 @@ func _ready() -> void:
 	server_status_label.text = "Status: offline"
 	ping_label.text = "Ping: -- ms"
 	exit_button.pressed.connect(_on_exit_pressed)
+	settings_button.pressed.connect(_on_settings_pressed)
 	# Автозагрузка доступна как узел /root/NetworkManager (а не Engine singleton).
 	var nm: Node = get_tree().root.get_node_or_null("NetworkManager")
 	if nm:
@@ -50,6 +52,9 @@ func _process(_delta: float) -> void:
 
 func _on_exit_pressed() -> void:
 	get_tree().quit()
+
+func _on_settings_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/settings_menu.tscn")
 
 func _push_temp_warning(msg: String) -> void:
 	print_debug("[MainMenu] WARNING: %s" % msg)
