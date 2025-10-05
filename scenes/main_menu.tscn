@@ -11,7 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_w2v8a")
 
-[node name="MainScreen" type="CenterContainer" parent="."]
+[node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -19,73 +19,42 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MainVBox" type="VBoxContainer" parent="MainScreen"]
+[node name="VBox" type="VBoxContainer" parent="Center"]
 layout_mode = 2
 alignment = 1
+theme_override_constants/separation = 20
 
-[node name="NewGameButton" type="Button" parent="MainScreen/MainVBox" groups=["ui"]]
+[node name="Title" type="Label" parent="Center/VBox"]
+layout_mode = 2
+text = "GIGABAH"
+theme_override_font_sizes/font_size = 54
+horizontal_alignment = 1
+
+[node name="ServerInfo" type="VBoxContainer" parent="Center/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ServerIdLabel" type="Label" parent="Center/VBox/ServerInfo"]
+layout_mode = 2
+text = "Server: #0001"
+horizontal_alignment = 1
+
+[node name="ServerStatusLabel" type="Label" parent="Center/VBox/ServerInfo"]
+layout_mode = 2
+text = "Status: offline"
+horizontal_alignment = 1
+
+[node name="PingLabel" type="Label" parent="Center/VBox/ServerInfo"]
+layout_mode = 2
+text = "Ping: -- ms"
+horizontal_alignment = 1
+
+[node name="ConnectButton" type="Button" parent="Center/VBox" groups=["ui"]]
 layout_mode = 2
 size_flags_horizontal = 4
-text = "New game"
+text = "Connection"
 
-[node name="ExitButton" type="Button" parent="MainScreen/MainVBox" groups=["ui"]]
+[node name="ExitButton" type="Button" parent="Center/VBox" groups=["ui"]]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Exit"
-
-[node name="GameScreen" type="CenterContainer" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="GameVBox" type="VBoxContainer" parent="GameScreen"]
-layout_mode = 2
-alignment = 1
-
-[node name="CreateLobbyButton" type="Button" parent="GameScreen/GameVBox" groups=["ui"]]
-layout_mode = 2
-size_flags_horizontal = 4
-text = "New lobby"
-
-[node name="ConnectLobbyButton" type="Button" parent="GameScreen/GameVBox" groups=["ui"]]
-layout_mode = 2
-size_flags_horizontal = 4
-text = "Connect to lobby"
-
-[node name="BackButton" type="Button" parent="GameScreen/GameVBox" groups=["ui"]]
-layout_mode = 2
-size_flags_horizontal = 4
-text = "Back"
-
-[node name="ConnectDialog" type="Window" parent="."]
-title = "Connect to Lobby"
-initial_position = 1
-size = Vector2i(360, 140)
-visible = false
-
-[node name="ConnectVBox" type="VBoxContainer" parent="ConnectDialog"]
-layout_mode = 2
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 348.0
-offset_bottom = 128.0
-
-[node name="InviteCodeEdit" type="LineEdit" parent="ConnectDialog/ConnectVBox" groups=["ui"]]
-layout_mode = 2
-placeholder_text = "Enter invite code"
-
-[node name="ConnectButtons" type="HBoxContainer" parent="ConnectDialog/ConnectVBox"]
-layout_mode = 2
-alignment = 2
-
-[node name="ConnectConfirmButton" type="Button" parent="ConnectDialog/ConnectVBox/ConnectButtons" groups=["ui"]]
-layout_mode = 2
-text = "Connect"
-
-[node name="ConnectCancelButton" type="Button" parent="ConnectDialog/ConnectVBox/ConnectButtons" groups=["ui"]]
-layout_mode = 2
-text = "Cancel"
