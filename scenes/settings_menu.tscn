@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/settings_menu.gd" id="1_xxxxxx"]
+
+[node name="SettingsMenu" type="Control"]
+layout_mode = 3
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_xxxxxx")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="VBox"]
+layout_mode = 2
+text = "Настройки управления"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ActionsVBox" type="VBoxContainer" parent="VBox/ScrollContainer"]
+layout_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 12
+
+[node name="SaveButton" type="Button" parent="VBox/Buttons"]
+layout_mode = 2
+text = "Сохранить"
+
+[node name="ResetButton" type="Button" parent="VBox/Buttons"]
+layout_mode = 2
+text = "Сброс"
+
+[node name="BackButton" type="Button" parent="VBox/Buttons"]
+layout_mode = 2
+text = "Назад"
