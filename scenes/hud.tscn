@@ -1,0 +1,259 @@
+[gd_scene load_steps=6 format=3 uid="uid://b8520goyfymei"]
+
+[ext_resource type="Script" uid="uid://df8qt0sk4sytc" path="res://scripts/hud.gd" id="1_f3g55"]
+[ext_resource type="Texture2D" uid="uid://6yh0wfc1yxvm" path="res://materials/hp_bar_full.tres" id="2_hp"]
+[ext_resource type="Texture2D" uid="uid://ihqcl4dp014" path="res://materials/armor_bar_full.tres" id="3_armor"]
+[ext_resource type="Texture2D" uid="uid://6xm58y4ebnjc" path="res://materials/energy_bar_full.tres" id="4_energy"]
+[ext_resource type="Texture2D" uid="uid://bbro1d7hphrwf" path="res://materials/fast_inventory.tres" id="5_fast_inv_border"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_f3g55")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_top = -139.0
+offset_right = 382.0
+offset_bottom = -5.0
+grow_vertical = 0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="HPRow" type="Control" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(360, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HPLabel" type="Label" parent="MarginContainer/VBoxContainer/HPRow"]
+layout_mode = 0
+offset_left = -15.0
+offset_top = 19.0
+offset_right = 30.0
+offset_bottom = 61.0
+theme_override_colors/font_color = Color(1, 0.2627451, 0.3647059, 1)
+theme_override_font_sizes/font_size = 30
+text = "HP"
+vertical_alignment = 1
+
+[node name="HPBar" type="TextureProgressBar" parent="MarginContainer/VBoxContainer/HPRow"]
+layout_mode = 0
+offset_left = 89.0
+offset_top = 27.0
+offset_right = 256.0
+offset_bottom = 52.0
+value = 80.0
+nine_patch_stretch = true
+texture_under = ExtResource("2_hp")
+texture_progress = ExtResource("2_hp")
+
+[node name="ArmorRow" type="Control" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(360, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ArmorLabel" type="Label" parent="MarginContainer/VBoxContainer/ArmorRow"]
+layout_mode = 0
+offset_left = -15.0
+offset_top = 11.0
+offset_right = 78.0
+offset_bottom = 53.0
+theme_override_colors/font_color = Color(0, 0.59607846, 0.8627451, 1)
+theme_override_colors/font_shadow_color = Color(0, 0.89411765, 1, 1)
+theme_override_font_sizes/font_size = 30
+text = "Armor"
+vertical_alignment = 1
+
+[node name="ArmorBar" type="TextureProgressBar" parent="MarginContainer/VBoxContainer/ArmorRow"]
+layout_mode = 0
+offset_left = 89.0
+offset_top = 19.0
+offset_right = 257.0
+offset_bottom = 48.0
+value = 50.0
+nine_patch_stretch = true
+texture_under = ExtResource("3_armor")
+texture_progress = ExtResource("3_armor")
+
+[node name="EnergyRow" type="Control" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(360, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EnergyLabel" type="Label" parent="MarginContainer/VBoxContainer/EnergyRow"]
+layout_mode = 0
+offset_left = -15.0
+offset_top = 3.0
+offset_right = 84.0
+offset_bottom = 45.0
+theme_override_colors/font_color = Color(0.12941177, 0.6666667, 0.25490198, 1)
+theme_override_font_sizes/font_size = 30
+text = "Energy"
+vertical_alignment = 1
+
+[node name="EnergyBar" type="TextureProgressBar" parent="MarginContainer/VBoxContainer/EnergyRow"]
+layout_mode = 0
+offset_left = 89.0
+offset_top = 11.0
+offset_right = 257.0
+offset_bottom = 43.0
+value = 30.0
+nine_patch_stretch = true
+texture_under = ExtResource("4_energy")
+texture_progress = ExtResource("4_energy")
+
+[node name="FastInventory" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -240.0
+offset_top = -80.0
+offset_right = 240.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="FastInventory"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Slots" type="HBoxContainer" parent="FastInventory/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Slot1" type="TextureRect" parent="FastInventory/Margin/Slots"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture = ExtResource("5_fast_inv_border")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="FastInventory/Margin/Slots/Slot1"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 28.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 18
+text = "1"
+
+[node name="Slot2" type="TextureRect" parent="FastInventory/Margin/Slots"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture = ExtResource("5_fast_inv_border")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="FastInventory/Margin/Slots/Slot2"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 28.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 18
+text = "2"
+
+[node name="Slot3" type="TextureRect" parent="FastInventory/Margin/Slots"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture = ExtResource("5_fast_inv_border")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="FastInventory/Margin/Slots/Slot3"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 28.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 18
+text = "3"
+
+[node name="Slot4" type="TextureRect" parent="FastInventory/Margin/Slots"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture = ExtResource("5_fast_inv_border")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="FastInventory/Margin/Slots/Slot4"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 28.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 18
+text = "4"
+
+[node name="Slot5" type="TextureRect" parent="FastInventory/Margin/Slots"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture = ExtResource("5_fast_inv_border")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="FastInventory/Margin/Slots/Slot5"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 28.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 18
+text = "5"
+
+[node name="Slot6" type="TextureRect" parent="FastInventory/Margin/Slots"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture = ExtResource("5_fast_inv_border")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="FastInventory/Margin/Slots/Slot6"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 28.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 18
+text = "6"
+
+[node name="Slot7" type="TextureRect" parent="FastInventory/Margin/Slots"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture = ExtResource("5_fast_inv_border")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="FastInventory/Margin/Slots/Slot7"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 28.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 18
+text = "7"

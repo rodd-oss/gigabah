@@ -1,0 +1,77 @@
+[gd_scene load_steps=5 format=3 uid="uid://dt1428cqo725a"]
+
+[ext_resource type="Script" uid="uid://dogyeyxmnrocw" path="res://addons/sprite_frames_generator/inspector_ui_scene/inspector_ui_scene.gd" id="1_r8mwn"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4tu0y"]
+bg_color = Color(0.25098, 0.266667, 0.298039, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="SystemFont" id="SystemFont_4tu0y"]
+font_weight = 999
+subpixel_positioning = 0
+
+[sub_resource type="LabelSettings" id="LabelSettings_r8mwn"]
+font = SubResource("SystemFont_4tu0y")
+font_color = Color(0.741176, 0.74902, 0.764706, 1)
+
+[node name="InspectorUiScene" type="MarginContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+script = ExtResource("1_r8mwn")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_4tu0y")
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/PanelContainer"]
+layout_mode = 2
+text = "Generate New Sprite Frames"
+label_settings = SubResource("LabelSettings_r8mwn")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EditSettingsButton" type="Button" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Edit Settings"
+
+[node name="GenerateButton" type="Button" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Generate"
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Guide: 
+1. Edit settings
+	a) set the base sprite frames that will act as a blueprint for the generated ones
+	b) select the sprite sheets(Texture2D) that you will generate from
+	NOTE: The selected sprite sheet must be the same dimensions as the sprite sheet from the base_sprite_frames 
+	c) select the animation names that you want to be included in the new generated sprite frames
+	d) select an output directory(default: res://sprite_frames_sheet_generator_output)
+2. Click generate"
+vertical_alignment = 1
+
+[connection signal="pressed" from="HBoxContainer/VBoxContainer/EditSettingsButton" to="." method="_on_generate_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/VBoxContainer/GenerateButton" to="." method="_on_generate_button_pressed"]
