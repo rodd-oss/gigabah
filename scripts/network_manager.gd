@@ -4,8 +4,8 @@ signal connectivity_phase_changed(phase: String) # "offline" | "connecting" | "o
 signal ping_updated(ms: int)
 
 const PORT: int = 25445
-const ADDRESS: String = "51.250.122.114"
-const PING_INTERVAL: float = 2.0
+const ADDRESS: String = "gigabuh.d.roddtech.ru"
+const PING_INTERVAL: float = 5.0
 
 var peer: ENetMultiplayerPeer
 var _current_phase: String = "offline"
