@@ -5,8 +5,6 @@ signal ping_updated(ms: int)
 
 const ADDRESS: String = "gigabuh.d.roddtech.ru"
 const PORT: int = 25445
-const PROBE_CONNECT_TIMEOUT_SEC: float = 1.5
-const PROBE_POLL_INTERVAL_SEC: float = 0.05
 const PING_INTERVAL_SEC: float = 2.0
 
 enum ConnectionStatus { OFFLINE, CONNECTING, ONLINE }
@@ -67,8 +65,6 @@ func get_status_string() -> String:
 		_:
 			return "offline"
 
-func get_current_phase() -> String:
-	return get_status_string()
 
 func _set_status(s: ConnectionStatus) -> void:
 	if _status == s:

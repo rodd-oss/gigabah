@@ -7,8 +7,8 @@ class_name ServerStatusProbeAutoload
 signal status_updated(online: bool, latency_ms: int)
 
 const NetworkManagerScript = preload("res://scripts/network_manager.gd")
-const CONNECT_TIMEOUT_SEC: float = NetworkManagerScript.PROBE_CONNECT_TIMEOUT_SEC
-const POLL_INTERVAL_SEC: float = NetworkManagerScript.PROBE_POLL_INTERVAL_SEC
+const CONNECT_TIMEOUT_SEC: float = 1.5
+const POLL_INTERVAL_SEC: float = 0.05
 
 var _probing: bool = false
 var _peer: ENetMultiplayerPeer

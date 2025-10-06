@@ -47,8 +47,6 @@ func _ready() -> void:
 		# Immediate sync (prefer enum helpers if exposed)
 		if nm.has_method("get_status_string"):
 			_on_status_string_changed(nm.call("get_status_string"))
-		elif nm.has_method("get_current_phase"):
-			_on_status_string_changed(nm.call("get_current_phase"))
 		if nm.has_method("get_last_ping_ms"):
 			var lp: int = nm.get_last_ping_ms()
 			if lp >= 0:
@@ -97,12 +95,8 @@ func _on_probe_status(online: bool, latency_ms: int) -> void:
 			ping_label.text = "Ping: -- ms"
 	# Если уже подключён NetworkManager и он будет менять статус сам – не вмешиваемся.
 	var nm: Node = get_tree().root.get_node_or_null("NetworkManager")
-	if nm:
-		var current_status: String = ""
-		if nm.has_method("get_status_string"):
-			current_status = nm.call("get_status_string")
-		elif nm.has_method("get_current_phase"):
-			current_status = nm.call("get_current_phase")
+	if nm and nm.has_method("get_status_string"):
+		var current_status: String = nm.call("get_status_string")
 		if current_status == "online":
 			return
 	# Обновляем предварительный статус сервера.
