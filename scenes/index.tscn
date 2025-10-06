@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://bde2flq2egpcv"]
+[gd_scene load_steps=8 format=3 uid="uid://bde2flq2egpcv"]
 
 [ext_resource type="Script" uid="uid://f0ylqu4wka2x" path="res://scripts/multiplayer_spawner.gd" id="2_hhnvu"]
 [ext_resource type="PackedScene" uid="uid://dmp8nc3aenbut" path="res://scenes/player.tscn" id="3_8s3bs"]
 [ext_resource type="PackedScene" uid="uid://cabfjhgqmmx3k" path="res://scenes/bullet.tscn" id="4_hhnvu"]
+[ext_resource type="Script" path="res://scripts/in_game_menu.gd" id="5_menu"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_qt2py"]
 
@@ -12,6 +13,7 @@
 size = Vector3(1, 11, 21)
 
 [node name="Index3d" type="Node3D"]
+script = ExtResource("5_menu")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("uid://dmp8nc3aenbut")

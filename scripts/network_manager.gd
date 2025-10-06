@@ -124,3 +124,18 @@ func _on_server_disconnected() -> void:
 	multiplayer.multiplayer_peer = null
 	peer = null
 	_cancel_ping_loop()
+
+## Public API: close current connection/hosting (client or server side)
+func close_connection() -> void:
+	"""Gracefully closes current ENet peer and resets state to offline.
+	Renamed from disconnect() to avoid clashing with Object.disconnect(signal, callable).
+	Client: drops connection to server.
+	Server: stops hosting (temporary utility).
+	No-op if already offline."""
+	if not peer:
+		return
+	peer.close()
+	multiplayer.multiplayer_peer = null
+	peer = null
+	_cancel_ping_loop()
+	_set_phase("offline")
