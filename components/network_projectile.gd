@@ -11,5 +11,5 @@ func _process(_delta: float) -> void:
 	pass
 
 func _physics_process(_delta: float) -> void:
-	if multiplayer.is_server():			
+	if multiplayer.is_server():
 		parent.move_and_collide(move_direction * speed * _delta)
