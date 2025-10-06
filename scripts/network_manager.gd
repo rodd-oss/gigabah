@@ -39,3 +39,15 @@ func _on_connection_failed() -> void:
 
 func _on_server_disconnected() -> void:
 	print("Disconnected from server.")
+
+## Public API: close current connection/hosting (client or server side)
+func close_connection() -> void:
+	"""Gracefully closes current ENet peer and resets state to offline.
+	Client: drops connection to server.
+	Server: stops hosting (temporary utility).
+	No-op if already offline."""
+	if not peer:
+		return
+	peer.close()
+	multiplayer.multiplayer_peer = null
+	peer = null
