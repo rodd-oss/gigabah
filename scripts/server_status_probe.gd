@@ -6,8 +6,9 @@ class_name ServerStatusProbeAutoload
 
 signal status_updated(online: bool, latency_ms: int)
 
-const CONNECT_TIMEOUT_SEC: float = NetworkConfig.PROBE_CONNECT_TIMEOUT_SEC
-const POLL_INTERVAL_SEC: float = NetworkConfig.PROBE_POLL_INTERVAL_SEC
+const NetworkManagerScript = preload("res://scripts/network_manager.gd")
+const CONNECT_TIMEOUT_SEC: float = NetworkManagerScript.PROBE_CONNECT_TIMEOUT_SEC
+const POLL_INTERVAL_SEC: float = NetworkManagerScript.PROBE_POLL_INTERVAL_SEC
 
 var _probing: bool = false
 var _peer: ENetMultiplayerPeer
@@ -18,8 +19,8 @@ func request_probe() -> void:
 	if _probing:
 		print_debug("[Probe] Request ignored: already probing")
 		return
-	var address: String = NetworkConfig.ADDRESS
-	var port: int = NetworkConfig.PORT
+	var address: String = NetworkManagerScript.ADDRESS
+	var port: int = NetworkManagerScript.PORT
 	_peer = ENetMultiplayerPeer.new()
 	var err: int = _peer.create_client(address, port)
 	if err != OK:

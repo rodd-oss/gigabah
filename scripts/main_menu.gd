@@ -19,6 +19,12 @@ extends Control
 @onready var connect_button: Button = $Center/VBox/ConnectButton
 
 const SERVER_ID: String = "#0001" # Заглушка до интеграции реального списка серверов
+const STATUS_UI: Dictionary = {
+	"offline": {"text": "Status: offline", "color": Color(1,0.4,0.4)},
+	"connecting": {"text": "Status: connecting", "color": Color(1,0.85,0.2)},
+	"online": {"text": "Status: online", "color": Color(0.3,1,0.3)},
+	"available": {"text": "Status: available", "color": Color(0.6,0.9,0.3)} # Только для probe
+}
 var _last_ping_ms: int = -1 # RTT игровой сессии (если появится)
 var _probe_latency_ms: int = -1 # Предварительный пинг до подключения (через ServerStatusProbe)
 var _server_online: bool = false
@@ -33,14 +39,16 @@ func _ready() -> void:
 	# Автозагрузка доступна как узел /root/NetworkManager (а не Engine singleton).
 	var nm: Node = get_tree().root.get_node_or_null("NetworkManager")
 	if nm:
-		# Пробуем типизированный каст (если нужно будет расширять API)
 		if nm.has_signal("ping_updated"):
 			nm.connect("ping_updated", Callable(self, "_on_ping_updated"))
-		if nm.has_signal("connectivity_phase_changed"):
-			nm.connect("connectivity_phase_changed", Callable(self, "_on_phase_changed"))
-		# Немедленная синхронизация статуса
-		if nm.has_method("get_current_phase"):
-			_on_phase_changed(nm.get_current_phase())
+		# New enum-based signal
+		if nm.has_signal("connectivity_status_changed"):
+			nm.connect("connectivity_status_changed", Callable(self, "_on_status_changed"))
+		# Immediate sync (prefer enum helpers if exposed)
+		if nm.has_method("get_status_string"):
+			_on_status_string_changed(nm.call("get_status_string"))
+		elif nm.has_method("get_current_phase"):
+			_on_status_string_changed(nm.call("get_current_phase"))
 		if nm.has_method("get_last_ping_ms"):
 			var lp: int = nm.get_last_ping_ms()
 			if lp >= 0:
@@ -89,10 +97,13 @@ func _on_probe_status(online: bool, latency_ms: int) -> void:
 			ping_label.text = "Ping: -- ms"
 	# Если уже подключён NetworkManager и он будет менять статус сам – не вмешиваемся.
 	var nm: Node = get_tree().root.get_node_or_null("NetworkManager")
-	if nm and nm.has_method("get_current_phase"):
-		var phase: String = nm.get_current_phase()
-		# Блокируем только когда уже online — тогда источник статуса переключается.
-		if phase == "online":
+	if nm:
+		var current_status: String = ""
+		if nm.has_method("get_status_string"):
+			current_status = nm.call("get_status_string")
+		elif nm.has_method("get_current_phase"):
+			current_status = nm.call("get_current_phase")
+		if current_status == "online":
 			return
 	# Обновляем предварительный статус сервера.
 	if online:
@@ -103,24 +114,24 @@ func _on_probe_status(online: bool, latency_ms: int) -> void:
 		server_status_label.add_theme_color_override("font_color", Color(1,0.4,0.4))
 
 ## Обновление визуального статуса (ожидаем строки: offline/connecting/online) уже внутри игровой сессии.
-func _on_phase_changed(phase: String) -> void:
-	_set_status_visual(phase)
+func _on_status_changed(status: int) -> void:
+	var status_str: String = "offline"
+	match status:
+		0:
+			status_str = "offline"
+		1:
+			status_str = "connecting"
+		2:
+			status_str = "online"
+	_set_status_visual(status_str)
 
-func _set_status_visual(phase: String) -> void:
-	var text: String
-	var color: Color
-	match phase:
-		"connecting":
-			text = "Status: connecting"
-			color = Color(1,0.85,0.2)
-		"online":
-			text = "Status: online"
-			color = Color(0.3,1,0.3)
-		_:
-			text = "Status: offline"
-			color = Color(1,0.4,0.4)
-	server_status_label.text = text
-	server_status_label.add_theme_color_override("font_color", color)
+func _on_status_string_changed(status_str: String) -> void:
+	_set_status_visual(status_str)
+
+func _set_status_visual(key: String) -> void:
+	var entry: Dictionary = STATUS_UI.get(key, STATUS_UI["offline"])
+	server_status_label.text = entry["text"]
+	server_status_label.add_theme_color_override("font_color", entry["color"])
 
 func _on_connect_pressed() -> void:
 	var nm: Node = get_tree().root.get_node_or_null("NetworkManager")
