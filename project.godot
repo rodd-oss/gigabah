@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 NetworkManager="*res://scripts/network_manager.gd"
+ServerStatusProbe="*res://scripts/server_status_probe.gd"
 
 [debug]
 
