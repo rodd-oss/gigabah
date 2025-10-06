@@ -1,38 +1,19 @@
 extends Node
 
-signal connectivity_phase_changed(phase: String) # "offline" | "connecting" | "online"
-signal ping_updated(ms: int)
-
-const PORT: int = 25445
-const ADDRESS: String = "gigabuh.d.roddtech.ru"
-const PING_INTERVAL: float = 5.0
+signal connectivity_phase_changed(phase: String) # offline | connecting | online
 
 var peer: ENetMultiplayerPeer
-var _current_phase: String = "offline"
-var _last_ping_sent: int = 0
-var _ping_roundtrip_ms: int = -1
-var _ping_timer: Timer
+const ADDRESS: String = "gigabuh.d.roddtech.ru"
+const PORT: int = 25445
 
-func _set_phase(phase: String) -> void:
-	if _current_phase == phase:
-		return
-	_current_phase = phase
-	emit_signal("connectivity_phase_changed", _current_phase)
-
-func get_current_phase() -> String:
-	return _current_phase
-
-func get_last_ping_ms() -> int:
-	return _ping_roundtrip_ms
+var _phase: String = "offline"
 
 func _ready() -> void:
-	_set_phase("offline")
+	# Dedicated server стартует сразу. Клиент ждёт кнопку.
 	if OS.has_feature("dedicated_server"):
 		start_server()
-	elif OS.has_feature("client"):
-		start_client(ADDRESS)
 	else:
-		start_client("127.0.0.1")
+		_set_phase("offline")
 
 ## Start as server
 func start_server() -> void:
@@ -40,12 +21,10 @@ func start_server() -> void:
 	var err: int = peer.create_server(PORT)
 	if err != OK:
 		print("[NetworkManager] create_server error %d" % err)
-		_set_phase("offline")
 		return
 	multiplayer.multiplayer_peer = peer
 	_set_phase("online")
 	print("Server started on port %d" % PORT)
-	_start_ping_timer(true)
 
 ## Start as client
 func start_client(address: String) -> void:
@@ -66,11 +45,28 @@ func start_client(address: String) -> void:
 func _on_connected_to_server() -> void:
 	_set_phase("online")
 	print("Connected to server.")
-	_start_ping_timer(false)
 
 func _on_connection_failed() -> void:
 	_set_phase("offline")
 	print("Failed to connect to server.")
 
 func _on_server_disconnected() -> void:
-	print("Disconnected from server.") 
+	print("Disconnected from server.")
+	_set_phase("offline")
+	multiplayer.multiplayer_peer = null
+	peer = null
+
+func request_client_connect(address: String = ADDRESS) -> void:
+	if _phase != "offline":
+		print("[NetworkManager] Ignoring connect request in phase %s" % _phase)
+		return
+	start_client(address)
+
+func get_current_phase() -> String:
+	return _phase
+
+func _set_phase(p: String) -> void:
+	if _phase == p:
+		return
+	_phase = p
+	emit_signal("connectivity_phase_changed", _phase)
