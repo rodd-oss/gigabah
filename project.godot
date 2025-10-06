@@ -25,6 +25,10 @@ ServerStatusProbe="*res://scripts/server_status_probe.gd"
 gdscript/warnings/untyped_declaration=1
 gdscript/warnings/inferred_declaration=1
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/qodot/plugin.cfg")
+
 [input]
 
 move_forward={
