@@ -383,14 +383,13 @@ func _markdown_to_basic_bbcode(md: String, version: String) -> String:
 			out.append(trimmed)
 	return "\n".join(out)
 
-func _score_platform_asset(name: String) -> int:
+func _score_platform_asset(asset_name: String) -> int:
 	# Чем меньше score — тем выше приоритет
 	for i in range(PLATFORM_PRIORITY.size()):
 		var key = PLATFORM_PRIORITY[i]
 		if key == "":
-			# Пустая строка = универсальный fallback (возьмётся если ничего лучше не найдено)
-			return i + 50 # сдвиг чтобы любой явный матч был лучше
-		if name.contains(key):
+			return i + 50
+		if asset_name.contains(key):
 			return i
 	return 1000
 
