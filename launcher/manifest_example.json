@@ -1,0 +1,17 @@
+{
+  "game_version": "0.1.0",
+  "changelog_bbcode": "[b]0.1.0[/b]\n- Initial public build\n- Multiplayer basics\n- Projectiles & HP sync",
+  "package": {
+    "url": "https://example.com/gigabah/builds/windows/gigabah_0.1.0.zip",
+    "size": 12345678,
+    "sha256": "DEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF"
+  },
+  "executable": "Godessa.exe",
+  "patches": {
+    "0.0.9": {
+      "url": "https://example.com/gigabah/builds/windows/patch_0.0.9_to_0.1.0.zip",
+      "size": 234567,
+      "sha256": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    }
+  }
+}

@@ -1,0 +1,97 @@
+[gd_scene load_steps=4 format=3 uid="uid://launcher_scene_001"]
+
+[ext_resource type="Script" path="res://scripts/launcher.gd" id="1_x8h2l"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="2_icon"]
+
+[node name="Launcher" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_x8h2l")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Header" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Icon" type="TextureRect" parent="Margin/VBox/Header"]
+layout_mode = 2
+texture = ExtResource("2_icon")
+expand_mode = 1
+stretch_mode = 4
+size_flags_horizontal = 0
+custom_minimum_size = Vector2(64, 64)
+
+[node name="TitleBox" type="VBoxContainer" parent="Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="Margin/VBox/Header/TitleBox"]
+layout_mode = 2
+text = "Gigabah"
+
+[node name="LocalVersionLabel" type="Label" parent="Margin/VBox/Header/TitleBox"]
+layout_mode = 2
+text = "Local Version: -"
+
+[node name="RemoteVersionLabel" type="Label" parent="Margin/VBox/Header/TitleBox"]
+layout_mode = 2
+text = "Remote Version: -"
+
+[node name="StatusLabel" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "Инициализация..."
+
+[node name="ProgressBar" type="ProgressBar" parent="Margin/VBox"]
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+value = 0.0
+size_flags_horizontal = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="UpdateButton" type="Button" parent="Margin/VBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Обновить"
+disabled = true
+
+[node name="LaunchButton" type="Button" parent="Margin/VBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Запустить игру"
+disabled = true
+
+[node name="ChangelogLabel" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "Changelog:"
+
+[node name="Changelog" type="RichTextLabel" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_active = true
+scroll_following = false
+
+[node name="HTTPRequest" type="HTTPRequest" parent="."]
