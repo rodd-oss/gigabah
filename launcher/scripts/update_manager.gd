@@ -45,6 +45,9 @@ var is_update_available: bool = false
 # Данные выбранного ассета релиза (ZIP сборка)
 var _release_asset_url: String = ""
 var _release_asset_size: int = 0
+const PLATFORM_PRIORITY: Array[String] = [
+	"win64", "windows", "win", "x64", "64", "" # последний пустой = любой ZIP fallback
+]
 
 # Кеш выбранного исполняемого файла, чтобы не искать каждый раз
 var _cached_exe_path: String = ""
@@ -282,18 +285,24 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 		var bbcode = _markdown_to_basic_bbcode(body_md, remote_version)
 		emit_signal("versions_known", local_version, remote_version)
 		emit_signal("changelog_received", bbcode)
-		# Выбор ZIP ассета
+		# Выбор ZIP ассета с приоритетом по платформе
 		_release_asset_url = ""
 		_release_asset_size = 0
+		var chosen_score := 9999
 		var assets = manifest.get("assets", [])
 		if typeof(assets) == TYPE_ARRAY:
 			for a in assets:
-				if typeof(a) == TYPE_DICTIONARY:
-					var asset_name = str(a.get("name", ""))
-					if asset_name.to_lower().ends_with(".zip"):
-						_release_asset_url = str(a.get("browser_download_url", ""))
-						_release_asset_size = int(a.get("size", 0))
-						break
+				if typeof(a) != TYPE_DICTIONARY:
+					continue
+				var asset_name: String = str(a.get("name", ""))
+				var lower = asset_name.to_lower()
+				if not lower.ends_with(".zip"):
+					continue
+				var score = _score_platform_asset(lower)
+				if score < chosen_score:
+					chosen_score = score
+					_release_asset_url = str(a.get("browser_download_url", ""))
+					_release_asset_size = int(a.get("size", 0))
 		if _release_asset_url == "":
 			_emit_status("Не найден ZIP asset в релизе")
 			return
@@ -373,6 +382,20 @@ func _markdown_to_basic_bbcode(md: String, version: String) -> String:
 		else:
 			out.append(trimmed)
 	return "\n".join(out)
+
+func _score_platform_asset(name: String) -> int:
+	# Чем меньше score — тем выше приоритет
+	for i in range(PLATFORM_PRIORITY.size()):
+		var key = PLATFORM_PRIORITY[i]
+		if key == "":
+			# Пустая строка = универсальный fallback (возьмётся если ничего лучше не найдено)
+			return i + 50 # сдвиг чтобы любой явный матч был лучше
+		if name.contains(key):
+			return i
+	return 1000
+
+func is_downloading() -> bool:
+	return _downloading
 
 func _unpack_zip_to_game(zip_path: String) -> bool:
 	var reader = ZIPReader.new()

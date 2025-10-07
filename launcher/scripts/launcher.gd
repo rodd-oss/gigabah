@@ -13,6 +13,8 @@ var update_manager: Node
 func _ready() -> void:
 	update_manager = load("res://scripts/update_manager.gd").new()
 	add_child(update_manager)
+	# До первой проверки блокируем запуск
+	launch_button.disabled = true
 	update_manager.connect("status_changed", _on_status_changed)
 	update_manager.connect("progress_changed", _on_progress_changed)
 	update_manager.connect("versions_known", _on_versions_known)
@@ -32,19 +34,21 @@ func _on_progress_changed(pct: float) -> void:
 func _on_versions_known(local_v: String, remote_v: String) -> void:
 	local_version_label.text = "Local Version: %s" % local_v
 	remote_version_label.text = "Remote Version: %s" % remote_v
-	# enable launch if versions same
-	if local_v == remote_v:
+	# После первой успешной загрузки информации — если не начато обновление, разрешаем запуск
+	if not update_manager.is_downloading():
 		launch_button.disabled = false
 
 func _on_update_available(new_version: String) -> void:
 	update_button.disabled = false
-	launch_button.disabled = true
+	launch_button.disabled = true # блокируем на время обновления
 	status_label.text = "Доступно обновление: %s" % new_version
 
 func _on_update_finished(success: bool, message: String) -> void:
 	status_label.text = message
 	update_button.disabled = true
-	launch_button.disabled = not success
+	# После завершения (удачно или нет) разрешаем запуск, если есть хоть какой-то локальный exe
+	var have_exe = update_manager.get_game_executable_path() != ""
+	launch_button.disabled = not have_exe
 
 func _on_changelog_received(text_bbcode: String) -> void:
 	changelog.clear()
