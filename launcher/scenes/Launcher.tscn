@@ -1,7 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://launcher_scene_001"]
+[gd_scene load_steps=4 format=3]
 
-[ext_resource type="Script" path="res://scripts/launcher.gd" id="1_x8h2l"]
-[ext_resource type="Texture2D" path="res://icon.svg" id="2_icon"]
+[ext_resource type="Script" uid="uid://dhp8gs18lbnso" path="res://scripts/launcher.gd" id="1_x8h2l"]
+[ext_resource type="Texture2D" uid="uid://cn84q2oq3erph" path="res://icon.svg" id="2_icon"]
 
 [node name="Launcher" type="Control"]
 layout_mode = 3
