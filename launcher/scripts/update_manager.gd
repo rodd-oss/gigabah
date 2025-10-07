@@ -1,15 +1,6 @@
 extends Node
 
-## Update / Launch Manager
-## Основные задачи:
-## 1. Определить локальную версию (если есть) и разрешить запуск игры.
-## 2. (Когда включено) Загрузить manifest.json, сравнить версии и скачать обновление (полный ZIP или патч).
-## 3. Предоставить путь к .exe для запуска.
-##
-## Текущая реализация использует HTTPRequest (Godot 4.5). Прогресс скачивания
-## через streaming недоступен (нет сигнала request_progress в используемой сборке),
-## поэтому progress обновляется только при завершении скачивания (0% -> 100%).
-## Для детализированного прогресса потребуется ручной HTTPClient и мелкоблочное чтение.
+## Update / Launch Manager (GitHub Releases): получает latest release, скачивает первый ZIP asset и распаковывает.
 
 signal status_changed(text: String)
 signal progress_changed(percent: float)
@@ -22,42 +13,38 @@ const GAME_DIR := "game"
 const VERSION_FILE := GAME_DIR + "/version.json"
 const TEMP_DIR := "launcher_tmp"
 const DOWNLOAD_FILE := TEMP_DIR + "/package.zip"
-const MANIFEST_URL := "https://example.com/gigabah/manifest.json" # TODO: replace
+## желательно использовать формат SemVer с префиксом v (например v0.1.0) или без.
+const GITHUB_OWNER := "rodd-oss"
+const GITHUB_REPO := "gigabah"
+# Нельзя формировать const через % (не константное выражение) — используем шаблон и собираем позже
+const GITHUB_RELEASE_LATEST_API_TEMPLATE := "https://api.github.com/repos/%s/%s/releases/latest"
+var GITHUB_RELEASE_LATEST_API: String = "" # инициализируется в _ready
 const DEBUG_LOG := true # установить false чтобы отключить отладочные print
 
-# Offline / no-update mode toggle. If true, лаунчер не будет делать сетевые запросы,
-# просто попытается обнаружить уже лежащую игру в папке game/ и разрешит запуск.
-const ENABLE_UPDATES := false # По умолчанию включаем обновления; установить false для оффлайн режима
+# Offline / no-update mode toggle.
+const ENABLE_UPDATES := true
 
 # Retry/timeout configuration
 const MAX_RETRIES := 3
 const RETRY_DELAY_SEC := 2.0
-const REQUEST_TIMEOUT_SEC := 40.0
 
-# Differential patch support (scaffold):
-# Manifest may contain section:
-#   "patches": {
-#       "0.1.0": { "url": ".../patch_0.1.0_to_0.1.1.zip", "sha256": "...", "size": 12345 }
-#   }
-# If local_version in patches -> download patch first, apply (overlay) then mark updated.
-
-enum DownloadMode { MANIFEST, FULL_PACKAGE, PATCH }
-var _current_mode: DownloadMode = DownloadMode.MANIFEST
+enum DownloadMode { RELEASE_INFO, FULL_PACKAGE }
+var _current_mode: DownloadMode = DownloadMode.RELEASE_INFO
 var _active_url: String = ""
 var _retry_count: int = 0
 var _request_start_time: float = 0.0
 
 # Track file size for progress (if provided by manifest or Content-Length)
 var _expected_size: int = 0
-var _received_bytes: int = 0
 
-# Buffer for streaming download (manual accumulation to show progressive progress)
-var _stream_buffer: PackedByteArray = PackedByteArray()
-
-var manifest: Dictionary
+var manifest: Dictionary # Больше не является ручным manifest.json — это raw JSON ответа GitHub release
 var local_version: String = "0.0.0"
 var remote_version: String = "?"
 var is_update_available: bool = false
+
+# Данные выбранного ассета релиза (ZIP сборка)
+var _release_asset_url: String = ""
+var _release_asset_size: int = 0
 
 # Кеш выбранного исполняемого файла, чтобы не искать каждый раз
 var _cached_exe_path: String = ""
@@ -72,10 +59,10 @@ const PREFERRED_EXE_NAMES: Array[String] = [
 
 var http: HTTPRequest
 var _downloading: bool = false
-var _download_started_time: float = 0.0
-var _download_label: String = ""
 
 func _ready() -> void:
+	# Собираем конечный URL releases/latest
+	GITHUB_RELEASE_LATEST_API = GITHUB_RELEASE_LATEST_API_TEMPLATE % [GITHUB_OWNER, GITHUB_REPO]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://" + TEMP_DIR))
 	http = HTTPRequest.new()
 	add_child(http)
@@ -101,57 +88,39 @@ func start_check() -> void:
 			emit_signal("versions_known", local_version, local_version)
 			_emit_status("Оффлайн режим: положите сборку в папку game/")
 		return
-	_emit_status("Загрузка манифеста...")
-	_current_mode = DownloadMode.MANIFEST
-	_active_url = MANIFEST_URL
-	_start_request(MANIFEST_URL)
+	_emit_status("Запрос последних Releases...")
+	_current_mode = DownloadMode.RELEASE_INFO
+	_active_url = GITHUB_RELEASE_LATEST_API
+	_start_request(GITHUB_RELEASE_LATEST_API)
 
 func download_and_apply_update() -> void:
 	if not is_update_available:
 		_emit_status("Обновление не требуется")
 		return
-	if manifest.is_empty():
-		_emit_status("Манифест пуст")
+	if _release_asset_url.is_empty():
+		_emit_status("Asset ZIP не выбран")
 		return
-	var pkg: Dictionary = manifest.get("package", {})
-	var url: String = pkg.get("url", "")
-	if url.is_empty():
-		_emit_status("URL пакета отсутствует")
-		return
-	_emit_status("Скачивание пакета...")
+	_emit_status("Скачивание пакета версии %s..." % remote_version)
 	_current_mode = DownloadMode.FULL_PACKAGE
-	_active_url = url
-	_start_request(url, true, int(pkg.get("size", 0)))
+	_active_url = _release_asset_url
+	_start_request(_release_asset_url, true, _release_asset_size)
 
 func _try_download_patch_if_available() -> bool:
-	if not manifest.has("patches"):
-		return false
-	var patches: Dictionary = manifest["patches"]
-	if not patches.has(local_version):
-		return false
-	var p: Dictionary = patches[local_version]
-	var p_url: String = p.get("url", "")
-	if p_url.is_empty():
-		return false
-	_emit_status("Скачивание патча с версии %s..." % local_version)
-	_current_mode = DownloadMode.PATCH
-	_active_url = p_url
-	_start_request(p_url, true, int(p.get("size", 0)))
-	return true
+	return false
 
-func _start_request(url: String, _binary: bool=false, expected_size: int=0) -> void: # _binary не используется
+func _start_request(url: String, _binary: bool=false, expected_size: int=0) -> void:
 	_expected_size = expected_size
-	_received_bytes = 0
-	_stream_buffer.clear()
 	_retry_count = 0
 	_downloading = true
-	_download_started_time = Time.get_unix_time_from_system()
-	_download_label = url
 	_issue_request(url)
 
 func _issue_request(url: String) -> void:
 	_request_start_time = Time.get_unix_time_from_system()
-	var err = http.request(url)
+	var headers: PackedStringArray = [
+		"User-Agent: GigabahLauncher",
+		"Accept: application/vnd.github+json"
+	]
+	var err = http.request(url, headers)
 	if err != OK:
 		_emit_status("Ошибка запроса: %s" % err)
 		_schedule_retry()
@@ -180,16 +149,7 @@ func get_game_executable_path() -> String:
 
 	_debug("Начинаю поиск exe...")
 
-	# 1. Попытка: указанный в манифесте относительный путь внутри res://game
-	if manifest.has("executable"):
-		var rel = manifest["executable"]
-		var candidate_res = "res://" + GAME_DIR + "/" + rel
-		if FileAccess.file_exists(candidate_res):
-			_cached_exe_path = ProjectSettings.globalize_path(candidate_res)
-			_debug("Нашёл через manifest.executable: %s" % _cached_exe_path)
-			return _cached_exe_path
-
-	# 2. Поиск в стандартной папке res://game
+	# Поиск в стандартной папке res://game
 	var found := _find_exe_in_folder("res://" + GAME_DIR)
 	if found != "":
 		_cached_exe_path = ProjectSettings.globalize_path(found)
@@ -300,36 +260,46 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 		return
 	var content_type = _get_header_value(headers, "content-type")
 	if content_type.contains("application/zip"):
-		# For large files we rely on streaming progress; final body holds all data.
 		_save_download(body)
 		await get_tree().process_frame
-		if _current_mode == DownloadMode.PATCH:
-			if not _apply_patch_zip("res://" + DOWNLOAD_FILE):
-				_emit_status("Ошибка применения патча, скачиваем полный пакет...")
-				# Fall back to full package
-				download_and_apply_update()
-				return
-			_write_local_version(remote_version)
-			_emit_status("Патч установлен")
-			emit_signal("update_finished", true, "Патч установлен")
-		else:
-			_verify_and_install()
+		_verify_and_install()
 	else:
 		var text = body.get_string_from_utf8()
 		var data = JSON.parse_string(text)
 		if typeof(data) != TYPE_DICTIONARY:
-			_emit_status("Некорректный JSON манифеста")
+			_emit_status("Некорректный JSON ответа")
 			return
 		manifest = data
-		remote_version = manifest.get("game_version", "?")
+		# GitHub release fields: tag_name, body, assets[]
+		var tag_name: String = str(manifest.get("tag_name", "?"))
+		# Убираем возможный префикс 'v'
+		if tag_name.begins_with("v") and tag_name.length() > 1:
+			remote_version = tag_name.substr(1, tag_name.length() - 1)
+		else:
+			remote_version = tag_name
+		# Преобразуем markdown body в простой BBCode (минимально)
+		var body_md: String = str(manifest.get("body", ""))
+		var bbcode = _markdown_to_basic_bbcode(body_md, remote_version)
 		emit_signal("versions_known", local_version, remote_version)
-		emit_signal("changelog_received", manifest.get("changelog_bbcode", "[i]Нет изменений[/i]"))
+		emit_signal("changelog_received", bbcode)
+		# Выбор ZIP ассета
+		_release_asset_url = ""
+		_release_asset_size = 0
+		var assets = manifest.get("assets", [])
+		if typeof(assets) == TYPE_ARRAY:
+			for a in assets:
+				if typeof(a) == TYPE_DICTIONARY:
+					var asset_name = str(a.get("name", ""))
+					if asset_name.to_lower().ends_with(".zip"):
+						_release_asset_url = str(a.get("browser_download_url", ""))
+						_release_asset_size = int(a.get("size", 0))
+						break
+		if _release_asset_url == "":
+			_emit_status("Не найден ZIP asset в релизе")
+			return
 		if _version_is_newer(remote_version, local_version):
 			is_update_available = true
 			emit_signal("update_available", remote_version)
-			# Try differential patch first
-			if _try_download_patch_if_available():
-				return
 			_emit_status("Обновление доступно")
 		else:
 			_emit_status("Актуальная версия")
@@ -347,15 +317,7 @@ func _save_download(bytes: PackedByteArray) -> void:
 		_emit_status("Не удалось сохранить пакет")
 
 func _verify_and_install() -> void:
-	_emit_status("Проверка пакета...")
-	var pkg: Dictionary = manifest.get("package", {})
-	var expected_hash: String = pkg.get("sha256", "")
-	if expected_hash != "":
-		var real_hash = _sha256_file("res://" + DOWNLOAD_FILE)
-		if real_hash.to_lower() != expected_hash.to_lower():
-			_emit_status("Хэш не совпадает")
-			emit_signal("update_finished", false, "Ошибка проверки хэша")
-			return
+	# Для GitHub Releases пока нет встроенной проверки SHA-256 (можно добавить, если опубликовать *.sha256)
 	_emit_status("Распаковка...")
 	var ok = _unpack_zip_to_game("res://" + DOWNLOAD_FILE)
 	if not ok:
@@ -393,15 +355,24 @@ func _version_is_newer(remote: String, local: String) -> bool:
 			return false
 	return false
 
-func _sha256_file(path: String) -> String:
-	var f = FileAccess.open(path, FileAccess.READ)
-	if f:
-		var ctx = HashingContext.new()
-		ctx.start(HashingContext.HASH_SHA256)
-		ctx.update(f.get_buffer(f.get_length()))
-		var res = ctx.finish()
-		return res.hex_encode()
-	return ""
+func _markdown_to_basic_bbcode(md: String, version: String) -> String:
+	if md.is_empty():
+		return "[b]%s[/b]\nНет описания изменений." % version
+	var lines = md.split('\n')
+	var out: Array[String] = []
+	for line in lines:
+		var trimmed = line.strip_edges()
+		if trimmed.begins_with("### "):
+			out.append("[b]%s[/b]" % trimmed.substr(4, trimmed.length()))
+		elif trimmed.begins_with("## "):
+			out.append("[b]%s[/b]" % trimmed.substr(3, trimmed.length()))
+		elif trimmed.begins_with("# "):
+			out.append("[center][b]%s[/b][/center]" % trimmed.substr(2, trimmed.length()))
+		elif trimmed.begins_with("-") or trimmed.begins_with("*"):
+			out.append("• " + trimmed.lstrip("-* "))
+		else:
+			out.append(trimmed)
+	return "\n".join(out)
 
 func _unpack_zip_to_game(zip_path: String) -> bool:
 	var reader = ZIPReader.new()
@@ -424,27 +395,7 @@ func _unpack_zip_to_game(zip_path: String) -> bool:
 	reader.close()
 	return true
 
-# Apply differential patch ZIP: overlay files into game directory.
-func _apply_patch_zip(zip_path: String) -> bool:
-	var reader = ZIPReader.new()
-	var err = reader.open(zip_path)
-	if err != OK:
-		return false
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://" + GAME_DIR))
-	for file_path in reader.get_files():
-		if file_path.ends_with('/'):
-			continue
-		var data: PackedByteArray = reader.read_file(file_path)
-		var target_rel = GAME_DIR + "/" + file_path
-		var target_dir_rel = target_rel.get_base_dir()
-		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://" + target_dir_rel))
-		var out_f = FileAccess.open(target_rel, FileAccess.WRITE)
-		if not out_f:
-			return false
-		out_f.store_buffer(data)
-		out_f.close()
-	reader.close()
-	return true
+##
 
 func _get_header_value(headers: PackedStringArray, key: String) -> String:
 	var key_l = key.to_lower()
