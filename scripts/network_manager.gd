@@ -34,11 +34,21 @@ func start_server() -> void:
 	print("Server started on port %d" % PORT)
 
 func start_client(address: String) -> void:
+	# Clear previous client if it exists.
+	if peer:
+		close_connection()
 	peer = ENetMultiplayerPeer.new()
 	_set_status(ConnectionStatus.CONNECTING)
-	multiplayer.connected_to_server.connect(_on_connected_to_server, CONNECT_ONE_SHOT)
-	multiplayer.connection_failed.connect(_on_connection_failed, CONNECT_ONE_SHOT)
-	multiplayer.server_disconnected.connect(_on_server_disconnected, CONNECT_ONE_SHOT)
+	# Connect signals once (guard against duplicates).
+	var connected_cb: Callable = Callable(self, "_on_connected_to_server")
+	var failed_cb: Callable = Callable(self, "_on_connection_failed")
+	var disconnected_cb: Callable = Callable(self, "_on_server_disconnected")
+	if not multiplayer.connected_to_server.is_connected(connected_cb):
+		multiplayer.connected_to_server.connect(connected_cb)
+	if not multiplayer.connection_failed.is_connected(failed_cb):
+		multiplayer.connection_failed.connect(failed_cb)
+	if not multiplayer.server_disconnected.is_connected(disconnected_cb):
+		multiplayer.server_disconnected.connect(disconnected_cb)
 	var err: int = peer.create_client(address, PORT)
 	if err != OK:
 		print("[NetworkManager] create_client error %d" % err)
@@ -139,9 +149,8 @@ func _on_server_disconnected() -> void:
 
 func close_connection() -> void:
 	"""Close current ENet peer and reset state to OFFLINE (idempotent)."""
-	if not peer:
-		return
-	peer.close()
+	if peer:
+		peer.close()
 	multiplayer.multiplayer_peer = null
 	peer = null
 	_cancel_ping_loop()

@@ -27,7 +27,7 @@ gdscript/warnings/inferred_declaration=1
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/qodot/plugin.cfg")
+enabled=PackedStringArray()
 
 [input]
 
