@@ -1,12 +1,8 @@
 extends CharacterBody3D
 
 @export var SPEED: float = 5.0
-@export var JUMP_VELOCITY: float = 4.5
 
 @export var camera: Camera3D = null
-
-var move_direction: Vector2 = Vector2.ZERO
-var jump_input: bool = false
 
 # === RTS CONTROL ===
 @onready var nav_agent: NavigationAgent3D = $NavigationAgent3D if has_node("NavigationAgent3D") else null
@@ -15,10 +11,24 @@ var is_moving_to_target: bool = false
 var use_simple_movement: bool = true  # Простое движение без навигации
 @export var force_simple_movement: bool = true  # Принудительно использовать простое движение
 
+# === DIRECTION INDICATOR ===
+@onready var direction_indicator: MeshInstance3D = null
+
+# === HEALTH SYSTEM ===
+@export var max_health: float = 100.0
+var current_health: float = 100.0
+var health_bar: Node3D = null
+
 func _ready() -> void:
 	# Добавляем в группу units для RTS контроллера
 	add_to_group("units")
 	print("Player: Added to 'units' group, name = ", name)
+	
+	# Создаём индикатор направления
+	create_direction_indicator()
+	
+	# Создаём healthbar
+	create_health_bar()
 	
 	# Настройка навигационного агента
 	if nav_agent:
@@ -43,6 +53,56 @@ func _ready() -> void:
 		print("Player: WARNING - NavigationAgent3D not found! Using simple movement.")
 		use_simple_movement = true
 
+
+func create_direction_indicator() -> void:
+	"""Создаёт визуальный индикатор направления взгляда игрока"""
+	# Создаём узел для индикатора
+	direction_indicator = MeshInstance3D.new()
+	add_child(direction_indicator)
+	
+	# Создаём конусообразную стрелку
+	var cone_mesh: CylinderMesh = CylinderMesh.new()
+	cone_mesh.top_radius = 0.0  # Острый верх
+	cone_mesh.bottom_radius = 0.3  # Широкое основание
+	cone_mesh.height = 0.8
+	
+	direction_indicator.mesh = cone_mesh
+	
+	# Создаём яркий материал для индикатора
+	var material: StandardMaterial3D = StandardMaterial3D.new()
+	material.albedo_color = Color(1.0, 0.8, 0.0, 0.8)  # Жёлто-оранжевый полупрозрачный
+	material.emission_enabled = true
+	material.emission = Color(1.0, 0.8, 0.0)
+	material.emission_energy_multiplier = 2.0
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	
+	direction_indicator.material_override = material
+	
+	# Позиционируем индикатор впереди игрока на уровне земли
+	direction_indicator.position = Vector3(0, 0.4, -1.0)  # Впереди на 1 метр
+	# Поворачиваем конус острым концом вперёд (конус направлен по умолчанию вверх, поворачиваем на 90 градусов)
+	direction_indicator.rotation_degrees = Vector3(-90, 0, 0)
+	
+	print("Player: Direction indicator created")
+
+
+func create_health_bar() -> void:
+	"""Создаёт полоску здоровья над игроком"""
+	# Загружаем скрипт HealthBar3D
+	var health_bar_script: Script = load("res://components/health_bar_3d.gd")
+	
+	# Создаём экземпляр healthbar
+	health_bar = Node3D.new()
+	health_bar.set_script(health_bar_script)
+	add_child(health_bar)
+	
+	# Устанавливаем начальное здоровье
+	health_bar.max_health = max_health
+	health_bar.current_health = current_health
+	
+	print("Player: Health bar created")
+
+
 func _enter_tree() -> void:
 	# Always set authority to server (ID 1)
 	set_multiplayer_authority(1)
@@ -54,18 +114,8 @@ func _enter_tree() -> void:
 			camera.make_current()
 
 func _physics_process(delta: float) -> void:
-	if multiplayer.get_unique_id() == name.to_int() and multiplayer.get_unique_id() != 1:
-		# Client: send input to server
-		var new_move_direction: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-		if new_move_direction != move_direction:
-			move_direction = new_move_direction
-
-		var new_jump_input: bool = Input.is_action_just_pressed("ui_accept")
-		if new_jump_input != jump_input:
-			jump_input = new_jump_input
-
-		receive_input.rpc_id(1, new_move_direction, new_jump_input)
-
+	# Клиент больше не отправляет WASD ввод - только RTS управление через контроллер
+	
 	if multiplayer.is_server():
 		# === RTS MOVEMENT ===
 		if is_moving_to_target:
@@ -74,16 +124,14 @@ func _physics_process(delta: float) -> void:
 			elif nav_agent:
 				process_rts_movement(delta)
 		else:
-			# === KEYBOARD MOVEMENT ===
-			# Add the gravity.
-			if is_on_floor():
-				if jump_input:
-					velocity.y = JUMP_VELOCITY
-			else:
+			# Игрок стоит на месте
+			if not is_on_floor():
 				velocity += get_gravity() * delta
-
-			velocity.x = move_direction.x * SPEED
-			velocity.z = move_direction.y * SPEED
+			else:
+				velocity.y = 0
+			
+			velocity.x = 0
+			velocity.z = 0
 		
 		move_and_slide()
 
@@ -203,13 +251,11 @@ func _execute_move_to(target: Vector3) -> void:
 	if use_simple_movement:
 		# Простое движение без навигации
 		is_moving_to_target = true
-		move_direction = Vector2.ZERO
 		print("Player: Started simple movement to ", target)
 	elif nav_agent:
 		# Движение с навигацией
 		nav_agent.target_position = target
 		is_moving_to_target = true
-		move_direction = Vector2.ZERO
 		print("Player: Navigation started to ", target)
 	else:
 		print("Player: ERROR - Cannot move, no movement method available!")
@@ -220,17 +266,40 @@ func set_target_position(target: Vector3) -> void:
 	move_to(target)
 
 
-@rpc("any_peer")
-func receive_input(move_vec: Vector2, is_jumping: bool) -> void:
-	"""Called remotely by clients to send their input to the server."""
-	if multiplayer.is_server():
-		jump_input = is_jumping
-		
-		# Если есть ввод с клавиатуры - отменяем RTS движение и обновляем направление
-		if move_vec.length() > 0:
-			if is_moving_to_target:
-				print("Player: Keyboard input detected - cancelling RTS movement")
-			is_moving_to_target = false
-			move_direction = move_vec
-		# Если нет ввода с клавиатуры - НЕ трогаем move_direction
-		# (он может быть установлен в Vector2.ZERO для RTS движения)
+# === HEALTH METHODS ===
+func take_damage(amount: float) -> void:
+	"""Получить урон"""
+	if not multiplayer.is_server():
+		return
+	
+	current_health = max(0, current_health - amount)
+	
+	# Обновляем healthbar
+	if health_bar and health_bar.has_method("set_health"):
+		health_bar.set_health(current_health)
+	
+	print("Player: Took ", amount, " damage. Health: ", current_health, "/", max_health)
+	
+	# Проверка смерти
+	if current_health <= 0:
+		die()
+
+
+func heal(amount: float) -> void:
+	"""Вылечиться"""
+	if not multiplayer.is_server():
+		return
+	
+	current_health = min(max_health, current_health + amount)
+	
+	# Обновляем healthbar
+	if health_bar and health_bar.has_method("set_health"):
+		health_bar.set_health(current_health)
+	
+	print("Player: Healed ", amount, ". Health: ", current_health, "/", max_health)
+
+
+func die() -> void:
+	"""Обработка смерти игрока"""
+	print("Player: Died!")
+	# Здесь можно добавить логику смерти (анимация, респавн и т.д.)
