@@ -103,7 +103,7 @@ func _find_health_bar() -> void:
 	if not health_bar:
 		push_warning("NetworkHP: Health bar not found at path: ", health_bar_path)
 		if get_parent():
-			for child in get_parent().get_children():
+			for child: Node in get_parent().get_children():
 				print("  - ", child.name, " (", child.get_class(), ")")
 		return
 	

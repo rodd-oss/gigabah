@@ -1,157 +1,100 @@
 extends Node
 
-signal connectivity_status_changed(status: int)
-signal ping_updated(ms: int)
-
-const ADDRESS: String = "gigabuh.d.roddtech.ru"
-const PORT: int = 25445
-const PING_INTERVAL_SEC: float = 2.0
-
-enum ConnectionStatus { OFFLINE, CONNECTING, ONLINE }
 
 var peer: ENetMultiplayerPeer
-var _status: ConnectionStatus = ConnectionStatus.OFFLINE
-var _last_ping_ms: int = -1
-var _ping_timer: SceneTreeTimer
-var _pending_ping_sent_ms: int = -1
+const ADDRESS: String = "gigabuh.d.roddtech.ru"
+const PORT: int = 25445
+
+# Pending client connect request (address queued until gameplay scene is present)
+var _pending_client_address: String = ""
+signal client_connected()
+signal client_connection_failed()
 
 func _ready() -> void:
+	print_debug("[NetworkManager] _ready() called")
+	# Dedicated server needs to load the game scene first, then start server
 	if OS.has_feature("dedicated_server"):
-		start_server()
+		print_debug("[NetworkManager] Detected dedicated_server feature - loading game scene then starting server")
+		call_deferred("_start_dedicated_server")
 	else:
-		_set_status(ConnectionStatus.OFFLINE)
+		print_debug("[NetworkManager] Client mode - waiting for Connect button")
 
+func _start_dedicated_server() -> void:
+	get_tree().change_scene_to_file("res://scenes/index.tscn")
+	call_deferred("start_server")
+
+## Start as server
 func start_server() -> void:
 	peer = ENetMultiplayerPeer.new()
-	_set_status(ConnectionStatus.CONNECTING)
-	var err: int = peer.create_server(PORT)
-	if err != OK:
-		print("[NetworkManager] create_server error %d" % err)
-		_set_status(ConnectionStatus.OFFLINE)
-		return
+	peer.create_server(PORT)
 	multiplayer.multiplayer_peer = peer
-	_set_status(ConnectionStatus.ONLINE)
-	print("Server started on port %d" % PORT)
+	print("[NetworkManager] Server started on port %d" % PORT)
 
+## Start as client
 func start_client(address: String) -> void:
-	# Clear previous client if it exists.
-	if peer:
-		close_connection()
+	print_debug("[NetworkManager] start_client(%s:%d)" % [address, PORT])
 	peer = ENetMultiplayerPeer.new()
-	_set_status(ConnectionStatus.CONNECTING)
-	# Connect signals once (guard against duplicates).
-	var connected_cb: Callable = Callable(self, "_on_connected_to_server")
-	var failed_cb: Callable = Callable(self, "_on_connection_failed")
-	var disconnected_cb: Callable = Callable(self, "_on_server_disconnected")
-	if not multiplayer.connected_to_server.is_connected(connected_cb):
-		multiplayer.connected_to_server.connect(connected_cb)
-	if not multiplayer.connection_failed.is_connected(failed_cb):
-		multiplayer.connection_failed.connect(failed_cb)
-	if not multiplayer.server_disconnected.is_connected(disconnected_cb):
-		multiplayer.server_disconnected.connect(disconnected_cb)
-	var err: int = peer.create_client(address, PORT)
-	if err != OK:
-		print("[NetworkManager] create_client error %d" % err)
-		_set_status(ConnectionStatus.OFFLINE)
-		return
+	peer.create_client(address, PORT)
 	multiplayer.multiplayer_peer = peer
-	print("Connecting to %s:%d..." % [address, PORT])
+	multiplayer.connected_to_server.connect(_on_connected_to_server)
+	multiplayer.connection_failed.connect(_on_connection_failed)
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	print("[NetworkManager] Connecting to %s:%d..." % [address, PORT])
 
-func request_client_connect(address: String = ADDRESS) -> void:
-	if _status != ConnectionStatus.OFFLINE:
-		print("[NetworkManager] Ignoring connect request in status %s" % str(_status))
+## Request a client connection after a scene change
+func request_client_connect(address: String) -> void:
+	print_debug("[NetworkManager] request_client_connect(%s)" % address)
+	_pending_client_address = address
+	var tree: SceneTree = get_tree()
+	if tree == null:
+		print_debug("[NetworkManager] ERROR: SceneTree is null")
 		return
+	# If scene already loaded, connect immediately
+	var current: Node = tree.current_scene
+	var scene_name: String = str(current.name) if current != null else "null"
+	print_debug("[NetworkManager] Current scene: %s" % scene_name)
+	if current and current.name == "Index3d":
+		print_debug("[NetworkManager] Index3d already loaded - connecting immediately")
+		_connect_if_pending()
+		return
+	# Otherwise listen for scene change (signal emits with no arguments)
+	print_debug("[NetworkManager] Waiting for scene_changed signal")
+	if not tree.scene_changed.is_connected(_on_scene_changed_for_connect):
+		tree.scene_changed.connect(_on_scene_changed_for_connect)
+
+func _on_scene_changed_for_connect() -> void:
+	print_debug("[NetworkManager] _on_scene_changed_for_connect() called")
+	var tree: SceneTree = get_tree()
+	if tree == null:
+		print_debug("[NetworkManager] ERROR: SceneTree is null in scene_changed handler")
+		return
+	var scene: Node = tree.current_scene
+	var scene_name_changed: String = str(scene.name) if scene != null else "null"
+	print_debug("[NetworkManager] Scene changed to: %s" % scene_name_changed)
+	if scene and scene.name == "Index3d":
+		print_debug("[NetworkManager] Index3d detected - initiating connection")
+		_connect_if_pending()
+		if tree.scene_changed.is_connected(_on_scene_changed_for_connect):
+			tree.scene_changed.disconnect(_on_scene_changed_for_connect)
+			print_debug("[NetworkManager] Disconnected from scene_changed signal")
+
+func _connect_if_pending() -> void:
+	if _pending_client_address == "":
+		print_debug("[NetworkManager] No pending address - skipping connect")
+		return
+	var address: String = _pending_client_address
+	_pending_client_address = ""
+	print_debug("[NetworkManager] Executing pending connection to %s" % address)
 	start_client(address)
 
-func get_status() -> ConnectionStatus:
-	return _status
-
-func get_status_string() -> String:
-	match _status:
-		ConnectionStatus.CONNECTING:
-			return "connecting"
-		ConnectionStatus.ONLINE:
-			return "online"
-		_:
-			return "offline"
-
-
-func _set_status(s: ConnectionStatus) -> void:
-	if _status == s:
-		return
-	_status = s
-	emit_signal("connectivity_status_changed", _status)
-
-func get_last_ping_ms() -> int:
-	return _last_ping_ms
-
-func _start_ping_loop() -> void:
-	_cancel_ping_loop()
-	_schedule_next_ping()
-
-func _schedule_next_ping() -> void:
-	_ping_timer = get_tree().create_timer(PING_INTERVAL_SEC)
-	_ping_timer.timeout.connect(_on_ping_timer, CONNECT_ONE_SHOT)
-
-func _cancel_ping_loop() -> void:
-	_ping_timer = null
-	_pending_ping_sent_ms = -1
-
-func _on_ping_timer() -> void:
-	if _status != ConnectionStatus.ONLINE:
-		return
-	_send_ping()
-	_schedule_next_ping()
-
-@rpc
-func _rpc_ping(sent_ms: int) -> void:
-	if not multiplayer.is_server():
-		return
-	var sender_id: int = multiplayer.get_remote_sender_id()
-	if sender_id <= 0:
-		return
-	rpc_id(sender_id, "_rpc_pong", sent_ms)
-
-@rpc
-func _rpc_pong(sent_ms: int) -> void:
-	if multiplayer.is_server():
-		return
-	if _pending_ping_sent_ms != sent_ms:
-		return
-	var rtt: int = Time.get_ticks_msec() - sent_ms
-	_last_ping_ms = rtt
-	emit_signal("ping_updated", rtt)
-	_pending_ping_sent_ms = -1
-
-func _send_ping() -> void:
-	if multiplayer.is_server():
-		return
-	var now: int = Time.get_ticks_msec()
-	_pending_ping_sent_ms = now
-	rpc_id(1, "_rpc_ping", now) # Server has ID 1
-
+## Client connection handlers
 func _on_connected_to_server() -> void:
-	_set_status(ConnectionStatus.ONLINE)
-	print("Connected to server.")
-	_start_ping_loop()
+	print("[NetworkManager] ✓ Connected to server successfully")
+	client_connected.emit()
 
 func _on_connection_failed() -> void:
-	_set_status(ConnectionStatus.OFFLINE)
-	print("Failed to connect to server.")
-	_cancel_ping_loop()
+	print("[NetworkManager] ✗ Connection failed")
+	client_connection_failed.emit()
 
 func _on_server_disconnected() -> void:
-	print("Disconnected from server.")
-	_set_status(ConnectionStatus.OFFLINE)
-	multiplayer.multiplayer_peer = null
-	peer = null
-	_cancel_ping_loop()
-
-func close_connection() -> void:
-	"""Close current ENet peer and reset state to OFFLINE (idempotent)."""
-	if peer:
-		peer.close()
-	multiplayer.multiplayer_peer = null
-	peer = null
-	_cancel_ping_loop()
-	_set_status(ConnectionStatus.OFFLINE)
+	print("[NetworkManager] Server disconnected")
