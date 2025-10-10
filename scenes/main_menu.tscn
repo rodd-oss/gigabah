@@ -1,0 +1,65 @@
+[gd_scene load_steps=2 format=3 uid="uid://bb1u28yniteh2"]
+
+[ext_resource type="Script" uid="uid://dj7ybfoxwp2w0" path="res://scripts/main_menu.gd" id="1_w2v8a"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_w2v8a")
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="Title" type="Label" parent="Center/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 54
+text = "GIGABAH"
+horizontal_alignment = 1
+
+[node name="ServerInfo" type="VBoxContainer" parent="Center/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ServerIdLabel" type="Label" parent="Center/VBox/ServerInfo"]
+layout_mode = 2
+text = "Server: #0001"
+horizontal_alignment = 1
+
+[node name="ServerStatusLabel" type="Label" parent="Center/VBox/ServerInfo"]
+layout_mode = 2
+text = "Status: offline"
+horizontal_alignment = 1
+
+[node name="PingLabel" type="Label" parent="Center/VBox/ServerInfo"]
+layout_mode = 2
+text = "Ping: -- ms"
+horizontal_alignment = 1
+
+[node name="ConnectButton" type="Button" parent="Center/VBox" groups=["ui"]]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Connection"
+
+[node name="SettingsButton" type="Button" parent="Center/VBox" groups=["ui"]]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Settings"
+
+[node name="ExitButton" type="Button" parent="Center/VBox" groups=["ui"]]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Exit"
