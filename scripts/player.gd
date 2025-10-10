@@ -79,8 +79,9 @@ func create_direction_indicator() -> void:
 	direction_indicator.material_override = material
 	
 	# Позиционируем индикатор впереди игрока на уровне земли
-	direction_indicator.position = Vector3(0, 0.4, -1.0)  # Впереди на 1 метр
-	# Поворачиваем конус острым концом вперёд (конус направлен по умолчанию вверх, поворачиваем на 90 градусов)
+	direction_indicator.position = Vector3(0, 0.4, -1.0)  # Впереди на 1 метр по оси -Z
+	# Поворачиваем конус острым концом вперёд
+	# По умолчанию конус направлен вверх (+Y), поворачиваем на -90° по X чтобы направить вперёд (-Z)
 	direction_indicator.rotation_degrees = Vector3(-90, 0, 0)
 	
 	print("Player: Direction indicator created")
