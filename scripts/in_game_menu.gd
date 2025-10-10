@@ -29,10 +29,11 @@ func _on_back_pressed() -> void:
 	_set_visible(false)
 
 func _on_disconnect_pressed() -> void:
-	var nm: Node = get_tree().root.get_node_or_null("NetworkManager")
-	if nm and nm.has_method("close_connection"):
-		nm.call("close_connection")
-	else:
-		print_debug("[InGameMenu] NetworkManager disconnect not available")
-	# Return to main menu scene
+	print_debug("[InGameMenu] Disconnect pressed - cleaning up multiplayer")
+	if multiplayer.multiplayer_peer:
+		multiplayer.multiplayer_peer.close()
+		multiplayer.multiplayer_peer = null
+		print_debug("[InGameMenu] Multiplayer peer closed and cleared")
+	
+	print_debug("[InGameMenu] Returning to main menu")
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
