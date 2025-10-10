@@ -4,7 +4,7 @@
 [ext_resource type="Material" uid="uid://cqnuidq68y17f" path="res://materials/player_material.tres" id="2_g2els"]
 [ext_resource type="Script" uid="uid://wwr4smb84bc0" path="res://components/network_position.gd" id="3_dqkch"]
 [ext_resource type="Script" uid="uid://bfhjfynop50wf" path="res://components/hp.gd" id="4_dqkch"]
-[ext_resource type="PackedScene" uid="uid://cikxs0fl5lnxf" path="res://features/health-bar/health_bar_3d.tscn" id="5_health"]
+[ext_resource type="PackedScene" uid="uid://bq8xk7ymh3lnx" path="res://components/health_bar_3d.tscn" id="5_health"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
 radius = 0.492748
@@ -61,10 +61,7 @@ target_desired_distance = 0.5
 [node name="NetworkHp" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_dqkch")
 script = ExtResource("4_dqkch")
-current_health = 50
+current_health = 100
 metadata/_custom_type_script = "uid://bfhjfynop50wf"
 
 [node name="HealthBar3D" parent="." instance=ExtResource("5_health")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 0)
-background_color = Color(0.6392157, 0.6392157, 0.6392157, 0.09803922)
-fill_color = Color(0.61960787, 0.9098039, 0.65882355, 0.5882353)

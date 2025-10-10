@@ -2,21 +2,21 @@ extends Node3D
 class_name HealthBar3D
 
 ## Визуальный индикатор здоровья в 3D пространстве
+## Работает совместно с NetworkHP компонентом
 
-@export var max_health: float = 100.0
-@export var current_health: float = 100.0
 @export var bar_width: float = 1.0
 @export var bar_height: float = 0.15
-@export var offset_y: float = 2.5  # Высота над игроком
 
 # Компоненты healthbar
 var background: MeshInstance3D
 var health_fill: MeshInstance3D
-var camera: Camera3D
+
+# Текущие значения здоровья
+var current_health: int = 100
+var max_health: int = 100
 
 func _ready() -> void:
 	create_health_bar()
-	update_health_display()
 
 
 func create_health_bar() -> void:
@@ -56,18 +56,22 @@ func create_health_bar() -> void:
 	# Небольшое смещение вперёд чтобы полоска была поверх фона
 	health_fill.position.z = -0.01
 	
-	# Позиционируем весь healthbar над игроком
-	position.y = offset_y
-	
-	print("HealthBar3D: Created health bar")
+	print("HealthBar3D: Created health bar with billboard mode")
+
+
+func update_health(new_health: int, new_max_health: int) -> void:
+	"""Обновляет здоровье (вызывается NetworkHP)"""
+	current_health = new_health
+	max_health = new_max_health
+	update_health_display()
 
 
 func update_health_display() -> void:
 	"""Обновляет визуальное отображение здоровья"""
-	if not health_fill:
+	if not health_fill or max_health <= 0:
 		return
 	
-	var health_percent: float = clamp(current_health / max_health, 0.0, 1.0)
+	var health_percent: float = clamp(float(current_health) / float(max_health), 0.0, 1.0)
 	
 	# Масштабируем полоску здоровья по X
 	health_fill.scale.x = health_percent
@@ -87,24 +91,11 @@ func update_health_display() -> void:
 			material.albedo_color = Color(1.0, 0.0, 0.0, 1.0)  # Красный
 
 
-func set_health(new_health: float) -> void:
-	"""Устанавливает текущее здоровье"""
-	current_health = clamp(new_health, 0.0, max_health)
-	update_health_display()
+func set_health(new_health: int) -> void:
+	"""Устанавливает текущее здоровье (для обратной совместимости)"""
+	update_health(new_health, max_health)
 
 
-func set_max_health(new_max: float) -> void:
-	"""Устанавливает максимальное здоровье"""
-	max_health = new_max
-	current_health = clamp(current_health, 0.0, max_health)
-	update_health_display()
-
-
-func damage(amount: float) -> void:
-	"""Наносит урон"""
-	set_health(current_health - amount)
-
-
-func heal(amount: float) -> void:
-	"""Лечит"""
-	set_health(current_health + amount)
+func set_max_health(new_max: int) -> void:
+	"""Устанавливает максимальное здоровье (для обратной совместимости)"""
+	update_health(current_health, new_max)

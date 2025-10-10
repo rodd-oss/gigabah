@@ -15,9 +15,8 @@ var use_simple_movement: bool = true  # Простое движение без �
 @onready var direction_indicator: MeshInstance3D = null
 
 # === HEALTH SYSTEM ===
-@export var max_health: float = 100.0
-var current_health: float = 100.0
-var health_bar: Node3D = null
+# Healthbar управляется через NetworkHP компонент в сцене
+@onready var network_hp: NetworkHP = $NetworkHp if has_node("NetworkHp") else null
 
 func _ready() -> void:
 	# Добавляем в группу units для RTS контроллера
@@ -27,8 +26,9 @@ func _ready() -> void:
 	# Создаём индикатор направления
 	create_direction_indicator()
 	
-	# Создаём healthbar
-	create_health_bar()
+	# Подключаемся к сигналу смерти
+	if network_hp:
+		network_hp.health_depleted.connect(die)
 	
 	# Настройка навигационного агента
 	if nav_agent:
@@ -83,23 +83,6 @@ func create_direction_indicator() -> void:
 	direction_indicator.rotation_degrees = Vector3(-90, 180, 0)
 	
 	print("Player: Direction indicator created")
-
-
-func create_health_bar() -> void:
-	"""Создаёт полоску здоровья над игроком"""
-	# Загружаем скрипт HealthBar3D
-	var health_bar_script: Script = load("res://components/health_bar_3d.gd")
-	
-	# Создаём экземпляр healthbar
-	health_bar = Node3D.new()
-	health_bar.set_script(health_bar_script)
-	add_child(health_bar)
-	
-	# Устанавливаем начальное здоровье
-	health_bar.max_health = max_health
-	health_bar.current_health = current_health
-	
-	print("Player: Health bar created")
 
 
 func _enter_tree() -> void:
@@ -266,36 +249,26 @@ func set_target_position(target: Vector3) -> void:
 
 
 # === HEALTH METHODS ===
-func take_damage(amount: float) -> void:
+func take_damage(amount: int) -> void:
 	"""Получить урон"""
 	if not multiplayer.is_server():
 		return
 	
-	current_health = max(0, current_health - amount)
-	
-	# Обновляем healthbar
-	if health_bar and health_bar.has_method("set_health"):
-		health_bar.set_health(current_health)
-	
-	print("Player: Took ", amount, " damage. Health: ", current_health, "/", max_health)
-	
-	# Проверка смерти
-	if current_health <= 0:
-		die()
+	if network_hp:
+		network_hp.take_damage(amount)
+	else:
+		print("Player: WARNING - NetworkHP component not found!")
 
 
-func heal(amount: float) -> void:
+func heal(amount: int) -> void:
 	"""Вылечиться"""
 	if not multiplayer.is_server():
 		return
 	
-	current_health = min(max_health, current_health + amount)
-	
-	# Обновляем healthbar
-	if health_bar and health_bar.has_method("set_health"):
-		health_bar.set_health(current_health)
-	
-	print("Player: Healed ", amount, ". Health: ", current_health, "/", max_health)
+	if network_hp:
+		network_hp.heal(amount)
+	else:
+		print("Player: WARNING - NetworkHP component not found!")
 
 
 func die() -> void:
