@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://c4m8p9j2lnk5q"]
+
+[ext_resource type="Script" path="res://controls/move_ping_3d.gd" id="1"]
+
+[node name="MovePing3D" type="Node3D"]
+script = ExtResource("1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]

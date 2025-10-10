@@ -40,3 +40,7 @@ delta_interval = 0.02
 replication_config = SubResource("SceneReplicationConfig_qhqgy")
 script = ExtResource("3_dqkch")
 metadata/_custom_type_script = "uid://wwr4smb84bc0"
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+path_desired_distance = 0.5
+target_desired_distance = 0.5

@@ -1,8 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://bde2flq2egpcv"]
+[gd_scene load_steps=11 format=3 uid="uid://bde2flq2egpcv"]
 
+[ext_resource type="Script" path="res://scripts/index.gd" id="1_index"]
 [ext_resource type="Script" uid="uid://f0ylqu4wka2x" path="res://scripts/multiplayer_spawner.gd" id="2_hhnvu"]
 [ext_resource type="PackedScene" uid="uid://dmp8nc3aenbut" path="res://scenes/player.tscn" id="3_8s3bs"]
 [ext_resource type="PackedScene" uid="uid://cabfjhgqmmx3k" path="res://scenes/bullet.tscn" id="4_hhnvu"]
+[ext_resource type="PackedScene" uid="uid://bqw6l7x8ijk3r" path="res://controls/rts_camera_3d.tscn" id="5_camera"]
+[ext_resource type="Script" path="res://controls/player_controller_3d.gd" id="6_controller"]
+[ext_resource type="PackedScene" uid="uid://c4m8p9j2lnk5q" path="res://controls/move_ping_3d.tscn" id="7_ping"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_qt2py"]
 
@@ -12,6 +16,14 @@
 size = Vector3(1, 11, 21)
 
 [node name="Index3d" type="Node3D"]
+script = ExtResource("1_index")
+
+[node name="RTSCamera3D" parent="." instance=ExtResource("5_camera")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="PlayerController" type="Node" parent="."]
+script = ExtResource("6_controller")
+ping_scene = ExtResource("7_ping")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("uid://dmp8nc3aenbut")
