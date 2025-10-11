@@ -20,15 +20,19 @@ func _enter_tree() -> void:
 func _physics_process(delta: float) -> void:
 	if multiplayer.get_unique_id() == name.to_int() and multiplayer.get_unique_id() != 1:
 		# Client: send input to server
+		var rpc:=false
 		var new_move_direction: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 		if new_move_direction != move_direction:
 			move_direction = new_move_direction
+			rpc = true
 
 		var new_jump_input: bool = Input.is_action_just_pressed("ui_accept")
 		if new_jump_input != jump_input:
 			jump_input = new_jump_input
+			rpc = true
 
-		receive_input.rpc_id(1, new_move_direction, new_jump_input)
+		if rpc:
+			receive_input.rpc_id(1, new_move_direction, new_jump_input)
 
 	if multiplayer.is_server():
 		# Add the gravity.
