@@ -1,28 +1,27 @@
 extends Node
 
-
-var peer: ENetMultiplayerPeer
-const ADDRESS: String = "gigabuh.d.roddtech.ru"
+const REMOTE_ADDRESS: String = "gigabuh.d.roddtech.ru"
+const LOCAL_ADDRESS: String = "127.0.0.1"
 const PORT: int = 25445
+
+var peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
 
 func _ready() -> void:
 	if OS.has_feature("dedicated_server"):
 		start_server()
 	elif OS.has_feature("client"):
-		start_client(ADDRESS)
+		start_client(REMOTE_ADDRESS)
 	else:
-		start_client("127.0.0.1")
+		start_client(LOCAL_ADDRESS)
 
 ## Start as server
 func start_server() -> void:
-	peer = ENetMultiplayerPeer.new()
 	peer.create_server(PORT)
 	multiplayer.multiplayer_peer = peer
 	print("Server started on port %d" % PORT)
 
 ## Start as client
 func start_client(address: String) -> void:
-	peer = ENetMultiplayerPeer.new()
 	peer.create_client(address, PORT)
 	multiplayer.multiplayer_peer = peer
 	multiplayer.connected_to_server.connect(_on_connected_to_server)

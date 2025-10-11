@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=11 format=3 uid="uid://dmp8nc3aenbut"]
 
-[ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/player.gd" id="1_qhqgy"]
-[ext_resource type="Material" uid="uid://cqnuidq68y17f" path="res://materials/player_material.tres" id="2_g2els"]
+[ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://features/player/player.gd" id="1_qhqgy"]
+[ext_resource type="Material" uid="uid://cqnuidq68y17f" path="res://features/player/materials/player_material.tres" id="2_g2els"]
 [ext_resource type="Script" uid="uid://wwr4smb84bc0" path="res://components/network_position.gd" id="3_dqkch"]
-[ext_resource type="Script" uid="uid://bfhjfynop50wf" path="res://components/hp.gd" id="4_dqkch"]
+[ext_resource type="Script" uid="uid://bfhjfynop50wf" path="res://components/network_hp.gd" id="4_dqkch"]
 [ext_resource type="PackedScene" uid="uid://cikxs0fl5lnxf" path="res://features/health-bar/health_bar_3d.tscn" id="5_health"]
+[ext_resource type="PackedScene" uid="uid://dru2p1nkimkjd" path="res://features/shoot/shoot.tscn" id="6_y2cyt"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
 radius = 0.492748
@@ -51,13 +52,16 @@ replication_config = SubResource("SceneReplicationConfig_qhqgy")
 script = ExtResource("3_dqkch")
 metadata/_custom_type_script = "uid://wwr4smb84bc0"
 
-[node name="NetworkHp" type="MultiplayerSynchronizer" parent="."]
+[node name="NetworkHp" type="MultiplayerSynchronizer" parent="." node_paths=PackedStringArray("health_bar")]
 replication_config = SubResource("SceneReplicationConfig_dqkch")
 script = ExtResource("4_dqkch")
 current_health = 50
+health_bar = NodePath("../HealthBar3D")
 metadata/_custom_type_script = "uid://bfhjfynop50wf"
 
 [node name="HealthBar3D" parent="." instance=ExtResource("5_health")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 0)
 background_color = Color(0.6392157, 0.6392157, 0.6392157, 0.09803922)
 fill_color = Color(0.61960787, 0.9098039, 0.65882355, 0.5882353)
+
+[node name="Shoot" parent="." instance=ExtResource("6_y2cyt")]

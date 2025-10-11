@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://bde2flq2egpcv"]
 
-[ext_resource type="Script" uid="uid://f0ylqu4wka2x" path="res://scripts/multiplayer_spawner.gd" id="2_hhnvu"]
-[ext_resource type="PackedScene" uid="uid://dmp8nc3aenbut" path="res://scenes/player.tscn" id="3_8s3bs"]
-[ext_resource type="PackedScene" uid="uid://cabfjhgqmmx3k" path="res://scenes/bullet.tscn" id="4_hhnvu"]
+[ext_resource type="Script" uid="uid://f0ylqu4wka2x" path="res://features/player/multiplayer_spawner.gd" id="2_hhnvu"]
+[ext_resource type="PackedScene" uid="uid://dmp8nc3aenbut" path="res://features/player/player.tscn" id="3_8s3bs"]
+[ext_resource type="PackedScene" uid="uid://cabfjhgqmmx3k" path="res://features/shoot/bullet.tscn" id="4_hhnvu"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_qt2py"]
 
@@ -13,9 +13,11 @@ size = Vector3(1, 11, 21)
 
 [node name="Index3d" type="Node3D"]
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://dmp8nc3aenbut")
-spawn_path = NodePath("..")
+[node name="SpawnTo" type="Node" parent="."]
+
+[node name="GlobalMultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://dmp8nc3aenbut", "uid://cabfjhgqmmx3k")
+spawn_path = NodePath("../SpawnTo")
 script = ExtResource("2_hhnvu")
 player_scene = ExtResource("3_8s3bs")
 
@@ -24,7 +26,7 @@ transform = Transform3D(1.00225, 0, 0, 0, 1.00225, 0, 0, 0, 1.00225, 0, 0, 0)
 disable_mode = 1
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
-transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0.0009062166, -0.003458824, 0.0016587606)
 mesh = SubResource("PlaneMesh_qt2py")
 skeleton = NodePath("../..")
 
