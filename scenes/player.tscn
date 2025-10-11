@@ -1,10 +1,18 @@
-[gd_scene load_steps=10 format=3 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=26 format=3 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/player.gd" id="1_qhqgy"]
 [ext_resource type="Material" uid="uid://cqnuidq68y17f" path="res://materials/player_material.tres" id="2_g2els"]
 [ext_resource type="Script" uid="uid://wwr4smb84bc0" path="res://components/network_position.gd" id="3_dqkch"]
 [ext_resource type="Script" uid="uid://bfhjfynop50wf" path="res://components/hp.gd" id="4_dqkch"]
 [ext_resource type="PackedScene" uid="uid://cikxs0fl5lnxf" path="res://features/health-bar/health_bar_3d.tscn" id="5_health"]
+[ext_resource type="PackedScene" uid="uid://m02shnr1melc" path="res://scenes/radial_menu/emote_spawner.tscn" id="6_3v2ag"]
+[ext_resource type="PackedScene" uid="uid://b4pv22bpxxgng" path="res://scenes/poop.tscn" id="7_f1ej7"]
+[ext_resource type="Script" uid="uid://dnhu4bhw8o1as" path="res://scripts/radial_menu/radial_menu.gd" id="7_jej6c"]
+[ext_resource type="Script" uid="uid://bo87xn437osdk" path="res://scripts/radial_menu/radial_menu_item_behavior.gd" id="8_f1ej7"]
+[ext_resource type="AnimationLibrary" uid="uid://buk878wi5duma" path="res://animations/radial_menu/radial_menu_animations.res" id="9_oprun"]
+[ext_resource type="Script" uid="uid://bob13eisw4njo" path="res://scripts/radial_menu/clown_animation.gd" id="10_a8ls1"]
+[ext_resource type="Script" uid="uid://c1ur4seavqi8i" path="res://scripts/radial_menu/like_animation.gd" id="11_qfm1y"]
+[ext_resource type="Script" uid="uid://d0ulkmvqk3347" path="res://scripts/radial_menu/poop_animation.gd" id="12_fulsm"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
 radius = 0.492748
@@ -24,6 +32,70 @@ properties/0/replication_mode = 1
 properties/1/path = NodePath("NetworkHp:current_health")
 properties/1/spawn = true
 properties/1/replication_mode = 1
+
+[sub_resource type="LabelSettings" id="LabelSettings_4r5pv"]
+font_size = 32
+
+[sub_resource type="Animation" id="Animation_fjrip"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 8)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_smehm"]
+_data = {
+&"RESET": SubResource("Animation_fjrip")
+}
+
+[sub_resource type="LabelSettings" id="LabelSettings_60mlk"]
+font_size = 32
+
+[sub_resource type="LabelSettings" id="LabelSettings_i4ail"]
+font_size = 32
+
+[sub_resource type="Animation" id="Animation_ur7pv"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_y4r1p"]
+_data = {
+&"RESET": SubResource("Animation_ur7pv")
+}
+
+[sub_resource type="LabelSettings" id="LabelSettings_a38lo"]
+font_size = 32
 
 [node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("camera")]
 script = ExtResource("1_qhqgy")
@@ -61,3 +133,139 @@ metadata/_custom_type_script = "uid://bfhjfynop50wf"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 0)
 background_color = Color(0.6392157, 0.6392157, 0.6392157, 0.09803922)
 fill_color = Color(0.61960787, 0.9098039, 0.65882355, 0.5882353)
+
+[node name="EmoteSpawner" parent="." instance=ExtResource("6_3v2ag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.138998, 0)
+poop = ExtResource("7_f1ej7")
+
+[node name="RadialMenu" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("7_jej6c")
+metadata/_custom_type_script = "uid://dnhu4bhw8o1as"
+
+[node name="Clown" type="Label" parent="RadialMenu"]
+visible = false
+layout_mode = 0
+offset_top = 8.0
+offset_right = 60.0
+offset_bottom = 68.0
+pivot_offset = Vector2(30, 30)
+text = "🤡"
+label_settings = SubResource("LabelSettings_4r5pv")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RadialMenuBehavior" type="Node" parent="RadialMenu/Clown"]
+script = ExtResource("8_f1ej7")
+color = Color(0, 0.42352942, 0.84705883, 1)
+hower_color = Color(0.10597397, 0.52481604, 0.99996525, 1)
+press_color = Color(0, 0.31075662, 0.63448113, 1)
+metadata/_custom_type_script = "uid://bo87xn437osdk"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="RadialMenu/Clown"]
+libraries = {
+&"": SubResource("AnimationLibrary_smehm"),
+&"radial_menu_animations": ExtResource("9_oprun")
+}
+script = ExtResource("10_a8ls1")
+
+[node name="Like" type="Control" parent="RadialMenu"]
+visible = false
+anchors_preset = 0
+offset_right = 64.0
+offset_bottom = 64.0
+pivot_offset = Vector2(32, 32)
+
+[node name="Label2" type="Label" parent="RadialMenu/Like"]
+layout_mode = 0
+offset_top = 8.0
+offset_right = 63.999893
+offset_bottom = 71.99992
+pivot_offset = Vector2(32, 32)
+text = "👍"
+label_settings = SubResource("LabelSettings_60mlk")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="RadialMenu/Like/Label2"]
+libraries = {
+&"": SubResource("AnimationLibrary_smehm"),
+&"radial_menu_animations": ExtResource("9_oprun")
+}
+script = ExtResource("11_qfm1y")
+
+[node name="RadialMenuBehavior" type="Node" parent="RadialMenu/Like"]
+script = ExtResource("8_f1ej7")
+color = Color(1.2032688e-06, 0.56621134, 0.33317363, 1)
+hower_color = Color(2.117753e-06, 0.6495023, 0.38647014, 1)
+press_color = Color(0, 0.42239466, 0.2441552, 1)
+metadata/_custom_type_script = "uid://bo87xn437osdk"
+
+[node name="Poop" type="Label" parent="RadialMenu"]
+visible = false
+layout_mode = 0
+offset_left = 57.0
+offset_top = 30.0
+offset_right = 121.0
+offset_bottom = 94.0
+pivot_offset = Vector2(32, 32)
+text = "💩"
+label_settings = SubResource("LabelSettings_i4ail")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RadialMenuBehavior" type="Node" parent="RadialMenu/Poop"]
+script = ExtResource("8_f1ej7")
+color = Color(0.5067515, 0.29393405, 9.62615e-08, 1)
+hower_color = Color(0.39, 0.2275, 0, 1)
+press_color = Color(0.28, 0.16333334, 0, 1)
+metadata/_custom_type_script = "uid://bo87xn437osdk"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="RadialMenu/Poop"]
+libraries = {
+&"": SubResource("AnimationLibrary_y4r1p"),
+&"radial_menu_animations": ExtResource("9_oprun")
+}
+script = ExtResource("12_fulsm")
+
+[node name="Dislike" type="Control" parent="RadialMenu"]
+visible = false
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="RadialMenu/Dislike"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 45.0
+text = "👎"
+label_settings = SubResource("LabelSettings_a38lo")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="RadialMenu/Dislike/Label"]
+libraries = {
+&"radial_menu_animations": ExtResource("9_oprun")
+}
+script = ExtResource("11_qfm1y")
+
+[node name="RadialMenuBehavior" type="Node" parent="RadialMenu/Dislike"]
+script = ExtResource("8_f1ej7")
+color = Color(0.60567385, 1.311563e-06, 2.8878452e-07, 1)
+hower_color = Color(0.5, 0, 0, 1)
+press_color = Color(0.4, 0, 0, 1)
+metadata/_custom_type_script = "uid://bo87xn437osdk"
+
+[connection signal="on_hower" from="RadialMenu/Clown/RadialMenuBehavior" to="RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
+[connection signal="on_press" from="RadialMenu/Clown/RadialMenuBehavior" to="EmoteSpawner" method="_on_clown_button_press"]
+[connection signal="on_unhower" from="RadialMenu/Clown/RadialMenuBehavior" to="RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_unhower"]
+[connection signal="animation_finished" from="RadialMenu/Like/Label2/AnimationPlayer" to="RadialMenu/Like/Label2/AnimationPlayer" method="_on_animation_finished"]
+[connection signal="on_hower" from="RadialMenu/Like/RadialMenuBehavior" to="RadialMenu/Like/Label2/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
+[connection signal="on_press" from="RadialMenu/Like/RadialMenuBehavior" to="EmoteSpawner" method="_on_like_button_press"]
+[connection signal="on_unhower" from="RadialMenu/Like/RadialMenuBehavior" to="RadialMenu/Like/Label2/AnimationPlayer" method="_on_radial_menu_behavior_on_unhower"]
+[connection signal="on_hower" from="RadialMenu/Poop/RadialMenuBehavior" to="RadialMenu/Poop/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
+[connection signal="on_press" from="RadialMenu/Poop/RadialMenuBehavior" to="EmoteSpawner" method="_on_poop_button_press"]
+[connection signal="on_unhower" from="RadialMenu/Poop/RadialMenuBehavior" to="RadialMenu/Poop/AnimationPlayer" method="_on_radial_menu_behavior_on_unhower"]
+[connection signal="animation_finished" from="RadialMenu/Dislike/Label/AnimationPlayer" to="RadialMenu/Dislike/Label/AnimationPlayer" method="_on_animation_finished"]
+[connection signal="on_hower" from="RadialMenu/Dislike/RadialMenuBehavior" to="RadialMenu/Dislike/Label/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
+[connection signal="on_press" from="RadialMenu/Dislike/RadialMenuBehavior" to="EmoteSpawner" method="_on_dislike_button_press"]
+[connection signal="on_unhower" from="RadialMenu/Dislike/RadialMenuBehavior" to="RadialMenu/Dislike/Label/AnimationPlayer" method="_on_radial_menu_behavior_on_unhower"]

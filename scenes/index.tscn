@@ -14,7 +14,7 @@ size = Vector3(1, 11, 21)
 [node name="Index3d" type="Node3D"]
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://dmp8nc3aenbut")
+_spawnable_scenes = PackedStringArray("uid://dmp8nc3aenbut", "uid://ygkgpca1ir66", "uid://b4pv22bpxxgng")
 spawn_path = NodePath("..")
 script = ExtResource("2_hhnvu")
 player_scene = ExtResource("3_8s3bs")
