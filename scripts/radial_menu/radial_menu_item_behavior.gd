@@ -19,7 +19,8 @@ signal on_exit()
 @export var radius:float = 0.1
 @export var radius_to_button:float = 0.25
 @export var num_points:int = 50
-
+@export var enter_speed:float = 0.5
+@export var exit_speed:float = 0.1
 
 var _hover_tween:Tween
 var _unhover_tween:Tween
@@ -99,7 +100,7 @@ func enter()->void:
 	var item := get_item()
 	item.visible = true
 	var tw := create_tween()
-	tw.tween_method(button_enter_tween,_enter_state,1.0,(1.0-_enter_state)/2)
+	tw.tween_method(button_enter_tween,_enter_state,1.0,(1.0-_enter_state)*enter_speed)
 	_enter_tween = tw
 	
 
@@ -114,7 +115,7 @@ func exit()->void:
 	var item := get_item()
 	item.visible = false
 	var tw := create_tween()
-	tw.tween_method(button_exit_tween,_enter_state,0,_enter_state/10)
+	tw.tween_method(button_exit_tween,_enter_state,0,_enter_state*exit_speed)
 	_enter_tween = tw
 
 	
@@ -134,7 +135,6 @@ func button_hover()->void:
 		_unhover_tween.kill()
 	if _hover_tween != null:
 		_hover_tween.kill()
-	var e := get_item()
 
 	var tw := create_tween()
 	tw.tween_method(button_hover_tween,_hover_state,1.0,(1.0-_hover_state)/6)

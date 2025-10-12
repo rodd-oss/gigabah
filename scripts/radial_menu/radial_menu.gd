@@ -5,10 +5,11 @@ extends Control
 class_name RadialMenu
 
 
-signal item_clicked(idx:int)
+
 
 @export var dead_zone:float = 0.1
-@export var show_action_button = "show_radial_menu"
+@export var show_action_button := "show_radial_menu"
+var hide_tween:Tween
 
 var hovered_item:RadialMenuItemBehavior
 var shown:bool = false
@@ -28,8 +29,8 @@ func draw_segment(center: Vector2, radius_a: float, radius_b: float,radius_paddi
 	var colors := PackedColorArray()
 	colors.resize(points.size())
 	colors.fill(color)
-
-	draw_polygon(points,colors)
+	
+	draw_polygon(points.slice(0,points.size()),colors)
 	draw_polyline(points,color,2,true)
 
 func to_2PI(rads:float,off:float = 0.0)->float:
@@ -75,13 +76,22 @@ func _input(event: InputEvent) -> void:
 		shown = true
 		for beh in get_children_behavior():
 			beh.enter()
+		if hide_tween!=null:
+			hide_tween.kill()
 
 			
 	if event.is_action_released("show_radial_menu"):
-		shown = false
+		var max_exit_time:= 0.0
 		for beh in get_children_behavior():
+			if max_exit_time<beh.exit_speed:
+				max_exit_time = beh.exit_speed
 			beh.exit()
-			
+		if hide_tween!=null:
+			hide_tween.kill()
+		hide_tween = create_tween()
+		hide_tween.tween_interval(max_exit_time)
+		hide_tween.tween_callback(func()->void:shown = false)
+		
 
 	if !shown: return
 
@@ -96,8 +106,9 @@ func _input(event: InputEvent) -> void:
 	
 
 func _process(_delta: float) -> void:
+	if !shown: return
 	if multiplayer.is_server():return
-	
+
 	if get_parent() is Control:
 		size = get_parent().size
 	else:
@@ -123,6 +134,7 @@ func _process(_delta: float) -> void:
 		
 
 func _draw() -> void:
+	if !shown: return
 	if multiplayer.is_server():return
 	var center:Vector2 = size/2
 	var off := (TAU/num()/2)+PI/2
