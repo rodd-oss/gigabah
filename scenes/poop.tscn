@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://b4pv22bpxxgng"]
+
+[ext_resource type="PackedScene" uid="uid://b8hhsbbhxtpfm" path="res://models/poop.fbx" id="1_634gh"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_634gh"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath(".:scale")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+
+[node name="Poop" type="Node3D"]
+
+[node name="poop" parent="." instance=ExtResource("1_634gh")]
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_634gh")
