@@ -1,5 +1,5 @@
 
-@tool
+#@tool
 extends Control
 
 class_name RadialMenu
@@ -175,16 +175,3 @@ func _on_child_exiting_tree(node: Node) -> void:
 	if _hovered_item == node:
 		_hovered_item = null
 		
-func _get_configuration_warnings() -> PackedStringArray:
-	var warnings: PackedStringArray = []
-	
-	if get_children_behavior().is_empty():
-		warnings.append("RadialMenu should have at least one RadialMenuItemBehavior as grandchild")
-	
-	if not InputMap.has_action("show_radial_menu"):
-		warnings.append("Input action 'show_radial_menu' is not defined in Input Map")
-	
-	if not InputMap.has_action("radial_menu_click"):
-		warnings.append("Input action 'radial_menu_click' is not defined in Input Map")
-	
-	return warnings
