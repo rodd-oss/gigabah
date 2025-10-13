@@ -1,14 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=6 format=3 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/player.gd" id="1_qhqgy"]
-[ext_resource type="Material" uid="uid://cqnuidq68y17f" path="res://materials/player_material.tres" id="2_g2els"]
+[ext_resource type="PackedScene" uid="uid://cyiwcbx3r0b5f" path="res://scenes/player_model.tscn" id="2_qhqgy"]
 [ext_resource type="Script" uid="uid://wwr4smb84bc0" path="res://components/network_position.gd" id="3_dqkch"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
 radius = 0.492748
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_g2els"]
-material = ExtResource("2_g2els")
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_qhqgy"]
 properties/0/path = NodePath(":server_position")
@@ -29,9 +26,7 @@ projection = 1
 size = 15.286
 near = 0.001
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000212669, 1, 0.00539541)
-mesh = SubResource("CapsuleMesh_g2els")
+[node name="PlayerModel" parent="." instance=ExtResource("2_qhqgy")]
 
 [node name="NetworkPosition" type="MultiplayerSynchronizer" parent="."]
 root_path = NodePath(".")
