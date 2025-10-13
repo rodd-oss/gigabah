@@ -1,4 +1,5 @@
 extends MultiplayerSpawner
+class_name GlobalMultiplayerSpawner
 
 @export var player_scene: PackedScene
 
@@ -17,6 +18,7 @@ func spawn_player(id: int) -> void:
 	player.position.y = 0
 	player.position.z = randf_range(-5, 5)
 	get_node(spawn_path).call_deferred("add_child", player)
+	print("Peer " + str(id) + " has joined the game!")
 
 func despawn_player(id: int) -> void:
 	"""Removes the player node for the given peer ID."""
@@ -24,3 +26,4 @@ func despawn_player(id: int) -> void:
 	var player: Node = get_node(spawn_path).get_node(str(id))
 	if player:
 		player.queue_free()
+		print("Peer " + str(id) + " has left the game!")
