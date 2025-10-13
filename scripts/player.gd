@@ -51,5 +51,8 @@ func _physics_process(delta: float) -> void:
 @rpc("any_peer")
 func receive_input(move_vec: Vector2, is_jumping: bool) -> void:
 	"""Called remotely by clients to send their input to the server."""
+	if !multiplayer.is_server():
+		push_error("receive_input should be called on the server")
+		return
 	move_direction = move_vec
 	jump_input = is_jumping
