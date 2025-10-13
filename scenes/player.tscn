@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=25 format=3 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/player.gd" id="1_qhqgy"]
 [ext_resource type="Material" uid="uid://cqnuidq68y17f" path="res://materials/player_material.tres" id="2_g2els"]
@@ -10,8 +10,7 @@
 [ext_resource type="Script" uid="uid://dnhu4bhw8o1as" path="res://scripts/radial_menu/radial_menu.gd" id="7_jej6c"]
 [ext_resource type="Script" uid="uid://bo87xn437osdk" path="res://scripts/radial_menu/radial_menu_item_behavior.gd" id="8_f1ej7"]
 [ext_resource type="AnimationLibrary" uid="uid://buk878wi5duma" path="res://animations/radial_menu/radial_menu_animations.res" id="9_oprun"]
-[ext_resource type="Script" uid="uid://bob13eisw4njo" path="res://scripts/radial_menu/clown_animation.gd" id="10_a8ls1"]
-[ext_resource type="Script" uid="uid://c1ur4seavqi8i" path="res://scripts/radial_menu/like_animation.gd" id="11_qfm1y"]
+[ext_resource type="Script" uid="uid://c1ur4seavqi8i" path="res://scripts/radial_menu/animation.gd" id="11_qfm1y"]
 [ext_resource type="Script" uid="uid://d0ulkmvqk3347" path="res://scripts/radial_menu/poop_animation.gd" id="12_fulsm"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
@@ -168,7 +167,8 @@ libraries = {
 &"": SubResource("AnimationLibrary_smehm"),
 &"radial_menu_animations": ExtResource("9_oprun")
 }
-script = ExtResource("10_a8ls1")
+script = ExtResource("11_qfm1y")
+anim = "radial_menu_animations/rotate"
 
 [node name="Like" type="Control" parent="RadialMenu"]
 visible = false
@@ -194,6 +194,7 @@ libraries = {
 &"radial_menu_animations": ExtResource("9_oprun")
 }
 script = ExtResource("11_qfm1y")
+anim = "radial_menu_animations/sin"
 
 [node name="RadialMenuBehavior" type="Node" parent="RadialMenu/Like"]
 script = ExtResource("8_f1ej7")
@@ -228,6 +229,7 @@ libraries = {
 &"radial_menu_animations": ExtResource("9_oprun")
 }
 script = ExtResource("12_fulsm")
+anim = "radial_menu_animations/scale"
 
 [node name="Dislike" type="Control" parent="RadialMenu"]
 visible = false
@@ -247,6 +249,7 @@ libraries = {
 &"radial_menu_animations": ExtResource("9_oprun")
 }
 script = ExtResource("11_qfm1y")
+anim = "radial_menu_animations/sin"
 
 [node name="RadialMenuBehavior" type="Node" parent="RadialMenu/Dislike"]
 script = ExtResource("8_f1ej7")
@@ -258,6 +261,7 @@ metadata/_custom_type_script = "uid://bo87xn437osdk"
 [connection signal="on_hower" from="RadialMenu/Clown/RadialMenuBehavior" to="RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
 [connection signal="on_press" from="RadialMenu/Clown/RadialMenuBehavior" to="EmoteSpawner" method="_on_clown_button_press"]
 [connection signal="on_unhower" from="RadialMenu/Clown/RadialMenuBehavior" to="RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_unhower"]
+[connection signal="animation_finished" from="RadialMenu/Clown/AnimationPlayer" to="RadialMenu/Clown/AnimationPlayer" method="_on_animation_finished"]
 [connection signal="animation_finished" from="RadialMenu/Like/Label2/AnimationPlayer" to="RadialMenu/Like/Label2/AnimationPlayer" method="_on_animation_finished"]
 [connection signal="on_hower" from="RadialMenu/Like/RadialMenuBehavior" to="RadialMenu/Like/Label2/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
 [connection signal="on_press" from="RadialMenu/Like/RadialMenuBehavior" to="EmoteSpawner" method="_on_like_button_press"]
@@ -265,6 +269,7 @@ metadata/_custom_type_script = "uid://bo87xn437osdk"
 [connection signal="on_hower" from="RadialMenu/Poop/RadialMenuBehavior" to="RadialMenu/Poop/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
 [connection signal="on_press" from="RadialMenu/Poop/RadialMenuBehavior" to="EmoteSpawner" method="_on_poop_button_press"]
 [connection signal="on_unhower" from="RadialMenu/Poop/RadialMenuBehavior" to="RadialMenu/Poop/AnimationPlayer" method="_on_radial_menu_behavior_on_unhower"]
+[connection signal="animation_finished" from="RadialMenu/Poop/AnimationPlayer" to="RadialMenu/Poop/AnimationPlayer" method="_on_animation_finished"]
 [connection signal="animation_finished" from="RadialMenu/Dislike/Label/AnimationPlayer" to="RadialMenu/Dislike/Label/AnimationPlayer" method="_on_animation_finished"]
 [connection signal="on_hower" from="RadialMenu/Dislike/RadialMenuBehavior" to="RadialMenu/Dislike/Label/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
 [connection signal="on_press" from="RadialMenu/Dislike/RadialMenuBehavior" to="EmoteSpawner" method="_on_dislike_button_press"]
