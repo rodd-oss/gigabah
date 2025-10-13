@@ -47,6 +47,15 @@ func _physics_process(delta: float) -> void:
 			
 		move_and_slide()
 
+	#AnimationTEST Should be removed in future!!!
+	var animplayer = $PlayerModel.find_child("AnimationPlayer")
+	animplayer.speed_scale = 1.0
+	if move_direction == Vector2.ZERO:
+		animplayer.play("Idle")
+	else:
+		animplayer.speed_scale = SPEED
+		animplayer.play("Walk")
+
 
 @rpc("any_peer")
 func receive_input(move_vec: Vector2, is_jumping: bool) -> void:
