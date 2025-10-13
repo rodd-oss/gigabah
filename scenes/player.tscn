@@ -1,16 +1,13 @@
-[gd_scene load_steps=10 format=3 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=9 format=3 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/player.gd" id="1_qhqgy"]
-[ext_resource type="Material" uid="uid://cqnuidq68y17f" path="res://materials/player_material.tres" id="2_g2els"]
+[ext_resource type="PackedScene" uid="uid://drvcahwequw5i" path="res://models/PlayerModel.blend" id="2_qlg0r"]
 [ext_resource type="Script" uid="uid://wwr4smb84bc0" path="res://components/network_position.gd" id="3_dqkch"]
 [ext_resource type="Script" uid="uid://bfhjfynop50wf" path="res://components/hp.gd" id="4_dqkch"]
 [ext_resource type="PackedScene" uid="uid://cikxs0fl5lnxf" path="res://features/health-bar/health_bar_3d.tscn" id="5_health"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
 radius = 0.492748
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_g2els"]
-material = ExtResource("2_g2els")
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_qhqgy"]
 properties/0/path = NodePath(":server_position")
@@ -33,15 +30,13 @@ camera = NodePath("Camera3D")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_g2els")
 
+[node name="PlayerModel" parent="." instance=ExtResource("2_qlg0r")]
+
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 22.8992, 20.8414)
 projection = 1
 size = 15.286
 near = 0.001
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000212669, 1, 0.00539541)
-mesh = SubResource("CapsuleMesh_g2els")
 
 [node name="NetworkPosition" type="MultiplayerSynchronizer" parent="."]
 root_path = NodePath(".")
