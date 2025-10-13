@@ -9,13 +9,14 @@ var move_direction: Vector2 = Vector2.ZERO
 var jump_input: bool = false
 
 func _enter_tree() -> void:
-	# Always set authority to server (ID 1)
-	set_multiplayer_authority(1)
-	if multiplayer.get_unique_id() == 1:
-		# Server does not need to set camera
-		return
-	if name.to_int() == multiplayer.get_unique_id():
-		camera.make_current()
+	# Only server assigns authority; clients rely on replication.
+	if multiplayer.is_server():
+		set_multiplayer_authority(1)
+	# Camera ownership: make current only on the local player's client instance.
+	if multiplayer.get_unique_id() != 1 and name.to_int() == multiplayer.get_unique_id():
+		if camera:
+			camera.make_current()
+		print_debug("[Player] Camera made current for peer %d" % multiplayer.get_unique_id())
 
 func _physics_process(delta: float) -> void:
 	if multiplayer.get_unique_id() == name.to_int() and multiplayer.get_unique_id() != 1:
