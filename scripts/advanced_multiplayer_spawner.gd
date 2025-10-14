@@ -160,7 +160,7 @@ func _on_peer_got_vision(node: Node, net_node: _NetworkNodeInfo, peer_id: int) -
 
 ## called only on owner side
 func _on_peer_lost_vision(_node: Node, net_node: _NetworkNodeInfo, peer_id: int) -> void:
-	_rpc_despawn.rpc_id(peer_id, net_node.network_id, null)
+	_rpc_despawn.rpc_id(peer_id, net_node.network_id)
 
 func _try_get_auto_spawnable_scene(node: Node) -> PackedScene:
 	for scene: PackedScene in auto_spawnable_scenes:
