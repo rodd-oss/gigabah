@@ -11,6 +11,7 @@
 [ext_resource type="AnimationLibrary" uid="uid://buk878wi5duma" path="res://animations/radial_menu/radial_menu_animations.res" id="9_oprun"]
 [ext_resource type="Script" uid="uid://dygq0iwvhu8ou" path="res://scripts/animations_base.gd" id="11_d2wvv"]
 [ext_resource type="Script" uid="uid://c1ur4seavqi8i" path="res://scripts/radial_menu/animation.gd" id="11_qfm1y"]
+[ext_resource type="Script" uid="uid://xrbns0ylm83m" path="res://scripts/network_vision.gd" id="6_tuyoq"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
 radius = 0.492748
@@ -1525,6 +1526,9 @@ _data = {
 [sub_resource type="LabelSettings" id="LabelSettings_a38lo"]
 font_size = 32
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_tuyoq"]
+radius = 5.0
+
 [node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("camera")]
 script = ExtResource("1_qhqgy")
 camera = NodePath("Camera3D")
@@ -1930,3 +1934,14 @@ script = ExtResource("11_d2wvv")
 [connection signal="on_hower" from="RadialMenu/Dislike/RadialMenuBehavior" to="RadialMenu/Dislike/Label/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
 [connection signal="on_press" from="RadialMenu/Dislike/RadialMenuBehavior" to="EmoteSpawner" method="_on_dislike_button_press"]
 [connection signal="on_unhower" from="RadialMenu/Dislike/RadialMenuBehavior" to="RadialMenu/Dislike/Label/AnimationPlayer" method="_on_radial_menu_behavior_on_unhower"]
+
+[node name="NetworkVisibilityArea" type="Node" parent="." node_paths=PackedStringArray("vision_area")]
+script = ExtResource("6_tuyoq")
+vision_radius = null
+vision_area = NodePath("Area3D")
+metadata/_custom_type_script = "uid://xrbns0ylm83m"
+
+[node name="Area3D" type="Area3D" parent="NetworkVisibilityArea"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkVisibilityArea/Area3D"]
+shape = SubResource("SphereShape3D_tuyoq")
