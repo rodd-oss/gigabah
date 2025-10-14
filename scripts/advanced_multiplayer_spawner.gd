@@ -142,11 +142,14 @@ func _on_child_entered(node: Node) -> void:
 
 	net_node = _NetworkNodeInfo.new(_alloc_network_id(node))
 	_tracking_nodes[node.get_instance_id()] = net_node
+	_on_start_tracking_node(node, net_node)
 
 func _on_child_exiting(node: Node) -> void:
 	var net_node: _NetworkNodeInfo = _tracking_nodes.get(node.get_instance_id())
 	if !net_node:
 		return
+
+	_on_end_tracking_node(node, net_node)
 
 	for peer_id: int in net_node.peers_vision:
 		_on_peer_lost_vision(node, net_node, peer_id)
@@ -154,12 +157,27 @@ func _on_child_exiting(node: Node) -> void:
 	_release_network_id(node, net_node.network_id)
 	_tracking_nodes.erase(node.get_instance_id())
 
+func _on_start_tracking_node(node: Node, net_node: _NetworkNodeInfo) -> void:
+	net_node.synchronizers = node.find_children("", "MultiplayerSynchronizer", true, true) as Array[MultiplayerSynchronizer]
+
+	for syncer: MultiplayerSynchronizer in net_node.synchronizers:
+		syncer.set_visibility_for(0, false)
+
+func _on_end_tracking_node(_node: Node, _net_node: _NetworkNodeInfo) -> void:
+	pass
+
 ## called only on owner side
 func _on_peer_got_vision(node: Node, net_node: _NetworkNodeInfo, peer_id: int) -> void:
+	for syncer: MultiplayerSynchronizer in net_node.synchronizers:
+		syncer.set_visibility_for(peer_id, true)
+
 	_rpc_spawn.rpc_id(peer_id, node.scene_file_path, node.name, net_node.network_id, null)
 
 ## called only on owner side
 func _on_peer_lost_vision(_node: Node, net_node: _NetworkNodeInfo, peer_id: int) -> void:
+	for syncer: MultiplayerSynchronizer in net_node.synchronizers:
+		syncer.set_visibility_for(peer_id, false)
+
 	_rpc_despawn.rpc_id(peer_id, net_node.network_id)
 
 func _try_get_auto_spawnable_scene(node: Node) -> PackedScene:
@@ -238,6 +256,7 @@ func _erase_replacing(arr: Array, index: int) -> void:
 class _NetworkNodeInfo:
 	var network_id: int
 	var peers_vision: Array[int] = []
+	var synchronizers: Array[MultiplayerSynchronizer] = []
 
 	func _init(net_id: int) -> void:
 		self.network_id = net_id
