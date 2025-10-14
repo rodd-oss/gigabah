@@ -1,4 +1,5 @@
-extends MultiplayerSpawner
+class_name PlayerSpawner
+extends AdvancedMultiplayerSpawner
 
 @export var player_scene: PackedScene
 
@@ -17,6 +18,8 @@ func spawn_player(id: int) -> void:
 	player.position.y = 0
 	player.position.z = randf_range(-5, 5)
 	get_node(spawn_path).call_deferred("add_child", player)
+	(player.get_node("NetworkVisibilityArea") as NetworkVision).spawner = self
+	set_visibility_for(id, player, true)
 
 func despawn_player(id: int) -> void:
 	"""Removes the player node for the given peer ID."""

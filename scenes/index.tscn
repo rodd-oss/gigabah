@@ -13,11 +13,12 @@ size = Vector3(1, 11, 21)
 
 [node name="Index3d" type="Node3D"]
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://dmp8nc3aenbut", "uid://ygkgpca1ir66", "uid://b4pv22bpxxgng")
-spawn_path = NodePath("..")
+[node name="AdvancedMultiplayerSpawner" type="Node" parent="."]
 script = ExtResource("2_hhnvu")
 player_scene = ExtResource("3_8s3bs")
+spawn_path = NodePath("..")
+auto_spawnable_scenes = Array[PackedScene]([ExtResource("3_8s3bs")])
+metadata/_custom_type_script = "uid://f0ylqu4wka2x"
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
 transform = Transform3D(1.00225, 0, 0, 0, 1.00225, 0, 0, 0, 1.00225, 0, 0, 0)
