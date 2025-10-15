@@ -158,7 +158,9 @@ func _on_child_exiting(node: Node) -> void:
 	_tracking_nodes.erase(node.get_instance_id())
 
 func _on_start_tracking_node(node: Node, net_node: _NetworkNodeInfo) -> void:
-	net_node.synchronizers = node.find_children("", "MultiplayerSynchronizer", true, true) as Array[MultiplayerSynchronizer]
+	net_node.synchronizers.assign(
+		node.find_children("", "MultiplayerSynchronizer", true, true),
+	)
 
 	for syncer: MultiplayerSynchronizer in net_node.synchronizers:
 		syncer.set_visibility_for(0, false)
