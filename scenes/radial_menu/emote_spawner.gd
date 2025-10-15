@@ -15,7 +15,7 @@ func spawn_emote(text:String)->void:
 	tw.tween_property(emote,"position",end,1)
 	tw.tween_interval(0.5)
 	await tw.finished
-	get_parent().get_parent().remove_child(emote)
+	emote.queue_free()
 
 @rpc("any_peer","reliable")
 func spawn_clown()->void:
@@ -37,7 +37,8 @@ func spawn_poop()->void:
 	m.scale = Vector3(randf()*0.5+0.5,randf()*0.5+0.5,randf()*0.5+0.5)
 	spawn_emote("💩")
 	await m.create_tween().tween_interval(poop_existance_time).finished
-	get_parent().get_parent().remove_child(m)
+	m.queue_free()
+
 	
 @rpc("any_peer","reliable")
 func spawn_dislike()->void:

@@ -46,24 +46,24 @@ class_name RadialMenuUtils
 ##   [/codeblock]
 ##
 ## [b]Note:[/b] Points are arranged in clockwise order suitable for Godot's polygon rendering.
-static func create_segment_polygon(center: Vector2, radius_a: float, radius_b: float,radius_padding: float, start_angle: float, end_angle: float,angle_padding:float, point_count: int)->PackedVector2Array:
+static func create_segment_polygon(center: Vector2, radius_a: float, radius_b: float, radius_padding: float, start_angle: float, end_angle: float, angle_padding: float, point_count: int) -> PackedVector2Array:
 	var points := PackedVector2Array()
-	points.resize(point_count*2+3)
-	var a := Vector2((radius_a+radius_padding),0).rotated(start_angle+angle_padding)
-	var b := Vector2((radius_b-radius_padding),0).rotated(end_angle-angle_padding)
+	points.resize(point_count * 2 + 3)
+	var a := Vector2((radius_a + radius_padding), 0).rotated(start_angle + angle_padding)
+	var b := Vector2((radius_b - radius_padding), 0).rotated(end_angle - angle_padding)
 
-	var step_angle := ((end_angle-angle_padding)-(start_angle+angle_padding))/point_count
+	var step_angle := ((end_angle - angle_padding) - (start_angle + angle_padding)) / point_count
 	var pi = 0
-	for i:int in range(point_count+1):
-		points[pi] = (center+a)
-		pi+=1
+	for i: int in range(point_count + 1):
+		points[pi] = (center + a)
+		pi += 1
 		a = a.rotated(step_angle)
-	for i:int in range(point_count+1):
-		points[pi] = (center+b)
-		pi+=1
+	for i: int in range(point_count + 1):
+		points[pi] = (center + b)
+		pi += 1
 		b = b.rotated(-step_angle)
 	points[pi] = points[0]
 	return points
 	
-static func segment_releative_point(center: Vector2, radius_a: float, radius_b: float,radius_padding: float, start_angle: float, end_angle: float,angle_padding:float,radius_t:float,angle_t:float)->Vector2:
-	return center+Vector2((radius_a+radius_padding)+((radius_b-radius_padding)-(radius_a+radius_padding))/2*(radius_t+1),0).rotated((start_angle+angle_padding)+((end_angle-angle_padding)-(start_angle+angle_padding))/2*(angle_t+1))
+static func segment_releative_point(center: Vector2, radius_a: float, radius_b: float, radius_padding: float, start_angle: float, end_angle: float, angle_padding: float, radius_t: float, angle_t: float) -> Vector2:
+	return center + Vector2((radius_a + radius_padding) + ((radius_b - radius_padding) - (radius_a + radius_padding)) / 2 * (radius_t + 1), 0).rotated((start_angle + angle_padding) + ((end_angle - angle_padding) - (start_angle + angle_padding)) / 2 * (angle_t + 1))

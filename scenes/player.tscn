@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=24 format=3 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/player.gd" id="1_qhqgy"]
 [ext_resource type="Material" uid="uid://cqnuidq68y17f" path="res://materials/player_material.tres" id="2_g2els"]
@@ -11,7 +11,6 @@
 [ext_resource type="Script" uid="uid://bo87xn437osdk" path="res://scripts/radial_menu/radial_menu_item_behavior.gd" id="8_f1ej7"]
 [ext_resource type="AnimationLibrary" uid="uid://buk878wi5duma" path="res://animations/radial_menu/radial_menu_animations.res" id="9_oprun"]
 [ext_resource type="Script" uid="uid://c1ur4seavqi8i" path="res://scripts/radial_menu/animation.gd" id="11_qfm1y"]
-[ext_resource type="Script" uid="uid://d0ulkmvqk3347" path="res://scripts/radial_menu/poop_animation.gd" id="12_fulsm"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
 radius = 0.492748
@@ -144,7 +143,6 @@ script = ExtResource("7_jej6c")
 metadata/_custom_type_script = "uid://dnhu4bhw8o1as"
 
 [node name="Clown" type="Label" parent="RadialMenu"]
-visible = false
 layout_mode = 0
 offset_top = 8.0
 offset_right = 60.0
@@ -171,7 +169,6 @@ script = ExtResource("11_qfm1y")
 anim = "radial_menu_animations/rotate"
 
 [node name="Like" type="Control" parent="RadialMenu"]
-visible = false
 anchors_preset = 0
 offset_right = 64.0
 offset_bottom = 64.0
@@ -204,7 +201,6 @@ press_color = Color(0, 0.42239466, 0.2441552, 1)
 metadata/_custom_type_script = "uid://bo87xn437osdk"
 
 [node name="Poop" type="Label" parent="RadialMenu"]
-visible = false
 layout_mode = 0
 offset_left = 57.0
 offset_top = 30.0
@@ -228,11 +224,10 @@ libraries = {
 &"": SubResource("AnimationLibrary_y4r1p"),
 &"radial_menu_animations": ExtResource("9_oprun")
 }
-script = ExtResource("12_fulsm")
+script = ExtResource("11_qfm1y")
 anim = "radial_menu_animations/scale"
 
 [node name="Dislike" type="Control" parent="RadialMenu"]
-visible = false
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0

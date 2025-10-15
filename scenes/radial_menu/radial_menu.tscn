@@ -14,3 +14,4 @@ grow_vertical = 2
 script = ExtResource("1_a2ygn")
 
 [connection signal="child_exiting_tree" from="." to="." method="_on_child_exiting_tree"]
+[connection signal="child_order_changed" from="." to="." method="_on_child_order_changed"]
