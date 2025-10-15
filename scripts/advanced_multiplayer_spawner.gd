@@ -173,7 +173,17 @@ func _on_peer_got_vision(node: Node, net_node: _NetworkNodeInfo, peer_id: int) -
 	for syncer: MultiplayerSynchronizer in net_node.synchronizers:
 		syncer.set_visibility_for(peer_id, true)
 
-	_rpc_spawn.rpc_id(peer_id, node.scene_file_path, node.name, net_node.network_id, null)
+	var pos: Vector3 = Vector3.ZERO
+	if node.is_inside_tree():
+		var node3d: Node3D = node as Node3D
+		if node3d:
+			pos = node3d.global_position
+		else:
+			var node2d: Node2D = node as Node2D
+			if node2d:
+				pos = Vector3(node2d.global_position.x, node2d.global_position.y, 0)
+
+	_rpc_spawn.rpc_id(peer_id, node.scene_file_path, node.name, pos, net_node.network_id, null)
 
 ## called only on owner side
 func _on_peer_lost_vision(_node: Node, net_node: _NetworkNodeInfo, peer_id: int) -> void:
@@ -203,7 +213,7 @@ func _release_network_id(_node: Node, _network_id: int) -> void:
 	pass
 
 @rpc("reliable")
-func _rpc_spawn(scene_path: String, node_name: String, network_id: int, data: Variant) -> void:
+func _rpc_spawn(scene_path: String, node_name: String, pos: Vector3, network_id: int, data: Variant) -> void:
 	var spawn_target: Node = get_node(spawn_path)
 	if !spawn_target:
 		push_error("spawn_path pointing to invalid node")
@@ -228,6 +238,15 @@ func _rpc_spawn(scene_path: String, node_name: String, network_id: int, data: Va
 	_tracking_nodes[node.get_instance_id()] = net_node
 
 	spawn_target.add_child(node)
+
+	var node3d: Node3D = node as Node3D
+	if node3d:
+		node3d.global_position = pos
+	else:
+		var node2d: Node2D = node as Node2D
+		if node2d:
+			node2d.global_position = Vector2(pos.x, pos.y)
+
 	spawned.emit(node)
 
 @rpc("reliable")
