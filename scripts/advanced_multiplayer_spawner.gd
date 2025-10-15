@@ -204,6 +204,15 @@ func _release_network_id(_node: Node, _network_id: int) -> void:
 
 @rpc("reliable")
 func _rpc_spawn(scene_path: String, node_name: String, network_id: int, data: Variant) -> void:
+	var spawn_target: Node = get_node(spawn_path)
+	if !spawn_target:
+		push_error("spawn_path pointing to invalid node")
+		return
+	
+	if spawn_target.find_child(node_name, false, true) != null:
+		push_error("authority sent rpc to spawn node with name that already occupied in spawn_path")
+		return
+
 	var node: Node
 	if data:
 		node = spawn_function.call(data)
@@ -217,11 +226,6 @@ func _rpc_spawn(scene_path: String, node_name: String, network_id: int, data: Va
 
 	var net_node: _NetworkNodeInfo = _NetworkNodeInfo.new(network_id)
 	_tracking_nodes[node.get_instance_id()] = net_node
-
-	var spawn_target: Node = get_node(spawn_path)
-	if !spawn_target:
-		printerr("spawn_path pointing to invalid node")
-		return
 
 	spawn_target.add_child(node)
 	spawned.emit(node)
