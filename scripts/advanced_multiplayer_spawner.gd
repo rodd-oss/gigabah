@@ -222,8 +222,9 @@ func _rpc_spawn(scene_path: String, node_name: String, pos: Vector3, network_id:
 		push_error("spawn_path pointing to invalid node")
 		return
 	
-	if spawn_target.find_child(node_name, false, true) != null:
-		push_error("authority sent rpc to spawn node with name that already occupied in spawn_path")
+	var existing_node: Node = spawn_target.find_child(node_name, false, true)
+	if existing_node:
+		push_error("authority sent rpc to spawn node with name that already occupied in spawn_path by %s" % existing_node)
 		return
 
 	var node: Node
