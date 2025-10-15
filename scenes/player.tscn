@@ -1938,10 +1938,10 @@ script = ExtResource("11_d2wvv")
 [node name="NetworkVisibilityArea" type="Node" parent="." node_paths=PackedStringArray("vision_area")]
 script = ExtResource("6_tuyoq")
 vision_radius = null
-vision_area = NodePath("Area3D")
+vision_area = NodePath("../Area3D")
 metadata/_custom_type_script = "uid://xrbns0ylm83m"
 
-[node name="Area3D" type="Area3D" parent="NetworkVisibilityArea"]
+[node name="Area3D" type="Area3D" parent="."]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkVisibilityArea/Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
 shape = SubResource("SphereShape3D_tuyoq")
