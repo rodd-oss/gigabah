@@ -54,6 +54,7 @@ func spawn(data: Variant = null) -> Node:
 
 	var net_node: _NetworkNodeInfo = _NetworkNodeInfo.new(_alloc_network_id(node))
 	_tracking_nodes[node.get_instance_id()] = net_node
+	_on_start_tracking_node(node, net_node)
 
 	return node
 
@@ -79,7 +80,9 @@ func set_visibility_for(peer_id: int, node: Node, visibility: bool) -> void:
 	if !net_node:
 		if visibility:
 			net_node = _NetworkNodeInfo.new(_alloc_network_id(node))
+			net_node.peers_vision.push_back(peer_id)
 			_tracking_nodes[node.get_instance_id()] = net_node
+			_on_start_tracking_node(node, net_node)
 			_on_peer_got_vision(node, net_node, peer_id)
 	else:
 		if visibility and peer_id not in net_node.peers_vision:
