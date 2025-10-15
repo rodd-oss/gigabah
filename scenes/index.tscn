@@ -1,8 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://bde2flq2egpcv"]
+[gd_scene load_steps=13 format=3 uid="uid://bde2flq2egpcv"]
 
 [ext_resource type="Script" uid="uid://f0ylqu4wka2x" path="res://scripts/multiplayer_spawner.gd" id="2_hhnvu"]
 [ext_resource type="PackedScene" uid="uid://dmp8nc3aenbut" path="res://scenes/player.tscn" id="3_8s3bs"]
 [ext_resource type="PackedScene" uid="uid://cabfjhgqmmx3k" path="res://scenes/bullet.tscn" id="4_hhnvu"]
+[ext_resource type="Script" uid="uid://7b3sgnsunh7" path="res://addons/day_night_cycle/DayPhaseConfig.gd" id="5_8s3bs"]
+[ext_resource type="Script" uid="uid://bn15aw656sbbt" path="res://addons/day_night_cycle/DayNightCycle.gd" id="5_daynight"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_qt2py"]
 
@@ -10,6 +12,41 @@
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4bt8n"]
 size = Vector3(1, 11, 21)
+
+[sub_resource type="Resource" id="Resource_khbhx"]
+script = ExtResource("5_8s3bs")
+duration = 5.0
+dir_energy = 0.25
+ambient_color = Color(0.9, 0.85, 0.75, 1)
+ambient_energy = 0.6
+dir_color = Color(1, 0.95, 0.85, 1)
+
+[sub_resource type="Resource" id="Resource_cjd57"]
+script = ExtResource("5_8s3bs")
+name = &"DAY"
+duration = 7.0
+dir_energy = 1.2
+ambient_energy = 1.0
+
+[sub_resource type="Resource" id="Resource_eao86"]
+script = ExtResource("5_8s3bs")
+name = &"EVENING"
+duration = 5.0
+dir_energy = 0.5
+point_energy = 0.4
+ambient_color = Color(0.8, 0.6, 0.5, 1)
+ambient_energy = 0.35
+dir_color = Color(1, 0.85, 0.6, 1)
+
+[sub_resource type="Resource" id="Resource_vc6rt"]
+script = ExtResource("5_8s3bs")
+name = &"NIGHT"
+duration = 7.0
+dir_energy = 0.1
+point_energy = 0.8
+ambient_color = Color(0.3, 0.35, 0.5, 1)
+ambient_energy = 0.08
+dir_color = Color(0.5, 0.6, 0.9, 1)
 
 [node name="Index3d" type="Node3D"]
 
@@ -76,3 +113,15 @@ shape = SubResource("BoxShape3D_4bt8n")
 
 [node name="Bullet" parent="." instance=ExtResource("4_hhnvu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.00794, -0.0346527)
+
+[node name="DayNightCycle" type="Node" parent="."]
+script = ExtResource("5_daynight")
+phase_configs = Array[ExtResource("5_8s3bs")]([SubResource("Resource_khbhx"), SubResource("Resource_cjd57"), SubResource("Resource_eao86"), SubResource("Resource_vc6rt")])
+morning_duration = 5.0
+day_duration = 7.0
+evening_duration = 5.0
+night_duration = 7.0
+directional_light = NodePath("../DirectionalLight3D")
+directional_lights = Array[NodePath]([NodePath("../DirectionalLight3D2")])
+point_lights = Array[NodePath]([NodePath("../OmniLight3D")])
+debug_log = true
