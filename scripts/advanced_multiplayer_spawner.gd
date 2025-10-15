@@ -73,11 +73,24 @@ func is_visible_for(peer_id: int, node: Node) -> bool:
 ## 
 ## Note: you can't disable visibility for node owner
 func set_visibility_for(peer_id: int, node: Node, visibility: bool) -> void:
+	if !is_multiplayer_authority():
+		push_error("attempt to change network visibility by non authority")
+		return
+	if peer_id < 1:
+		push_error("changing network visibility possibly only for clients")
+		return
 	if node.get_multiplayer_authority() == peer_id:
+		push_error("attempt to change visibility for node authority")
 		return
 
 	var net_node: _NetworkNodeInfo = _tracking_nodes.get(node.get_instance_id())
 	if !net_node:
+		if !_try_get_auto_spawnable_scene(node):
+			# TODO: would be better to change api and move set_visibility_for
+			#       into singleton class which will know what spawner spawned
+			#       this node
+			push_error("attempt to change network visibility of node not spawned by this spawner")
+
 		if visibility:
 			net_node = _NetworkNodeInfo.new(_alloc_network_id(node))
 			net_node.peers_vision.push_back(peer_id)
