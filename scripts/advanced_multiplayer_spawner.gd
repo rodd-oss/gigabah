@@ -135,6 +135,8 @@ func _enter_tree() -> void:
 			_watching_node.child_entered_tree.connect(_on_child_entered)
 			_watching_node.child_exiting_tree.connect(_on_child_exiting)
 
+		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+
 func _exit_tree() -> void:
 	if is_multiplayer_authority():
 		if _watching_node:
@@ -142,6 +144,15 @@ func _exit_tree() -> void:
 			_watching_node.child_exiting_tree.connect(_on_child_exiting)
 
 			_watching_node = null
+
+		multiplayer.peer_disconnected.disconnect(_on_peer_disconnected)
+
+func _on_peer_disconnected(peer_id: int) -> void:
+	_iter_all_node_instance_ids_peer_see(peer_id, func(_node_id: int, net_node: _NetworkNodeInfo) -> void:
+		var peer_vis_idx: int = net_node.peers_vision.find(peer_id)
+		if peer_vis_idx >= 0:
+			_erase_replacing(net_node.peers_vision, peer_vis_idx)
+	)
 
 func _on_child_entered(node: Node) -> void:
 	var auto_spawn_scene: PackedScene = _try_get_auto_spawnable_scene(node)
@@ -201,6 +212,7 @@ func _on_peer_got_vision(node: Node, net_node: _NetworkNodeInfo, peer_id: int) -
 	_rpc_spawn.rpc_id(peer_id, node.scene_file_path, node.name, pos, net_node.network_id, null)
 
 ## called only on owner side
+## not called when peer disconnects (see _on_peer_disconnected)
 func _on_peer_lost_vision(_node: Node, net_node: _NetworkNodeInfo, peer_id: int) -> void:
 	for syncer: MultiplayerSynchronizer in net_node.synchronizers:
 		syncer.set_visibility_for(peer_id, false)
@@ -220,6 +232,13 @@ func _find_node_id_by_network_id(network_id: int) -> int:
 			return node_id
 
 	return 0
+
+## callback: func(node_id: int, net_node: _NetworkNodeInfo)
+func _iter_all_node_instance_ids_peer_see(peer_id: int, callback: Callable) -> void:
+	for node_id: int in _tracking_nodes.keys():
+		var net_node: _NetworkNodeInfo = _tracking_nodes[node_id]
+		if peer_id in net_node.peers_vision:
+			callback.call(node_id, net_node)
 
 func _alloc_network_id(node: Node) -> int:
 	return node.get_instance_id()
