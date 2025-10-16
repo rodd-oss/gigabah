@@ -94,6 +94,7 @@ func set_visibility_for(peer_id: int, node: Node, visibility: bool) -> void:
 			#       into singleton class which will know what spawner spawned
 			#       this node
 			push_error("attempt to change network visibility of node not spawned by this spawner")
+			return
 
 		if visibility:
 			net_node = _NetworkNodeInfo.new(_alloc_network_id(node))
