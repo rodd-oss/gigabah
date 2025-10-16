@@ -130,8 +130,6 @@ func get_peer_have_vision(node: Node, index: int) -> int:
 
 func _enter_tree() -> void:
 	if is_multiplayer_authority():
-		multiplayer.object_configuration_add(self, self)
-
 		_watching_node = get_node_or_null(spawn_path)
 		if _watching_node:
 			_watching_node.child_entered_tree.connect(_on_child_entered)
@@ -139,8 +137,6 @@ func _enter_tree() -> void:
 
 func _exit_tree() -> void:
 	if is_multiplayer_authority():
-		multiplayer.object_configuration_remove(self, self)
-
 		if _watching_node:
 			_watching_node.child_entered_tree.connect(_on_child_entered)
 			_watching_node.child_exiting_tree.connect(_on_child_exiting)
