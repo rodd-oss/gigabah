@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://ygkgpca1ir66"]
+[gd_scene load_steps=3 format=3 uid="uid://ygkgpca1ir66"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_m3ml1"]
 properties/0/path = NodePath(".:text")
@@ -8,9 +8,18 @@ properties/1/path = NodePath(".:position")
 properties/1/spawn = true
 properties/1/replication_mode = 2
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_m3ml1"]
+size = Vector3(0.5966797, 0.6015625, 0.5830078)
+
 [node name="Emote" type="Label3D"]
 billboard = 1
 font_size = 128
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_m3ml1")
+
+[node name="Area3D" type="Area3D" parent="."]
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_m3ml1")

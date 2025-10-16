@@ -1,7 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://bde2flq2egpcv"]
+[gd_scene load_steps=9 format=3 uid="uid://bde2flq2egpcv"]
 
 [ext_resource type="Script" uid="uid://f0ylqu4wka2x" path="res://scripts/multiplayer_spawner.gd" id="2_hhnvu"]
 [ext_resource type="PackedScene" uid="uid://dmp8nc3aenbut" path="res://scenes/player.tscn" id="3_8s3bs"]
+[ext_resource type="PackedScene" uid="uid://ygkgpca1ir66" path="res://scenes/radial_menu/emote.tscn" id="3_hhnvu"]
+[ext_resource type="PackedScene" uid="uid://b4pv22bpxxgng" path="res://scenes/poop.tscn" id="4_8s3bs"]
 [ext_resource type="PackedScene" uid="uid://cabfjhgqmmx3k" path="res://scenes/bullet.tscn" id="4_hhnvu"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_qt2py"]
@@ -17,7 +19,7 @@ size = Vector3(1, 11, 21)
 script = ExtResource("2_hhnvu")
 player_scene = ExtResource("3_8s3bs")
 spawn_path = NodePath("..")
-auto_spawnable_scenes = Array[PackedScene]([ExtResource("3_8s3bs")])
+auto_spawnable_scenes = Array[PackedScene]([ExtResource("3_8s3bs"), ExtResource("3_hhnvu"), ExtResource("4_8s3bs")])
 metadata/_custom_type_script = "uid://f0ylqu4wka2x"
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
