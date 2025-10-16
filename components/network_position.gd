@@ -12,8 +12,9 @@ var _initialized: bool = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	if parent != null && multiplayer.is_server():
-		server_position = parent.position
+	if parent != null:
+		if multiplayer.is_server():
+			server_position = parent.position
 	else:
 		printerr("NetworkPosition: Parent is null")
 
