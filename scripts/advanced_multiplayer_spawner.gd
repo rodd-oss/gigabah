@@ -154,8 +154,6 @@ func _on_child_entered(node: Node) -> void:
 		# using spawn method
 		return
 
-	print("Automatically replicating node %s (%d)" % [node.name, node.get_instance_id()])
-
 	var net_node: _NetworkNodeInfo = _tracking_nodes.get(node.get_instance_id())
 	if net_node:
 		# node already tracking

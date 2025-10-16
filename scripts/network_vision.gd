@@ -22,7 +22,6 @@ func _on_body_entered(body: Node3D) -> void:
 
 	var node: Node = body
 	if node and !node.scene_file_path.is_empty():
-		print("entered [%s] %s (%d)" % [node.get_class(), node.name, node.get_instance_id()])
 		spawner.set_visibility_for(vision_owner_peer_id, node, true)
 
 func _on_body_exited(body: Node3D) -> void:
@@ -31,5 +30,4 @@ func _on_body_exited(body: Node3D) -> void:
 
 	var node: Node = body
 	if node and !node.scene_file_path.is_empty():
-		print("exited [%s] %s (%d)" % [node.get_class(), node.name, node.get_instance_id()])
 		spawner.set_visibility_for(vision_owner_peer_id, node, false)
