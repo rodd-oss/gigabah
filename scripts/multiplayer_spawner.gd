@@ -21,7 +21,6 @@ func spawn_player(id: int) -> void:
 
 	var net_vis: NetworkVision = player.get_node("NetworkVisibilityArea") as NetworkVision
 	if net_vis:
-		net_vis.spawner = self
 		net_vis.vision_owner_peer_id = id
 		
 	set_visibility_for(id, player, true)

@@ -7,6 +7,8 @@
 class_name AdvancedMultiplayerSpawner
 extends Node
 
+const META_ADVANCED_SPAWNER: String = "advanced_spawner_node_id"
+
 var spawn_function: Callable ## must be func(data: Variant) -> Node
 @export var spawn_limit: int = 0
 @export var spawn_path: NodePath = "."
@@ -16,6 +18,24 @@ var _tracking_nodes: Dictionary[int, _NetworkNodeInfo] = {}
 
 signal spawned(node: Node)
 signal despawning(node: Node)
+
+## Set visibility of node for specific peer.
+## 
+## Note: you can't disable visibility for node owner
+static func set_visibility_for(peer_id: int, node: Node, visibility: bool) -> VisibilityError:
+	var spawned_node_id: int = node.get_meta(META_ADVANCED_SPAWNER, 0) as int
+	if spawned_node_id == 0:
+		return VisibilityError.NOT_SPAWNED_BY_ADVANCED_SPAWNER
+
+	var spawner_node: Object = instance_from_id(spawned_node_id)
+	if !spawner_node:
+		return VisibilityError.CORRUPTED_META
+	
+	var spawner: AdvancedMultiplayerSpawner = spawner_node as AdvancedMultiplayerSpawner
+	if !spawner:
+		return VisibilityError.CORRUPTED_META
+
+	return spawner._set_visibility_for(peer_id, node, visibility)
 
 func add_spawnable_scene(path: String) -> void:
 	auto_spawnable_scenes.append(load(path))
@@ -73,28 +93,18 @@ func is_visible_for(peer_id: int, node: Node) -> bool:
 
 	return peer_id in net_node.peers_vision
 
-## Set visibility of node for specific peer.
-## 
-## Note: you can't disable visibility for node owner
-func set_visibility_for(peer_id: int, node: Node, visibility: bool) -> void:
+func _set_visibility_for(peer_id: int, node: Node, visibility: bool) -> VisibilityError:
 	if !is_multiplayer_authority():
-		push_error("attempt to change network visibility by non authority")
-		return
+		return VisibilityError.NOT_ALLOWED
 	if peer_id < 1:
-		push_error("changing network visibility possibly only for clients")
-		return
+		return VisibilityError.WRONG_PEER_ID
 	if node.get_multiplayer_authority() == peer_id:
-		push_error("attempt to change visibility for node authority")
-		return
+		return VisibilityError.WRONG_PEER_ID
 
 	var net_node: _NetworkNodeInfo = _tracking_nodes.get(node.get_instance_id())
 	if !net_node:
 		if !_try_get_auto_spawnable_scene(node):
-			# TODO: would be better to change api and move set_visibility_for
-			#       into singleton class which will know what spawner spawned
-			#       this node
-			push_error("attempt to change network visibility of node not spawned by this spawner")
-			return
+			return VisibilityError.NOT_TRACKED_BY_THIS_SPAWNER
 
 		if visibility:
 			net_node = _NetworkNodeInfo.new(_alloc_network_id(node))
@@ -111,6 +121,8 @@ func set_visibility_for(peer_id: int, node: Node, visibility: bool) -> void:
 			if idx >= 0:
 				_erase_replacing(net_node.peers_vision, idx)
 			_on_peer_lost_vision(node, net_node, peer_id)
+
+	return VisibilityError.OK
 
 ## Returns number of peers can see node, excluding owner
 func get_peers_have_vision_count(node: Node) -> int:
@@ -191,8 +203,10 @@ func _on_start_tracking_node(node: Node, net_node: _NetworkNodeInfo) -> void:
 	for syncer: MultiplayerSynchronizer in net_node.synchronizers:
 		syncer.set_visibility_for(0, false)
 
-func _on_end_tracking_node(_node: Node, _net_node: _NetworkNodeInfo) -> void:
-	pass
+	node.set_meta(META_ADVANCED_SPAWNER, get_instance_id())
+
+func _on_end_tracking_node(node: Node, _net_node: _NetworkNodeInfo) -> void:
+	node.remove_meta(META_ADVANCED_SPAWNER)
 
 ## called only on owner side
 func _on_peer_got_vision(node: Node, net_node: _NetworkNodeInfo, peer_id: int) -> void:
@@ -320,3 +334,12 @@ class _NetworkNodeInfo:
 
 	func _init(net_id: int) -> void:
 		self.network_id = net_id
+
+enum VisibilityError {
+	OK,
+	NOT_SPAWNED_BY_ADVANCED_SPAWNER,
+	CORRUPTED_META,
+	NOT_TRACKED_BY_THIS_SPAWNER,
+	NOT_ALLOWED,
+	WRONG_PEER_ID,
+}
