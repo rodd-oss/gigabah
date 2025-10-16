@@ -1,4 +1,4 @@
-# Godessa
+# Gigabah
 
 A multiplayer 3D game built with Godot 4.5 featuring networked gameplay with synchronized player positions, health, and projectiles.
 
@@ -16,12 +16,13 @@ A multiplayer 3D game built with Godot 4.5 featuring networked gameplay with syn
 - **Physics**: Jolt Physics
 - **Networking**: Godot Multiplayer API
 - **Container**: Docker support included
+- **Scripting language**: GDScript with types
 
 ## Development Setup
 
-### Running Multiple Instances for Testing
+### Running Multiple Instances for Development
 
-To test multiplayer locally with multiple game instances:
+To run multiplayer locally with multiple game instances:
 
 1. Go to **Debug** → **Customize Run Instances**
 2. Enable **Multiple Instances**
@@ -42,4 +43,5 @@ components/     - Network synchronization components
 scripts/        - Core game logic and network manager
 scenes/         - Game scenes (player, projectiles, index)
 materials/      - Visual materials
+models/         - Blender file 3d models
 ```
