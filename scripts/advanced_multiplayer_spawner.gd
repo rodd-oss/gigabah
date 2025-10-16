@@ -59,6 +59,10 @@ func spawn(data: Variant = null) -> Node:
 	return node
 
 func is_visible_for(peer_id: int, node: Node) -> bool:
+	if not is_multiplayer_authority():
+		push_warning("non authority doesn't have visibility knowledge")
+		return false
+
 	# owner always see its own nodes
 	if node.get_multiplayer_authority() == peer_id:
 		return true
