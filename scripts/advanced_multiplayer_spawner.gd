@@ -144,6 +144,9 @@ func _enter_tree() -> void:
 	if is_multiplayer_authority():
 		_watching_node = get_node_or_null(spawn_path)
 		if _watching_node:
+			for child: Node in _watching_node.get_children():
+				_on_child_entered(child)
+
 			_watching_node.child_entered_tree.connect(_on_child_entered)
 			_watching_node.child_exiting_tree.connect(_on_child_exiting)
 
