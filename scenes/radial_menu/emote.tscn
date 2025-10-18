@@ -18,8 +18,10 @@ font_size = 128
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_m3ml1")
 
-[node name="Area3D" type="Area3D" parent="."]
+[node name="NetworkVisionProvider" type="Area3D" parent="."]
+collision_layer = 2147483648
+collision_mask = 2147483648
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkVisionProvider"]
 shape = SubResource("BoxShape3D_m3ml1")

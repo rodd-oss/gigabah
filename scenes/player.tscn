@@ -1528,7 +1528,10 @@ _data = {
 font_size = 32
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_tuyoq"]
-radius = 5.0
+radius = 10.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_3v2ag"]
+radius = 1.1026574
 
 [node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("camera")]
 script = ExtResource("1_qhqgy")
@@ -1804,7 +1807,6 @@ poop = ExtResource("7_f1ej7")
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("7_jej6c")
-metadata/_custom_type_script = "uid://dnhu4bhw8o1as"
 
 [node name="Clown" type="Label" parent="RadialMenu"]
 layout_mode = 0
@@ -1822,7 +1824,6 @@ script = ExtResource("8_f1ej7")
 color = Color(0, 0.42352942, 0.84705883, 1)
 hower_color = Color(0.10597397, 0.52481604, 0.99996525, 1)
 press_color = Color(0, 0.31075662, 0.63448113, 1)
-metadata/_custom_type_script = "uid://bo87xn437osdk"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="RadialMenu/Clown"]
 libraries = {
@@ -1862,7 +1863,6 @@ script = ExtResource("8_f1ej7")
 color = Color(1.2032688e-06, 0.56621134, 0.33317363, 1)
 hower_color = Color(2.117753e-06, 0.6495023, 0.38647014, 1)
 press_color = Color(0, 0.42239466, 0.2441552, 1)
-metadata/_custom_type_script = "uid://bo87xn437osdk"
 
 [node name="Poop" type="Label" parent="RadialMenu"]
 layout_mode = 0
@@ -1881,7 +1881,6 @@ script = ExtResource("8_f1ej7")
 color = Color(0.5067515, 0.29393405, 9.62615e-08, 1)
 hower_color = Color(0.39, 0.2275, 0, 1)
 press_color = Color(0.28, 0.16333334, 0, 1)
-metadata/_custom_type_script = "uid://bo87xn437osdk"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="RadialMenu/Poop"]
 libraries = {
@@ -1923,14 +1922,25 @@ script = ExtResource("11_d2wvv")
 [node name="NetworkVisibilityArea" type="Node" parent="." node_paths=PackedStringArray("vision_area")]
 script = ExtResource("6_tuyoq")
 vision_radius = null
-vision_area = NodePath("../Area3D")
+vision_area = NodePath("../NetworkVisionCatcher")
 metadata/_custom_type_script = "uid://xrbns0ylm83m"
 
-[node name="Area3D" type="Area3D" parent="."]
+[node name="NetworkVisionCatcher" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2147483648
 monitorable = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkVisionCatcher"]
 shape = SubResource("SphereShape3D_tuyoq")
+
+[node name="NetworkVisionProvider" type="Area3D" parent="."]
+collision_layer = 2147483648
+collision_mask = 2147483648
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkVisionProvider"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.98449135, 0)
+shape = SubResource("SphereShape3D_3v2ag")
 
 [connection signal="on_hower" from="RadialMenu/Clown/RadialMenuBehavior" to="RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
 [connection signal="on_press" from="RadialMenu/Clown/RadialMenuBehavior" to="EmoteSpawner" method="_on_clown_button_press"]
