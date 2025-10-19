@@ -18,10 +18,6 @@ func spawn_player(id: int) -> void:
 	player.position.y = 0
 	player.position.z = randf_range(-5, 5)
 	get_node(spawn_path).call_deferred("add_child", player)
-
-	var net_vis: NetworkVision = player.get_node("NetworkVisibilityArea") as NetworkVision
-	if net_vis:
-		net_vis.vision_owner_peer_id = id
 		
 	set_visibility_for(id, player, true)
 
