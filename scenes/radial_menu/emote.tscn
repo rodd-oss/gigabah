@@ -23,5 +23,5 @@ collision_layer = 2147483648
 collision_mask = 2147483648
 monitoring = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkVisionProvider"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkBoundingArea3D"]
 shape = SubResource("BoxShape3D_m3ml1")
