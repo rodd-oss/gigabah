@@ -1,10 +1,11 @@
-[gd_scene load_steps=34 format=4 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=37 format=4 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/player.gd" id="1_qhqgy"]
 [ext_resource type="Script" uid="uid://wwr4smb84bc0" path="res://components/network_position.gd" id="3_dqkch"]
 [ext_resource type="Script" uid="uid://bfhjfynop50wf" path="res://components/hp.gd" id="4_dqkch"]
 [ext_resource type="PackedScene" uid="uid://cikxs0fl5lnxf" path="res://features/health-bar/health_bar_3d.tscn" id="5_health"]
 [ext_resource type="PackedScene" uid="uid://m02shnr1melc" path="res://scenes/radial_menu/emote_spawner.tscn" id="6_3v2ag"]
+[ext_resource type="Script" uid="uid://xrbns0ylm83m" path="res://scripts/network_vision_area_3d.gd" id="6_tuyoq"]
 [ext_resource type="PackedScene" uid="uid://b4pv22bpxxgng" path="res://scenes/poop.tscn" id="7_f1ej7"]
 [ext_resource type="Script" uid="uid://dnhu4bhw8o1as" path="res://scripts/radial_menu/radial_menu.gd" id="7_jej6c"]
 [ext_resource type="Script" uid="uid://bo87xn437osdk" path="res://scripts/radial_menu/radial_menu_item_behavior.gd" id="8_f1ej7"]
@@ -1525,6 +1526,12 @@ _data = {
 [sub_resource type="LabelSettings" id="LabelSettings_a38lo"]
 font_size = 32
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_3v2ag"]
+radius = 1.1026574
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_tuyoq"]
+radius = 10.0
+
 [node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("camera")]
 script = ExtResource("1_qhqgy")
 camera = NodePath("Camera3D")
@@ -1777,6 +1784,7 @@ replication_interval = 0.02
 delta_interval = 0.02
 replication_config = SubResource("SceneReplicationConfig_qhqgy")
 script = ExtResource("3_dqkch")
+server_position = Vector3(nan, nan, nan)
 metadata/_custom_type_script = "uid://wwr4smb84bc0"
 
 [node name="NetworkHp" type="MultiplayerSynchronizer" parent="."]
@@ -1798,7 +1806,6 @@ poop = ExtResource("7_f1ej7")
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("7_jej6c")
-metadata/_custom_type_script = "uid://dnhu4bhw8o1as"
 
 [node name="Clown" type="Label" parent="RadialMenu"]
 layout_mode = 0
@@ -1816,7 +1823,6 @@ script = ExtResource("8_f1ej7")
 color = Color(0, 0.42352942, 0.84705883, 1)
 hower_color = Color(0.10597397, 0.52481604, 0.99996525, 1)
 press_color = Color(0, 0.31075662, 0.63448113, 1)
-metadata/_custom_type_script = "uid://bo87xn437osdk"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="RadialMenu/Clown"]
 libraries = {
@@ -1856,7 +1862,6 @@ script = ExtResource("8_f1ej7")
 color = Color(1.2032688e-06, 0.56621134, 0.33317363, 1)
 hower_color = Color(2.117753e-06, 0.6495023, 0.38647014, 1)
 press_color = Color(0, 0.42239466, 0.2441552, 1)
-metadata/_custom_type_script = "uid://bo87xn437osdk"
 
 [node name="Poop" type="Label" parent="RadialMenu"]
 layout_mode = 0
@@ -1875,7 +1880,6 @@ script = ExtResource("8_f1ej7")
 color = Color(0.5067515, 0.29393405, 9.62615e-08, 1)
 hower_color = Color(0.39, 0.2275, 0, 1)
 press_color = Color(0.28, 0.16333334, 0, 1)
-metadata/_custom_type_script = "uid://bo87xn437osdk"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="RadialMenu/Poop"]
 libraries = {
@@ -1913,6 +1917,25 @@ metadata/_custom_type_script = "uid://bo87xn437osdk"
 
 [node name="AnimationsBase" type="Node" parent="."]
 script = ExtResource("11_d2wvv")
+
+[node name="NetworkBoundingArea3D" type="Area3D" parent="."]
+collision_layer = 2147483648
+collision_mask = 2147483648
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkBoundingArea3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.98449135, 0)
+shape = SubResource("SphereShape3D_3v2ag")
+
+[node name="NetworkVisionArea3D" type="Area3D" parent="."]
+collision_layer = 2147483648
+collision_mask = 2147483648
+monitorable = false
+script = ExtResource("6_tuyoq")
+metadata/_custom_type_script = "uid://xrbns0ylm83m"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkVisionArea3D"]
+shape = SubResource("SphereShape3D_tuyoq")
 
 [connection signal="on_hower" from="RadialMenu/Clown/RadialMenuBehavior" to="RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
 [connection signal="on_press" from="RadialMenu/Clown/RadialMenuBehavior" to="EmoteSpawner" method="_on_clown_button_press"]

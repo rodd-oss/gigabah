@@ -64,6 +64,10 @@ radial_menu_click={
 ]
 }
 
+[layer_names]
+
+3d_physics/layer_32="network_visibility"
+
 [physics]
 
 common/physics_ticks_per_second=50

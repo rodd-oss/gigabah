@@ -9,6 +9,9 @@ var move_direction: Vector2 = Vector2.ZERO
 var jump_input: bool = false
 
 func _enter_tree() -> void:
+	if multiplayer.is_server():
+		$NetworkVisionArea3D.vision_owner_peer_id = name.to_int()
+
 	# Always set authority to server (ID 1)
 	set_multiplayer_authority(1)
 	if multiplayer.get_unique_id() == 1:
