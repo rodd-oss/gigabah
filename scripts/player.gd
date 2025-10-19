@@ -9,6 +9,9 @@ var move_direction: Vector2 = Vector2.ZERO
 var jump_input: bool = false
 
 func _enter_tree() -> void:
+	if multiplayer.is_server():
+		$NetworkVisionArea3D.vision_owner_peer_id = name.to_int()
+
 	# Always set authority to server (ID 1)
 	set_multiplayer_authority(1)
 	if multiplayer.get_unique_id() == 1:
@@ -46,15 +49,6 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_direction.y * SPEED
 			
 		move_and_slide()
-
-# Animation: TEST Should be replaced with proper script in future!!!
-	var animplayer : AnimationPlayer = $PlayerModel.find_child("AnimationPlayer")
-	animplayer.speed_scale = 1.0
-	if move_direction == Vector2.ZERO:
-		animplayer.play("Idle")
-	else:
-		animplayer.speed_scale = SPEED
-		animplayer.play("Walk")
 
 
 @rpc("any_peer")

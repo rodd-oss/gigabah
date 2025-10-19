@@ -59,8 +59,19 @@ draw_pass_1 = SubResource("SphereMesh_pkbnx")
 
 [node name="Area3D" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.31767172, 0)
+monitorable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.045918047, 0)
+shape = SubResource("BoxShape3D_pkbnx")
+
+[node name="NetworkBoundingArea3D" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.31767172, 0)
+collision_layer = 2147483648
+collision_mask = 2147483648
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkBoundingArea3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.045918047, 0)
 shape = SubResource("BoxShape3D_pkbnx")
 
