@@ -1,158 +1,143 @@
-name: Build and Release Clients
+name: Build and Release
 
 on:
   push:
     branches:
       - main
       - dev
+  workflow_dispatch:
 
 jobs:
-  export-linux:
-    name: Export Linux Client
+  compute-version:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Godot 4.5
+      - name: Compute version and release type
+        id: version
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip zip
-          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip
-          unzip Godot_v4.5-stable_linux.x86_64.zip
-          mv Godot_v4.5-stable_linux.x86_64 godot
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            VER="${GITHUB_REF_NAME}"
+            RELEASE="true"
+          else
+            VER="sha-${GITHUB_SHA::8}"
+            RELEASE="false"
+          fi
+          echo "VER=$VER"
+          echo "ver=$VER" >> $GITHUB_OUTPUT
+          echo "RELEASE=$RELEASE"
+          echo "release=$RELEASE" >> $GITHUB_OUTPUT
+
+    outputs:
+      ver: ${{ steps.version.outputs.ver  }}
+      release: ${{ steps.version.outputs.release }}
+
+  build:
+    runs-on: ubuntu-latest
+    needs:
+      - compute-version
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+# xorg dependency is necessary for blender gltf export to work https://github.com/godotengine/godot/issues/89767
+      - name: Install APT dependencies
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: xorg
+          version: 1.0
+
+      - name: Install other dependencies
+        env:
+          GODOT_VERSION: 4.5-stable
+          BLENDER_VERSION: 4.5.3
+        run: |
+          mkdir ./.vendor
+          cd ./.vendor
+
+          wget -nv https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip
+          unzip Godot_v${GODOT_VERSION}_linux.x86_64.zip
+          mv Godot_v${GODOT_VERSION}_linux.x86_64 godot
           chmod +x godot
-          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_export_templates.tpz
-          mkdir -p ~/.local/share/godot/export_templates/4.5.stable
-          unzip Godot_v4.5-stable_export_templates.tpz
-          mv templates/* ~/.local/share/godot/export_templates/4.5.stable/
 
-      - name: Export Linux Desktop (release)
+          wget -nv https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/${GODOT_VERSION//-/.}
+          unzip Godot_v${GODOT_VERSION}_export_templates.tpz
+          mv templates/* ~/.local/share/godot/export_templates/${GODOT_VERSION//-/.}/
+
+          wget -nv https://mirrors.dotsrc.org/blender/blender-release/Blender4.5/blender-${BLENDER_VERSION}-linux-x64.tar.xz
+          tar -xvf blender-${BLENDER_VERSION}-linux-x64.tar.xz
+          mv blender-${BLENDER_VERSION}-linux-x64 blender
+
+      - name: Build project
         run: |
-          mkdir -p .dist/linux
-          ./godot --headless --verbose --export-release "Linux Desktop" .dist/linux
+          cd ${GITHUB_WORKSPACE}
+          mkdir -p ~/.config/godot/
+          cat >> ~/.config/godot/editor_settings-4.5.tres <<EOF
+          [gd_resource type="EditorSettings" load_steps=2 format=3]
 
-      - name: Archive Linux build
-        run: |
-          cd .dist/linux
-          zip -r ../bevryust-online-linux.zip .
-          cd -
-        shell: bash
+          [resource]
+          filesystem/import/blender/blender_path = "${GITHUB_WORKSPACE}/.vendor/blender/blender"
+          filesystem/import/blender/rpc_port = 0
+          EOF
 
-      - name: Upload artifact (linux)
+          mkdir ./.dist
+          ./.vendor/godot --headless --verbose --export-release "Linux Server" ".dist/linux-dedicated_${{ needs.compute-version.outputs.ver }}.x86_64"
+          ./.vendor/godot --headless --verbose --export-release "Linux Desktop" ".dist/bevryust-online_${{ needs.compute-version.outputs.ver }}.x86_64"
+          ./.vendor/godot --headless --verbose --export-release "Windows Desktop" ".dist/bevryust-online_${{ needs.compute-version.outputs.ver }}.exe"
+          ls -lh ./.dist
+
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: bevryust-online-linux
-          path: .dist/bevryust-online-linux.zip
+          name: build-output-${{ needs.compute-version.outputs.ver }}
+          path: .dist
+          if-no-files-found: "error"
+          include-hidden-files: "true"
 
-  export-linux-server:
-    name: Export Linux Dedicated Server
+  publish:
     runs-on: ubuntu-latest
+    needs:
+      - compute-version
+      - build
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v5
 
-      - name: Setup Godot 4.5
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip zip
-          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip
-          unzip Godot_v4.5-stable_linux.x86_64.zip
-          mv Godot_v4.5-stable_linux.x86_64 godot
-          chmod +x godot
-          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_export_templates.tpz
-          mkdir -p ~/.local/share/godot/export_templates/4.5.stable
-          unzip Godot_v4.5-stable_export_templates.tpz
-          mv templates/* ~/.local/share/godot/export_templates/4.5.stable/
-
-      - name: Export Linux Server (release)
-        run: |
-          mkdir -p .dist/linux-server
-          ./godot --headless --verbose --export-release "Linux Server" .dist/linux-server
-
-      - name: Archive Linux Server build
-        run: |
-          cd .dist/linux-server
-          zip -r ../linux-dedicated.zip .
-          cd -
-        shell: bash
-
-      - name: Upload artifact (linux-server)
-        uses: actions/upload-artifact@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v5
         with:
-          name: linux-dedicated
-          path: .dist/linux-dedicated.zip
+          name: build-output-${{ needs.compute-version.outputs.ver }}
+          path: ./.dist
 
-  export-windows:
-    name: Export Windows Client
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Godot 4.5
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip zip
-          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip
-          unzip Godot_v4.5-stable_linux.x86_64.zip
-          mv Godot_v4.5-stable_linux.x86_64 godot
-          chmod +x godot
-          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_export_templates.tpz
-          mkdir -p ~/.local/share/godot/export_templates/4.5.stable
-          unzip Godot_v4.5-stable_export_templates.tpz
-          mv templates/* ~/.local/share/godot/export_templates/4.5.stable/
-
-      - name: Export Windows Desktop (release)
-        run: |
-          mkdir -p .dist/windows
-          ./godot --headless --verbose --export-release "Windows Desktop" .dist/windows
-
-      - name: Archive Windows build
-        run: |
-          cd .dist/windows
-          zip -r ../bevryust-online-windows.zip .
-          cd -
-        shell: bash
-
-      - name: Upload artifact (windows)
-        uses: actions/upload-artifact@v4
+      - name: Login into ghcr.io registry
+        uses: docker/login-action@v3
         with:
-          name: bevryust-online-windows
-          path: .dist/bevryust-online-windows.zip
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-  release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    needs: [export-linux, export-windows, export-linux-server]
-    steps:
-      - name: Download linux artifact
-        uses: actions/download-artifact@v4
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
         with:
-          name: bevryust-online-linux
-          path: dist
+          context: .
+          file: ./dockerfiles/Server.dockerfile
+          build-args: |
+            VER=${{ needs.compute-version.outputs.ver }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ needs.compute-version.outputs.ver }}
+            ${{ needs.compute-version.outputs.release == 'true' && 'ghcr.io/${{ github.repository }}:latest' || ''}}
 
-      - name: Download windows artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: bevryust-online-windows
-          path: dist
-
-      - name: Download linux server artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: linux-dedicated
-          path: dist
-
-      - name: Create GitHub Release
+      - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          name: Latest main build
-          tag_name: main
-          make_latest: true
+          tag_name: ${{ needs.compute-version.outputs.ver }}
+          name: "${{ needs.compute-version.outputs.ver }}"
+          body: "Release ${{ needs.compute-version.outputs.ver }}"
+          draft: false
+          prerelease: ${{ needs.compute-version.outputs.release == 'false' }}
+          make_latest: "${{ needs.compute-version.outputs.release == 'true' }}"
           files: |
-            dist/bevryust-online-linux.zip
-            dist/bevryust-online-windows.zip
-            dist/linux-dedicated.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            ./.dist/*
