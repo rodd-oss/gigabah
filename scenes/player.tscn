@@ -1,11 +1,10 @@
-[gd_scene load_steps=37 format=4 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=40 format=4 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/player.gd" id="1_qhqgy"]
-[ext_resource type="Script" uid="uid://wwr4smb84bc0" path="res://components/network_position.gd" id="3_dqkch"]
 [ext_resource type="Script" uid="uid://bfhjfynop50wf" path="res://components/hp.gd" id="4_dqkch"]
 [ext_resource type="PackedScene" uid="uid://cikxs0fl5lnxf" path="res://features/health-bar/health_bar_3d.tscn" id="5_health"]
 [ext_resource type="PackedScene" uid="uid://m02shnr1melc" path="res://scenes/radial_menu/emote_spawner.tscn" id="6_3v2ag"]
-[ext_resource type="Script" uid="uid://xrbns0ylm83m" path="res://scripts/network_vision_area_3d.gd" id="6_tuyoq"]
+[ext_resource type="Script" path="res://scripts/network_vision_area_3d.gd" id="6_tuyoq"]
 [ext_resource type="PackedScene" uid="uid://b4pv22bpxxgng" path="res://scenes/poop.tscn" id="7_f1ej7"]
 [ext_resource type="Script" uid="uid://dnhu4bhw8o1as" path="res://scripts/radial_menu/radial_menu.gd" id="7_jej6c"]
 [ext_resource type="Script" uid="uid://bo87xn437osdk" path="res://scripts/radial_menu/radial_menu_item_behavior.gd" id="8_f1ej7"]
@@ -1449,18 +1448,13 @@ _data = {
 &"Walk": SubResource("Animation_pcrvq")
 }
 
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_qhqgy"]
-properties/0/path = NodePath(":server_position")
-properties/0/spawn = true
-properties/0/replication_mode = 1
-
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_dqkch"]
 properties/0/path = NodePath("NetworkHp:max_health")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 properties/1/path = NodePath("NetworkHp:current_health")
 properties/1/spawn = true
-properties/1/replication_mode = 1
+properties/1/replication_mode = 2
 
 [sub_resource type="LabelSettings" id="LabelSettings_4r5pv"]
 font_size = 32
@@ -1531,6 +1525,34 @@ radius = 1.1026574
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_tuyoq"]
 radius = 10.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_d2wvv"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_3v2ag"]
+properties/0/path = NodePath(".:replicated_velocity")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_jej6c"]
+properties/0/path = NodePath(".:rotation")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_f1ej7"]
+properties/0/path = NodePath(".:replicated_input")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:replicated_jump_input")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_oprun"]
+properties/0/path = NodePath(".:replicated_on_floor")
+properties/0/spawn = true
+properties/0/replication_mode = 2
 
 [node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("camera")]
 script = ExtResource("1_qhqgy")
@@ -1778,15 +1800,6 @@ projection = 1
 size = 15.286
 near = 0.001
 
-[node name="NetworkPosition" type="MultiplayerSynchronizer" parent="."]
-root_path = NodePath(".")
-replication_interval = 0.02
-delta_interval = 0.02
-replication_config = SubResource("SceneReplicationConfig_qhqgy")
-script = ExtResource("3_dqkch")
-server_position = Vector3(nan, nan, nan)
-metadata/_custom_type_script = "uid://wwr4smb84bc0"
-
 [node name="NetworkHp" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_dqkch")
 script = ExtResource("4_dqkch")
@@ -1932,10 +1945,25 @@ collision_layer = 2147483648
 collision_mask = 2147483648
 monitorable = false
 script = ExtResource("6_tuyoq")
-metadata/_custom_type_script = "uid://xrbns0ylm83m"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkVisionArea3D"]
 shape = SubResource("SphereShape3D_tuyoq")
+
+[node name="PositionSynchronizer" type="MultiplayerSynchronizer" parent="."]
+delta_interval = 0.25
+replication_config = SubResource("SceneReplicationConfig_d2wvv")
+
+[node name="VelocitySynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_3v2ag")
+
+[node name="RotationSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_jej6c")
+
+[node name="InputSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_f1ej7")
+
+[node name="CollisionSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_oprun")
 
 [connection signal="on_hower" from="RadialMenu/Clown/RadialMenuBehavior" to="RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
 [connection signal="on_press" from="RadialMenu/Clown/RadialMenuBehavior" to="EmoteSpawner" method="_on_clown_button_press"]

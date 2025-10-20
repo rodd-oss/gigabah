@@ -5,6 +5,11 @@ extends CharacterBody3D
 
 @export var camera: Camera3D
 
+@export var replicated_velocity:Vector3 = Vector3.ZERO
+@export var replicated_input:Vector2 = Vector2.ZERO
+@export var replicated_jump_input:bool = false
+@export var replicated_on_floor:bool = false
+
 var move_direction: Vector2 = Vector2.ZERO
 var jump_input: bool = false
 
@@ -49,6 +54,11 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_direction.y * SPEED
 			
 		move_and_slide()
+		replicated_velocity = velocity
+		replicated_on_floor = is_on_floor()
+	else:
+		velocity = replicated_velocity
+		move_and_slide()
 
 
 @rpc("any_peer")
@@ -59,3 +69,5 @@ func receive_input(move_vec: Vector2, is_jumping: bool) -> void:
 		return
 	move_direction = move_vec
 	jump_input = is_jumping
+	replicated_input = move_direction
+	replicated_jump_input = is_jumping
