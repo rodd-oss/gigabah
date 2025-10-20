@@ -18,7 +18,7 @@ font_size = 128
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_m3ml1")
 
-[node name="NetworkVisionProvider" type="Area3D" parent="."]
+[node name="NetworkBoundingArea3D" type="Area3D" parent="."]
 collision_layer = 2147483648
 collision_mask = 2147483648
 monitoring = false
