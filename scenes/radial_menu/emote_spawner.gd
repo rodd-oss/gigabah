@@ -5,7 +5,6 @@ extends Node3D
 @export_range(0, 0xFF, 1, "or_greater") var poop_existance_time:float = 60
 @export_range(0, 0xFF, 1, "or_greater") var max_poops:int = 10
 
-var _num_poops:int = 0
 var _poop_tweens:Dictionary[Tween,Callable] = {}
 
 func spawn_emote(text:String)->void:
@@ -34,12 +33,11 @@ func spawn_like()->void:
 @rpc("any_peer","reliable")
 func spawn_poop()->void:
 	spawn_emote("💩")
-	if _num_poops >= max_poops:
+	if _poop_tweens.size() >= max_poops:
 		var ptw := _poop_tweens.keys().front() as Tween
 		if ptw:
 			ptw.kill()
 			_poop_tweens[ptw].call()
-	_num_poops+=1
 	if get_parent().name.to_int() != multiplayer.get_remote_sender_id():return
 	var m:=poop.instantiate() as Node3D
 	get_parent().get_parent().add_child(m,true)
@@ -53,7 +51,6 @@ func spawn_poop()->void:
 	tw.tween_callback(callback)
 	m.tree_exited.connect(func()->void:
 		_poop_tweens.erase(tw)
-		_num_poops-=1
 	,CONNECT_ONE_SHOT)
 	_poop_tweens[tw] = callback
 	
