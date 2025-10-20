@@ -12,14 +12,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install Godot 4.5 standard binary for exporting
 WORKDIR /godot
-RUN wget -q --show-progress https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip && \
+RUN wget -q https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip && \
     unzip Godot_v4.5-stable_linux.x86_64.zip && \
     rm Godot_v4.5-stable_linux.x86_64.zip && \
     mv Godot_v4.5-stable_linux.x86_64 godot && \
     chmod +x godot
 
 # Install Godot 4.5 export templates (matching engine version)
-RUN wget -q --show-progress https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_export_templates.tpz && \
+RUN wget -q https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_export_templates.tpz && \
     mkdir -p /root/.local/share/godot/export_templates/4.5.stable && \
     unzip Godot_v4.5-stable_export_templates.tpz && \
     mv templates/* /root/.local/share/godot/export_templates/4.5.stable/ && \
