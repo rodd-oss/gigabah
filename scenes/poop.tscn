@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://b4pv22bpxxgng"]
 
-[ext_resource type="PackedScene" uid="uid://b8hhsbbhxtpfm" path="res://models/poop.fbx" id="1_634gh"]
 [ext_resource type="Script" uid="uid://r2lrkrsoo1pr" path="res://scenes/radial_menu/poop.gd" id="1_pkbnx"]
+[ext_resource type="PackedScene" uid="uid://bh2jvm3fii2x5" path="res://models/poop.gltf" id="2_pkbnx"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_634gh"]
 properties/0/path = NodePath(".:position")
@@ -42,7 +42,7 @@ size = Vector3(1, 0.5605469, 1)
 [node name="Poop" type="Node3D"]
 script = ExtResource("1_pkbnx")
 
-[node name="poop" parent="." instance=ExtResource("1_634gh")]
+[node name="poop" parent="." instance=ExtResource("2_pkbnx")]
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_634gh")
