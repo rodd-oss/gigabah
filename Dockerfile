@@ -54,7 +54,7 @@ RUN godot --headless --verbose --export-release --quit   "Linux Server"
 # Final image for deployment
 FROM debian:bookworm-slim
 
-COPY --from=builder /GIGABAH/.dist/linux-server/linux-dedicated.x86_64 /app/linux-dedicated.x86_64
+COPY --from=builder /GIGABAH/.dist/linux-dedicated.x86_64 /app/linux-dedicated.x86_64
 WORKDIR /app
 
 EXPOSE 25445/udp
