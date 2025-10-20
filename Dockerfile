@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim AS builder
+FROM ubuntu:22.04 AS builder
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -28,6 +28,8 @@ RUN wget -q --show-progress https://github.com/godotengine/godot-builds/releases
 WORKDIR /GIGABAH
 COPY . /GIGABAH
 
+# Generate Blender import files
+RUN blender --background --python-expr "import bpy; bpy.ops.wm.save_as_mainfile(filepath='/tmp/import_check.blend')" || true
 ENV PATH="/godot:${PATH}"
 RUN mkdir -p .dist/linux-server
 RUN godot --headless --verbose --export-release "Linux Server"
