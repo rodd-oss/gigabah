@@ -29,7 +29,7 @@ jobs:
       - name: Export Linux Desktop (release)
         run: |
           mkdir -p .dist/linux
-          ./godot --headless --export-release "Linux Desktop"
+          ./godot --headless --export-release "Linux Desktop" .dist/linux
 
       - name: Archive Linux build
         run: |
@@ -67,7 +67,7 @@ jobs:
       - name: Export Linux Server (release)
         run: |
           mkdir -p .dist/linux-server
-          ./godot --headless --export-release "Linux Server"
+          ./godot --headless --export-release "Linux Server" .dist/linux-server
 
       - name: Archive Linux Server build
         run: |
@@ -105,7 +105,7 @@ jobs:
       - name: Export Windows Desktop (release)
         run: |
           mkdir -p .dist/windows
-          ./godot --headless --export-release "Windows Desktop"
+          ./godot --headless --export-release "Windows Desktop" .dist/windows
 
       - name: Archive Windows build
         run: |
