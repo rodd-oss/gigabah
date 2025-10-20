@@ -6,3 +6,4 @@ assets/
 .vscode/
 .DS_Store
 .idea
+.cursor

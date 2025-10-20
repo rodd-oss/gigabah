@@ -1,0 +1,157 @@
+name: Build and Release Clients
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  export-linux:
+    name: Export Linux Client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Godot 4.5
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip zip
+          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip
+          unzip Godot_v4.5-stable_linux.x86_64.zip
+          mv Godot_v4.5-stable_linux.x86_64 godot
+          chmod +x godot
+          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/4.5.stable
+          unzip Godot_v4.5-stable_export_templates.tpz
+          mv templates/* ~/.local/share/godot/export_templates/4.5.stable/
+
+      - name: Export Linux Desktop (release)
+        run: |
+          mkdir -p .dist/linux
+          ./godot --headless --export-release "Linux Desktop"
+
+      - name: Archive Linux build
+        run: |
+          cd .dist/linux
+          zip -r ../bevryust-online-linux.zip .
+          cd -
+        shell: bash
+
+      - name: Upload artifact (linux)
+        uses: actions/upload-artifact@v4
+        with:
+          name: bevryust-online-linux
+          path: .dist/bevryust-online-linux.zip
+
+  export-linux-server:
+    name: Export Linux Dedicated Server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Godot 4.5
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip zip
+          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip
+          unzip Godot_v4.5-stable_linux.x86_64.zip
+          mv Godot_v4.5-stable_linux.x86_64 godot
+          chmod +x godot
+          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/4.5.stable
+          unzip Godot_v4.5-stable_export_templates.tpz
+          mv templates/* ~/.local/share/godot/export_templates/4.5.stable/
+
+      - name: Export Linux Server (release)
+        run: |
+          mkdir -p .dist/linux-server
+          ./godot --headless --export-release "Linux Server"
+
+      - name: Archive Linux Server build
+        run: |
+          cd .dist/linux-server
+          zip -r ../linux-dedicated.zip .
+          cd -
+        shell: bash
+
+      - name: Upload artifact (linux-server)
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-dedicated
+          path: .dist/linux-dedicated.zip
+
+  export-windows:
+    name: Export Windows Client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Godot 4.5
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip zip
+          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip
+          unzip Godot_v4.5-stable_linux.x86_64.zip
+          mv Godot_v4.5-stable_linux.x86_64 godot
+          chmod +x godot
+          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_export_templates.tpz
+          mkdir -p ~/.local/share/godot/export_templates/4.5.stable
+          unzip Godot_v4.5-stable_export_templates.tpz
+          mv templates/* ~/.local/share/godot/export_templates/4.5.stable/
+
+      - name: Export Windows Desktop (release)
+        run: |
+          mkdir -p .dist/windows
+          ./godot --headless --export-release "Windows Desktop"
+
+      - name: Archive Windows build
+        run: |
+          cd .dist/windows
+          zip -r ../bevryust-online-windows.zip .
+          cd -
+        shell: bash
+
+      - name: Upload artifact (windows)
+        uses: actions/upload-artifact@v4
+        with:
+          name: bevryust-online-windows
+          path: .dist/bevryust-online-windows.zip
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [export-linux, export-windows, export-linux-server]
+    steps:
+      - name: Download linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: bevryust-online-linux
+          path: dist
+
+      - name: Download windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: bevryust-online-windows
+          path: dist
+
+      - name: Download linux server artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-dedicated
+          path: dist
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Latest main build
+          tag_name: main
+          make_latest: true
+          files: |
+            dist/bevryust-online-linux.zip
+            dist/bevryust-online-windows.zip
+            dist/linux-dedicated.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

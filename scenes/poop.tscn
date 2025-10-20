@@ -1,0 +1,78 @@
+[gd_scene load_steps=8 format=3 uid="uid://b4pv22bpxxgng"]
+
+[ext_resource type="PackedScene" uid="uid://b8hhsbbhxtpfm" path="res://models/poop.fbx" id="1_634gh"]
+[ext_resource type="Script" uid="uid://r2lrkrsoo1pr" path="res://scenes/radial_menu/poop.gd" id="1_pkbnx"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_634gh"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath(".:scale")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_pkbnx"]
+emission_shape_scale = Vector3(0.4, 0.4, 0.4)
+emission_shape = 1
+emission_sphere_radius = 1.0
+direction = Vector3(0, 1, 0)
+spread = 180.0
+gravity = Vector3(0, 0.035, 0)
+scale_min = 0.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_634gh"]
+shading_mode = 2
+albedo_color = Color(0.30520278, 0.19337636, 0.008117034, 1)
+texture_filter = 0
+disable_receive_shadows = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_pkbnx"]
+material = SubResource("StandardMaterial3D_634gh")
+radius = 0.115
+height = 0.24
+radial_segments = 8
+rings = 4
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pkbnx"]
+size = Vector3(1, 0.5605469, 1)
+
+[node name="Poop" type="Node3D"]
+script = ExtResource("1_pkbnx")
+
+[node name="poop" parent="." instance=ExtResource("1_634gh")]
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_634gh")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2694062, 0)
+cast_shadow = 0
+lifetime = 10.0
+randomness = 0.5
+fixed_fps = 5
+trail_lifetime = 4.52
+process_material = SubResource("ParticleProcessMaterial_pkbnx")
+draw_pass_1 = SubResource("SphereMesh_pkbnx")
+
+[node name="Area3D" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.31767172, 0)
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.045918047, 0)
+shape = SubResource("BoxShape3D_pkbnx")
+
+[node name="NetworkBoundingArea3D" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.31767172, 0)
+collision_layer = 2147483648
+collision_mask = 2147483648
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkBoundingArea3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.045918047, 0)
+shape = SubResource("BoxShape3D_pkbnx")
+
+[connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]
