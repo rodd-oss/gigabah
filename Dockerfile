@@ -1,13 +1,15 @@
-FROM ubuntu:22.04 AS builder
+FROM ubuntu:22.04 AS builder-base
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     wget \
     unzip \
+    xz-utils \
     blender \
     python3 \
     python3-pip \
+    xorg \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Godot 4.5 standard binary for exporting
@@ -25,16 +27,31 @@ RUN wget -q https://github.com/godotengine/godot-builds/releases/download/4.5-st
     mv templates/* /root/.local/share/godot/export_templates/4.5.stable/ && \
     rm -rf templates Godot_v4.5-stable_export_templates.tpz
 
+ENV PATH="/godot:${PATH}"
+
+# Install Blender 4.4
+RUN wget -q https://mirrors.dotsrc.org/blender/release/Blender4.4/blender-4.4.0-linux-x64.tar.xz \
+    && tar xvf blender-4.4.0-linux-x64.tar.xz && mv -v $(ls -d */ | grep blender) /usr/local/bin/blender \
+    && rm -f blender-4.4.0-linux-x64.tar.xz
+
+RUN /usr/local/bin/blender/blender --background --python-expr "import bpy; bpy.ops.wm.save_as_mainfile(filepath='/tmp/import_check.blend')"
+
+# Set Blender path in Godot editor settings
+RUN godot --headless --verbose --editor --quit
+RUN echo 'filesystem/import/blender/blender_path = "/usr/local/bin/blender/blender"' >> ~/.config/godot/editor_settings-4.5.tres
+
+
+# Build the binary
+FROM builder-base AS builder
+
 WORKDIR /GIGABAH
 COPY . /GIGABAH
 
-# Generate Blender import files
-RUN blender --background --python-expr "import bpy; bpy.ops.wm.save_as_mainfile(filepath='/tmp/import_check.blend')" || true
-ENV PATH="/godot:${PATH}"
 RUN mkdir -p .dist/linux-server
-RUN godot --headless --verbose --export-release "Linux Server"
+RUN godot --headless --verbose --export-release --quit   "Linux Server"
 
 
+# Final image for deployment
 FROM debian:bookworm-slim
 
 COPY --from=builder /GIGABAH/.dist/linux-server/linux-dedicated.x86_64 /app/linux-dedicated.x86_64
