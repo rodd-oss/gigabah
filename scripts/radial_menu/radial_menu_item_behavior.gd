@@ -16,11 +16,11 @@ signal on_exit()
 @export var hower_radius_padding: float = 3
 @export var angle_padding: float = 3
 @export var hower_angle_padding: float = 0
-@export var radius: float = 0.1
-@export var radius_to_button: float = 0.25
-@export var num_points: int = 50
-@export var enter_speed: float = 0.5
-@export var exit_speed: float = 0.1
+@export_range(0, 1, 0.001) var radius: float = 0.1
+@export_range(0, 1, 0.001) var radius_to_button: float = 0.25
+@export_range(2, 0xFF, 1, "or_greater") var num_points: int = 50
+@export_range(0, 10, 0.001, "or_greater") var enter_speed: float = 0.5
+@export_range(0, 10, 0.001, "or_greater") var exit_speed: float = 0.1
 
 var _hover_tween: Tween
 var _unhover_tween: Tween

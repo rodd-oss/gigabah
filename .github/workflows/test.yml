@@ -1,0 +1,35 @@
+name: Godot CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Godot
+        uses: jnecr/setup-godot@v1
+        with:
+          version: "4.5"
+          mono: false
+          export-templates: true
+
+      - name: Export game for Web and Windows
+        uses: CapsCollective/godot-actions/export@v1
+        with:
+          platforms: "linux,windows"
+
+      - name: Upload exported game as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-4.5-builds
+          path: builds/

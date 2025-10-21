@@ -6,7 +6,7 @@ signal on_show()
 signal on_begin_hiding()
 signal on_hide()
 
-@export var dead_zone: float = 0.005
+@export_range(0, 1, 0.001) var dead_zone: float = 0.005
 @export var show_action_button := "show_radial_menu"
 @export var click_selected_on_exit := false
 @export var enable_click := true
@@ -114,7 +114,6 @@ func _input(event: InputEvent) -> void:
 			if click_selected_on_exit:
 				_hovered_item.click()
 			_hovered_item.button_unhover()
-		if _hovered_item:
 			_hovered_item = null
 		var max_exit_time := 0.0
 		for beh in get_children_behavior():

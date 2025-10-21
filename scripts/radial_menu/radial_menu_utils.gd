@@ -53,7 +53,7 @@ static func create_segment_polygon(center: Vector2, radius_a: float, radius_b: f
 	var b := Vector2((radius_b - radius_padding), 0).rotated(end_angle - angle_padding)
 
 	var step_angle := ((end_angle - angle_padding) - (start_angle + angle_padding)) / point_count
-	var pi = 0
+	var pi := 0
 	for i: int in range(point_count + 1):
 		points[pi] = (center + a)
 		pi += 1

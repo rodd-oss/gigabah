@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://b8hhsbbhxtpfm"
-path="res://.godot/imported/poop.fbx-b4c0f28934cc6b2615f64b4067265d0c.scn"
+uid="uid://bh2jvm3fii2x5"
+path="res://.godot/imported/poop.gltf-d8255b49570ce7c8a48d534deb134ac5.scn"
 
 [deps]
 
-source_file="res://models/poop.fbx"
-dest_files=["res://.godot/imported/poop.fbx-b4c0f28934cc6b2615f64b4067265d0c.scn"]
+source_file="res://models/poop.gltf"
+dest_files=["res://.godot/imported/poop.gltf-d8255b49570ce7c8a48d534deb134ac5.scn"]
 
 [params]
 
@@ -30,21 +30,13 @@ meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=true
 animation/fps=30
-animation/trimming=true
+animation/trimming=false
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
 materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
-_subresources={
-"nodes": {
-"PATH:Spiral": {
-"physics/shape_type": 1
-}
-}
-}
-fbx/importer=0
-fbx/allow_geometry_helper_nodes=false
-fbx/embedded_image_handling=1
-fbx/naming_version=2
+_subresources={}
+gltf/naming_version=2
+gltf/embedded_image_handling=1
