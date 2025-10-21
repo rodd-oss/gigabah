@@ -1,12 +1,11 @@
-[gd_scene load_steps=21 format=4 uid="uid://bde2flq2egpcv"]
+[gd_scene load_steps=19 format=4 uid="uid://bde2flq2egpcv"]
 
 [ext_resource type="Script" uid="uid://f0ylqu4wka2x" path="res://scripts/multiplayer_spawner.gd" id="2_hhnvu"]
 [ext_resource type="PackedScene" uid="uid://dmp8nc3aenbut" path="res://scenes/player.tscn" id="3_8s3bs"]
 [ext_resource type="PackedScene" uid="uid://ygkgpca1ir66" path="res://scenes/radial_menu/emote.tscn" id="3_hhnvu"]
 [ext_resource type="Script" uid="uid://r2lrkrsoo1pr" path="res://scenes/radial_menu/poop.gd" id="4_cjd57"]
 [ext_resource type="PackedScene" uid="uid://cabfjhgqmmx3k" path="res://scenes/bullet.tscn" id="4_hhnvu"]
-[ext_resource type="PackedScene" uid="uid://lfh4qn86s4vl" path="res://models/scenary/StoneWallStraight.blend" id="6_khbhx"]
-[ext_resource type="PackedScene" uid="uid://dimq4tqk78exd" path="res://models/scenary/StoneWallCorner.blend" id="7_cjd57"]
+[ext_resource type="PackedScene" uid="uid://bccib7r8tci6f" path="res://models/maps/Arena.blend" id="6_khbhx"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2j24h"]
 resource_name = "Material.001"
@@ -111,11 +110,9 @@ _bundled = {
 }
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_qt2py"]
+size = Vector2(11.885, 12.55)
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_4bt8n"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_4bt8n"]
-size = Vector3(1, 11, 21)
 
 [node name="Index3d" type="Node3D"]
 
@@ -153,41 +150,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.77813, 0)
 shadow_enabled = true
 omni_range = 16.9915
 
-[node name="StaticBody3D2" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 0)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
-shape = SubResource("BoxShape3D_4bt8n")
-
-[node name="StaticBody3D2" type="StaticBody3D" parent="StaticBody3D2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, 0)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2/StaticBody3D2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
-shape = SubResource("BoxShape3D_4bt8n")
-
-[node name="StaticBody3D2" type="StaticBody3D" parent="StaticBody3D2/StaticBody3D2"]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -10, 0, -10)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2/StaticBody3D2/StaticBody3D2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
-shape = SubResource("BoxShape3D_4bt8n")
-
-[node name="StaticBody3D2" type="StaticBody3D" parent="StaticBody3D2/StaticBody3D2/StaticBody3D2"]
-transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 20, 0, -8.74228e-07)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2/StaticBody3D2/StaticBody3D2/StaticBody3D2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
-shape = SubResource("BoxShape3D_4bt8n")
-
 [node name="Bullet" parent="." instance=ExtResource("4_hhnvu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.00794, -0.0346527)
 
 [node name="Walls" type="Node3D" parent="."]
 
-[node name="StoneWallCorner" parent="." instance=ExtResource("7_cjd57")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.050783, 0.044678807, 4.7797527)
-
-[node name="StoneWallStraight" parent="." instance=ExtResource("6_khbhx")]
-transform = Transform3D(0.25881907, 0, -0.9659258, 0, 1, 0, 0.9659258, 0, 0.25881907, -5.892541, 0.021629214, -4.743144)
+[node name="Arena" parent="." instance=ExtResource("6_khbhx")]
