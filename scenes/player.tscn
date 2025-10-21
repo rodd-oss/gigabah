@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=4 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=36 format=4 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/player.gd" id="1_qhqgy"]
 [ext_resource type="Script" uid="uid://bfhjfynop50wf" path="res://components/hp.gd" id="4_dqkch"]
@@ -11,6 +11,7 @@
 [ext_resource type="AnimationLibrary" uid="uid://buk878wi5duma" path="res://animations/radial_menu/radial_menu_animations.res" id="9_oprun"]
 [ext_resource type="Script" uid="uid://dygq0iwvhu8ou" path="res://scripts/animations_base.gd" id="11_d2wvv"]
 [ext_resource type="Script" uid="uid://c1ur4seavqi8i" path="res://scripts/radial_menu/animation.gd" id="11_qfm1y"]
+[ext_resource type="PackedScene" uid="uid://csduh3drp653f" path="res://scenes/simple_network_synchronizer.tscn" id="12_3v2ag"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
 radius = 0.492748
@@ -1526,34 +1527,6 @@ radius = 1.1026574
 [sub_resource type="SphereShape3D" id="SphereShape3D_tuyoq"]
 radius = 10.0
 
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_d2wvv"]
-properties/0/path = NodePath(".:position")
-properties/0/spawn = true
-properties/0/replication_mode = 2
-
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_3v2ag"]
-properties/0/path = NodePath(".:replicated_velocity")
-properties/0/spawn = true
-properties/0/replication_mode = 2
-
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_jej6c"]
-properties/0/path = NodePath(".:rotation")
-properties/0/spawn = true
-properties/0/replication_mode = 2
-
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_f1ej7"]
-properties/0/path = NodePath(".:replicated_input")
-properties/0/spawn = true
-properties/0/replication_mode = 2
-properties/1/path = NodePath(".:replicated_jump_input")
-properties/1/spawn = true
-properties/1/replication_mode = 2
-
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_oprun"]
-properties/0/path = NodePath(".:replicated_on_floor")
-properties/0/spawn = true
-properties/0/replication_mode = 2
-
 [node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("camera")]
 script = ExtResource("1_qhqgy")
 camera = NodePath("Camera3D")
@@ -1949,21 +1922,8 @@ script = ExtResource("6_tuyoq")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkVisionArea3D"]
 shape = SubResource("SphereShape3D_tuyoq")
 
-[node name="PositionSynchronizer" type="MultiplayerSynchronizer" parent="."]
-delta_interval = 0.25
-replication_config = SubResource("SceneReplicationConfig_d2wvv")
-
-[node name="VelocitySynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_3v2ag")
-
-[node name="RotationSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_jej6c")
-
-[node name="InputSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_f1ej7")
-
-[node name="CollisionSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_oprun")
+[node name="SimpleNetworkSynchronizer" parent="." node_paths=PackedStringArray("root") instance=ExtResource("12_3v2ag")]
+root = NodePath("..")
 
 [connection signal="on_hower" from="RadialMenu/Clown/RadialMenuBehavior" to="RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
 [connection signal="on_press" from="RadialMenu/Clown/RadialMenuBehavior" to="EmoteSpawner" method="_on_clown_button_press"]
