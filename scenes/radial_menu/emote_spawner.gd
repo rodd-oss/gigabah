@@ -1,11 +1,6 @@
 extends Node3D
 
 @export var max_y:float = 3
-@export var poop:PackedScene
-@export_range(0, 0xFF, 1, "or_greater") var poop_existance_time:float = 60
-@export_range(0, 0xFF, 1, "or_greater") var max_poops:int = 10
-
-var _poop_tweens:Dictionary[Tween,Callable] = {}
 
 func spawn_emote(text:String)->void:
 	var start := (get_parent() as Node3D).position+position
@@ -32,27 +27,9 @@ func spawn_like()->void:
 
 @rpc("any_peer","reliable")
 func spawn_poop()->void:
-	spawn_emote("💩")
-	if _poop_tweens.size() >= max_poops:
-		var ptw := _poop_tweens.keys().front() as Tween
-		if ptw:
-			ptw.kill()
-			_poop_tweens[ptw].call()
 	if get_parent().name.to_int() != multiplayer.get_remote_sender_id():return
-	var m:=poop.instantiate() as Node3D
-	get_parent().get_parent().add_child(m,true)
-	m.position = (get_parent() as Node3D).position
-	m.rotate(Vector3.UP,randf()*PI*2)
-	m.scale = Vector3(randf()*0.5+0.5,randf()*0.5+0.5,randf()*0.5+0.5)
-	var tw := m.create_tween()
-	tw.tween_interval(poop_existance_time)
-	var callback := func()->void:
-		if m: m.queue_free()
-	tw.tween_callback(callback)
-	m.tree_exited.connect(func()->void:
-		_poop_tweens.erase(tw)
-	,CONNECT_ONE_SHOT)
-	_poop_tweens[tw] = callback
+	spawn_emote("💩")
+	
 	
 @rpc("any_peer","reliable")
 func spawn_dislike()->void:
