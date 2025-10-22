@@ -1,0 +1,96 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+      - release
+    tags:
+      - '*'
+  workflow_call:
+    inputs:
+      event_name:
+        required: true
+        type: string
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Login into ghcr.io registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build builder image
+        uses: docker/build-push-action@v6
+        with:
+          file: ./Dockerfile
+          target: builder-base
+          tags: builder-base:latest
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/builder-base:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/builder-base:cache,mode=max
+          push: false
+          load: true
+
+      - name: Build Desktop
+        run: |
+          mkdir .dist
+          echo "::group::Build Windows Desktop"
+          docker run --rm \
+            -v ${GITHUB_WORKSPACE}:/GIGABAH \
+            -w /GIGABAH \
+            builder-base:latest \
+            sh -c "godot --headless --verbose --export-release 'Windows Desktop'"
+          echo "::endgroup::"
+          echo "::group::Build Linux Desktop"
+          docker run --rm \
+            -v ${GITHUB_WORKSPACE}:/GIGABAH \
+            -w /GIGABAH \
+            builder-base:latest \
+            sh -c "godot --headless --verbose --export-release 'Linux Desktop'"
+          echo "::endgroup::"
+          echo "::group::Build Mac OS Desktop"
+          docker run --rm \
+            -v ${GITHUB_WORKSPACE}:/GIGABAH \
+            -w /GIGABAH \
+            builder-base:latest \
+            sh -c "godot --headless --verbose --export-release 'macOS Desktop'"
+          echo "::endgroup::"
+          ls -lh ./.dist
+
+      - name: Build Dedicated Server
+        uses: docker/build-push-action@v6
+        with:
+          file: ./Dockerfile
+          tags: linux-dedicated:latest
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/builder-base:cache
+          outputs: type=docker,dest=./.dist/linux-dedicated.tar
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: .dist
+          if-no-files-found: "error"
+          include-hidden-files: "true"
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
+  release:
+    needs: build
+    uses: ./.github/workflows/release.yml
+    with:
+      parent_run_id: ${{ github.run_id }}
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'

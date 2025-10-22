@@ -39,6 +39,10 @@ Thank you for your interest in contributing to Gigabah! This document provides g
    - Enable **Multiple Instances**
    - Set instance count to **3**
    - On the last instance, add `dedicated_server` to **Feature Flags**
+6. **Install [pre-commit](https://pre-commit.com)** hook:
+   - Install Python 3.x
+   - Install pre-commit: `pip install pre-commit`
+   - Init git hook in repository: `pre-commit install`
 
 ## How to Contribute
 

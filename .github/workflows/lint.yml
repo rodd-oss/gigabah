@@ -1,0 +1,37 @@
+name: Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+      - release
+
+jobs:
+  pre-commit:
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v5
+
+        - name: Set up Python
+          uses: actions/setup-python@v6
+          with:
+            python-version: '3.x'
+
+        - name: Run pre-commit gdlint
+          uses: pre-commit/action@v3.0.1
+          with:
+            extra_args: "gdlint --all-files"
+          continue-on-error: true
+
+        - name: Run pre-commit gdformat
+          uses: pre-commit/action@v3.0.1
+          with:
+            extra_args: "gdformat --all-files"
+
+  build:
+    needs: pre-commit
+    uses: ./.github/workflows/build.yml
+    with:
+      event_name: ${{ github.event_name }}
