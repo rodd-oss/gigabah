@@ -48,7 +48,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
@@ -130,7 +130,14 @@ jobs:
         with:
           tag_name: ${{ needs.compute-version.outputs.ver }}
           name: "${{ needs.compute-version.outputs.ver }}"
-          body: "Release ${{ needs.compute-version.outputs.ver }}"
+          body: |
+            Release ${{ needs.compute-version.outputs.ver }}
+
+            | File | Download |
+            |------|----------|
+            | Windows Desktop | [bevryust-online_${{ needs.compute-version.outputs.ver }}.exe](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/bevryust-online_${{ needs.compute-version.outputs.ver }}.exe) |
+            | Linux Desktop | [bevryust-online_${{ needs.compute-version.outputs.ver }}.x86_64](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/bevryust-online_${{ needs.compute-version.outputs.ver }}.x86_64) |
+            | Docker Server | `docker pull ghcr.io/${{ github.repository }}:${{ needs.compute-version.outputs.ver }}` |
           draft: false
           prerelease: ${{ needs.compute-version.outputs.release == 'false' }}
           make_latest: "${{ needs.compute-version.outputs.release == 'true' }}"
