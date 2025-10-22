@@ -68,6 +68,7 @@ Use descriptive branch names with the following format:
 ```
 
 ### Types:
+
 - `feature/` - New features or enhancements
 - `bugfix/` - Bug fixes
 - `hotfix/` - Critical bug fixes for production
@@ -77,6 +78,7 @@ Use descriptive branch names with the following format:
 - `chore/` - Maintenance tasks, dependency updates
 
 ### Examples:
+
 - `feature/new-enemy-ai`
 - `bugfix/menu-crash`
 - `feature/health-bar-improvements`
@@ -90,14 +92,16 @@ Use descriptive branch names with the following format:
 ### Before Submitting
 
 1. **Ensure your branch is up to date**:
+
    ```bash
-   git checkout dev
-   git pull upstream dev
+   git checkout main
+   git pull upstream main
    git checkout your-branch-name
-   git rebase dev
+   git rebase main
    ```
 
 2. **Test your changes**:
+
    - Run the game locally with multiple instances
    - Test multiplayer functionality
    - Verify no regressions in existing features
@@ -107,11 +111,13 @@ Use descriptive branch names with the following format:
 ### Creating a Pull Request
 
 1. **Push your branch** to your fork:
+
    ```bash
    git push origin your-branch-name
    ```
 
 2. **Create a Pull Request** on GitHub with:
+
    - **Clear title** describing the change
    - **Detailed description** including:
      - What changes were made
@@ -127,19 +133,21 @@ Use descriptive branch names with the following format:
 - Maintainers will review your code
 - Address any requested changes
 - Respond to feedback promptly
-- Keep your PR up to date with the dev branch
+- Keep your PR up to date with the main branch
 
 ## Code Style Guidelines
 
 ### GDScript Standards
 
 - **Use strict typing** for better error detection:
+
   ```gdscript
   var health: int = 100
   var player_name: String = "Player"
   ```
 
 - **Implement lifecycle functions** with explicit super() calls:
+
   ```gdscript
   func _ready() -> void:
       super._ready()
@@ -147,6 +155,7 @@ Use descriptive branch names with the following format:
   ```
 
 - **Use @onready annotations** instead of direct node references:
+
   ```gdscript
   @onready var health_bar: ProgressBar = $HealthBar
   ```
@@ -216,13 +225,10 @@ scenes/         - Game scenes
 - [GDScript Style Guide](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html)
 
 ### Video Tutorials
+
 - [Brackeys: How to make a 3D game in Godot](https://youtu.be/ke5KpqcoiIU?si=LtXnQr40wO5eXbyh)
 - [Brackeys: How to make a Video Game - Godot Beginner Tutorial](https://youtu.be/LOhfqjmasi0?si=ydLoBKtK1uEAxaxi)
 - [Brackeys: How to program in Godot - GDScript Tutorial](https://youtu.be/e1zJS31tr88?si=N6Rhp-vpll7wF_Lz)
-
-
-
-
 
 ## License
 
