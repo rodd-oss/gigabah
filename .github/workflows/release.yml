@@ -3,10 +3,9 @@ name: Build and Release
 on:
   push:
     branches:
-      - main
-      - dev
+      - release
     tags:
-      - '*'
+      - "*"
   workflow_dispatch:
 
 jobs:
@@ -21,7 +20,7 @@ jobs:
             VER="${GITHUB_REF_NAME}"
             RELEASE="true"
           else
-            VER="sha-${GITHUB_SHA::8}"
+            VER="${GITHUB_SHA::8}"
             RELEASE="false"
           fi
           echo "VER=$VER"
@@ -135,8 +134,8 @@ jobs:
 
             | File | Download |
             |------|----------|
-            | Windows Desktop | [bevryust-online_${{ needs.compute-version.outputs.ver }}.exe](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/bevryust-online_${{ needs.compute-version.outputs.ver }}.exe) |
-            | Linux Desktop | [bevryust-online_${{ needs.compute-version.outputs.ver }}.x86_64](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/bevryust-online_${{ needs.compute-version.outputs.ver }}.x86_64) |
+            | Windows Desktop | [gigabah_${{ needs.compute-version.outputs.ver }}.exe](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah_${{ needs.compute-version.outputs.ver }}.exe) |
+            | Linux Desktop | [gigabah_${{ needs.compute-version.outputs.ver }}.x86_64](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah_${{ needs.compute-version.outputs.ver }}.x86_64) |
             | Docker Server | `docker pull ghcr.io/${{ github.repository }}:${{ needs.compute-version.outputs.ver }}` |
           draft: false
           prerelease: ${{ needs.compute-version.outputs.release == 'false' }}
