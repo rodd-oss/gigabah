@@ -1,9 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://bde2flq2egpcv"]
+[gd_scene load_steps=7 format=3 uid="uid://bde2flq2egpcv"]
 
 [ext_resource type="Script" uid="uid://f0ylqu4wka2x" path="res://scripts/multiplayer_spawner.gd" id="2_hhnvu"]
 [ext_resource type="PackedScene" uid="uid://dmp8nc3aenbut" path="res://scenes/player.tscn" id="3_8s3bs"]
 [ext_resource type="PackedScene" uid="uid://cabfjhgqmmx3k" path="res://scenes/bullet.tscn" id="4_hhnvu"]
-[ext_resource type="PackedScene" path="res://scenes/in_game_menu.tscn" id="5_ingamemenu"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_qt2py"]
 
@@ -77,5 +76,3 @@ shape = SubResource("BoxShape3D_4bt8n")
 
 [node name="Bullet" parent="." instance=ExtResource("4_hhnvu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.00794, -0.0346527)
-
-[node name="InGameMenu" parent="." instance=ExtResource("5_ingamemenu")]
