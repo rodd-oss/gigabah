@@ -10,6 +10,7 @@ class_name NetworkPosition
 
 var _initialized: bool = false
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	if parent != null:
@@ -22,15 +23,20 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	if !multiplayer.is_server():
-		var pos_is_nan: bool = is_nan(server_position.x) or is_nan(server_position.y) or is_nan(server_position.z)
+		var pos_is_nan: bool = (
+			is_nan(server_position.x) or is_nan(server_position.y) or is_nan(server_position.z)
+		)
 		if not _initialized:
 			if not pos_is_nan:
 				parent.position = server_position
 				_initialized = true
 		elif enable_interpolation:
-			parent.position = parent.position.lerp(server_position, clamp(interpolation_speed * delta, 0, 1))
+			parent.position = parent.position.lerp(
+				server_position, clamp(interpolation_speed * delta, 0, 1)
+			)
 		else:
 			parent.position = server_position
+
 
 func _physics_process(_delta: float) -> void:
 	# Only the server moves the player
