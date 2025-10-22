@@ -10,7 +10,7 @@ func _on_radial_menu_behavior_on_hower() -> void:
 func _on_radial_menu_behavior_on_unhower() -> void:
 	playing = false
 
-func _on_animation_finished(anim_name: StringName) -> void:
+func _on_animation_finished(_anim_name: StringName) -> void:
 	if playing:
 		advance(0)
 		play(anim)
