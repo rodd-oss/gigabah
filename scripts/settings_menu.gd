@@ -6,7 +6,7 @@ Settings Menu: позволяет игроку переназначать упр
  - Переназначение клавиши (одна клавиша per action) по нажатию на кнопку
  - Сброс к дефолту
  - Сохранение/загрузка в user://controls.cfg (ConfigFile)
- - Возврат назад в главное меню
+ - Возврат назад в главное меню или паузу
 
 Ограничения текущей версии:
  - Поддерживаются только клавиши клавиатуры (InputEventKey)
@@ -19,6 +19,8 @@ Settings Menu: позволяет игроку переназначать упр
  - Проверка конфликтов, всплывающие подтверждения
  - Локализация названий действий
 """
+
+signal back_pressed
 
 const ACTIONS: Array[Dictionary] = [
 	{"name":"move_left", "label":"Влево"},
@@ -199,4 +201,9 @@ func _load_custom_or_apply_defaults() -> void:
 				sub.text = _get_action_events_text(sub.name)
 
 func _on_back_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+	# Emit signal for in-game menu, or change scene if opened from main menu
+	if has_signal("back_pressed") and back_pressed.get_connections().size() > 0:
+		back_pressed.emit()
+	else:
+		# Fallback: return to main menu if not connected
+		get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
