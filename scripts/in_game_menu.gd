@@ -1,14 +1,21 @@
-extends Control
+extends CanvasLayer
 ## In-game pause menu: ESC toggles visibility, Settings opens settings menu, Back hides, Quit exits game.
+## Only active on client (not on server).
 
-@onready var settings_button: Button = $Center/VBox/SettingsButton
-@onready var back_button: Button = $Center/VBox/BackButton
-@onready var quit_button: Button = $Center/VBox/QuitButton
+@onready var settings_button: Button = $Control/Center/VBox/SettingsButton
+@onready var back_button: Button = $Control/Center/VBox/BackButton
+@onready var quit_button: Button = $Control/Center/VBox/QuitButton
 
 var _visible_state: bool = false
 var _settings_menu_instance: Control = null
 
 func _ready() -> void:
+	# Hide menu on server (UI not needed)
+	if multiplayer.is_server():
+		visible = false
+		set_process_unhandled_input(false)
+		return
+	
 	visible = false
 	settings_button.pressed.connect(_on_settings_pressed)
 	back_button.pressed.connect(_on_back_pressed)
