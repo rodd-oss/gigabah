@@ -49,14 +49,32 @@ const ACTION_LABELS: Dictionary = {
 }
 
 # Дефолтные бинды (каждая запись: массив InputEvent dict для сериализации)
-# Поддерживаем как клавиатуру, так и мышь
+# Поддерживаем клавиатуру, мышь и геймпад (joy_button)
 const DEFAULT_BINDS: Dictionary = {
-	"move_left": [{"type": "key", "keycode": KEY_A}],
-	"move_right": [{"type": "key", "keycode": KEY_D}],
-	"move_forward": [{"type": "key", "keycode": KEY_W}],
-	"move_backward": [{"type": "key", "keycode": KEY_S}],
-	"ui_accept": [{"type": "key", "keycode": KEY_SPACE}],
-	"show_radial_menu": [{"type": "key", "keycode": KEY_Q}]
+	"move_left": [
+		{"type": "key", "keycode": KEY_A},
+		{"type": "joy_button", "button_index": 14} # DPad Left
+	],
+	"move_right": [
+		{"type": "key", "keycode": KEY_D},
+		{"type": "joy_button", "button_index": 15} # DPad Right
+	],
+	"move_forward": [
+		{"type": "key", "keycode": KEY_W},
+		{"type": "joy_button", "button_index": 12} # DPad Up
+	],
+	"move_backward": [
+		{"type": "key", "keycode": KEY_S},
+		{"type": "joy_button", "button_index": 13} # DPad Down
+	],
+	"ui_accept": [
+		{"type": "key", "keycode": KEY_SPACE},
+		{"type": "joy_button", "button_index": 0} # A
+	],
+	"show_radial_menu": [
+		{"type": "key", "keycode": KEY_Q},
+		{"type": "joy_button", "button_index": 4} # LB
+	]
 }
 
 const CONFIG_VERSION: int = 2
@@ -66,7 +84,10 @@ const MAX_SLOTS: int = 2
 const COLOR_CONFLICT: Color = Color(1.0, 0.3, 0.3, 1.0)  # Красноватый
 const COLOR_NORMAL: Color = Color(1.0, 1.0, 1.0, 1.0)
 
-@onready var actions_container: VBoxContainer = $VBox/ScrollContainer/ActionsVBox
+@onready var tab_container: TabContainer = $VBox/TabContainer
+@onready var km_actions_container: VBoxContainer = $VBox/TabContainer/KeyboardMouse/ScrollContainer/ActionsVBox
+@onready var gp_actions_container: VBoxContainer = $VBox/TabContainer/Gamepad/ScrollContainer/ActionsVBox
+@onready var gp_status_label: Label = $VBox/TabContainer/Gamepad/GamepadStatus
 @onready var save_button: Button = $VBox/Buttons/SaveButton
 @onready var reset_button: Button = $VBox/Buttons/ResetButton
 @onready var back_button: Button = $VBox/Buttons/BackButton
@@ -75,12 +96,16 @@ const COLOR_NORMAL: Color = Color(1.0, 1.0, 1.0, 1.0)
 var _capture_action: String = ""
 var _capture_slot: int = -1
 var _capture_button: Button = null
+var _capture_input_type: String = "" # "km" | "gp"
 
-# Кеш: action_name -> {"row":HBoxContainer, "label":Label, "buttons": [Button, ...], "clear_buttons": [Button, ...]}
+# Кеш строк (Keyboard/Mouse): action_name -> {"row":HBoxContainer, "label":Label, "buttons": [Button, ...], "clear_buttons": [Button, ...]}
 var _rows: Dictionary = {}
+# Кеш строк (Gamepad)
+var _rows_gamepad: Dictionary = {}
 
 # Кеш конфликтов: {action_name: {slot: [conflicting_action_names]}}
 var _conflicts: Dictionary = {}
+
 
 func _ready() -> void:
 	_build_dynamic_rows()
@@ -91,22 +116,24 @@ func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
 
 func _build_dynamic_rows() -> void:
-	# Очистить контейнер (если вдруг остались статические дети)
-	for child: Node in actions_container.get_children():
+	_build_km_rows()
+	_build_gamepad_rows()
+
+func _build_km_rows() -> void:
+	for child: Node in km_actions_container.get_children():
 		child.queue_free()
 	_rows.clear()
 	var actions: Array[StringName] = InputMap.get_actions()
-	actions.sort() # стабильный порядок
+	actions.sort()
 	for action_name_sn: StringName in actions:
 		var action_name: String = String(action_name_sn)
 		if _is_action_excluded(action_name):
 			continue
 		var max_slots: int = _get_max_slots_for_action(action_name)
-		# Создать строку: Label + N Button (rebind) + N Button (clear)
 		var row: HBoxContainer = HBoxContainer.new()
 		row.name = action_name
 		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		actions_container.add_child(row)
+		km_actions_container.add_child(row)
 		var label: Label = Label.new()
 		label.custom_minimum_size = Vector2(180, 0)
 		label.text = ACTION_LABELS.get(action_name, action_name)
@@ -114,29 +141,75 @@ func _build_dynamic_rows() -> void:
 		var buttons: Array[Button] = []
 		var clear_buttons: Array[Button] = []
 		for slot in range(max_slots):
-			# Кнопка rebind
 			var btn: Button = Button.new()
 			btn.toggle_mode = true
-			btn.name = "%s_slot%d" % [action_name, slot]
+			btn.name = "%s_km_slot%d" % [action_name, slot]
 			btn.text = "—"
 			btn.custom_minimum_size = Vector2(120, 0)
 			var slot_index := slot
 			btn.pressed.connect(func() -> void:
-				_on_slot_rebind_pressed(action_name, slot_index, btn)
+				_on_slot_rebind_pressed(action_name, slot_index, btn, "km")
 			)
 			row.add_child(btn)
 			buttons.append(btn)
-			# Кнопка очистки (X)
 			var clear_btn: Button = Button.new()
-			clear_btn.name = "%s_clear%d" % [action_name, slot]
+			clear_btn.name = "%s_km_clear%d" % [action_name, slot]
 			clear_btn.text = "X"
 			clear_btn.custom_minimum_size = Vector2(30, 0)
 			clear_btn.pressed.connect(func() -> void:
-				_on_clear_slot_pressed(action_name, slot_index)
+				_on_clear_slot_pressed(action_name, slot_index, "km")
 			)
 			row.add_child(clear_btn)
 			clear_buttons.append(clear_btn)
 		_rows[action_name] = {"row": row, "label": label, "buttons": buttons, "clear_buttons": clear_buttons}
+
+func _build_gamepad_rows() -> void:
+	for child: Node in gp_actions_container.get_children():
+		child.queue_free()
+	_rows_gamepad.clear()
+	var pads := Input.get_connected_joypads()
+	gp_status_label.visible = pads.is_empty()
+	if pads.is_empty():
+		return
+	var actions: Array[StringName] = InputMap.get_actions()
+	actions.sort()
+	for action_name_sn: StringName in actions:
+		var action_name: String = String(action_name_sn)
+		if _is_action_excluded(action_name):
+			continue
+		var max_slots: int = _get_max_slots_for_action(action_name)
+		var row: HBoxContainer = HBoxContainer.new()
+		row.name = action_name + "_gp"
+		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		gp_actions_container.add_child(row)
+		var label: Label = Label.new()
+		label.custom_minimum_size = Vector2(180, 0)
+		label.text = ACTION_LABELS.get(action_name, action_name)
+		row.add_child(label)
+		var buttons: Array[Button] = []
+		var clear_buttons: Array[Button] = []
+		for slot in range(max_slots):
+			var btn: Button = Button.new()
+			btn.toggle_mode = true
+			btn.name = "%s_gp_slot%d" % [action_name, slot]
+			btn.text = "—"
+			btn.custom_minimum_size = Vector2(120, 0)
+			var slot_index := slot
+			btn.pressed.connect(func() -> void:
+				_on_slot_rebind_pressed(action_name, slot_index, btn, "gp")
+			)
+			row.add_child(btn)
+			buttons.append(btn)
+			var clear_btn: Button = Button.new()
+			clear_btn.name = "%s_gp_clear%d" % [action_name, slot]
+			clear_btn.text = "X"
+			clear_btn.custom_minimum_size = Vector2(30, 0)
+			clear_btn.pressed.connect(func() -> void:
+				_on_clear_slot_pressed(action_name, slot_index, "gp")
+			)
+			row.add_child(clear_btn)
+			clear_buttons.append(clear_btn)
+		_rows_gamepad[action_name] = {"row": row, "label": label, "buttons": buttons, "clear_buttons": clear_buttons}
 
 func _is_action_excluded(action_name: String) -> bool:
 	if action_name in EXCLUDED_ACTIONS:
@@ -160,6 +233,15 @@ func _get_action_events(action_name: String) -> Array[InputEvent]:
 			result.append(e)
 	return result
 
+func _get_action_events_gamepad(action_name: String) -> Array[InputEvent]:
+	var result: Array[InputEvent] = []
+	if not InputMap.has_action(action_name):
+		return result
+	for e: InputEvent in InputMap.action_get_events(action_name):
+		if e is InputEventJoypadButton:
+			result.append(e)
+	return result
+
 func _format_event(ev: InputEvent) -> String:
 	if ev == null:
 		return "—"
@@ -178,6 +260,14 @@ func _format_event(ev: InputEvent) -> String:
 			_: return "Mouse %d" % mb.button_index
 	return "—"
 
+func _format_event_gamepad(ev: InputEvent) -> String:
+	if ev == null:
+		return "—"
+	if ev is InputEventJoypadButton:
+		var jb := ev as InputEventJoypadButton
+		return "Btn %d" % jb.button_index
+	return "—"
+
 func _refresh_action_row(action_name: String) -> void:
 	if not _rows.has(action_name):
 		return
@@ -191,17 +281,35 @@ func _refresh_action_row(action_name: String) -> void:
 			btn.text = _format_event(events[i])
 		else:
 			btn.text = "—"
-		btn.button_pressed = (_capture_action == action_name and _capture_slot == i)
-		# Подсветка конфликтов
+		btn.button_pressed = (_capture_action == action_name and _capture_slot == i and _capture_input_type == "km")
 		if _conflicts.has(action_name) and _conflicts[action_name].has(i):
 			btn.modulate = COLOR_CONFLICT
 		else:
 			btn.modulate = COLOR_NORMAL
 
+func _refresh_action_row_gamepad(action_name: String) -> void:
+	if not _rows_gamepad.has(action_name):
+		return
+	var info: Dictionary = _rows_gamepad[action_name]
+	var buttons: Array = info["buttons"]
+	var events: Array[InputEvent] = _get_action_events_gamepad(action_name)
+	var max_slots: int = _get_max_slots_for_action(action_name)
+	for i in range(max_slots):
+		var btn: Button = buttons[i]
+		if i < events.size():
+			btn.text = _format_event_gamepad(events[i])
+		else:
+			btn.text = "—"
+		btn.button_pressed = (_capture_action == action_name and _capture_slot == i and _capture_input_type == "gp")
+		# пока без проверки конфликтов для геймпада
+		btn.modulate = COLOR_NORMAL
+
 func _refresh_all_rows() -> void:
 	_check_conflicts()
 	for action_name: String in _rows.keys():
 		_refresh_action_row(action_name)
+	for action_name: String in _rows_gamepad.keys():
+		_refresh_action_row_gamepad(action_name)
 
 func _check_conflicts() -> void:
 	"""
@@ -253,102 +361,127 @@ func _event_signature(ev: InputEvent) -> String:
 		return "mouse:%d" % mb.button_index
 	return ""
 
-func _on_clear_slot_pressed(action_name: String, slot: int) -> void:
-	"""
-	Удаляет бинд из указанного слота действия.
-	"""
+func _on_clear_slot_pressed(action_name: String, slot: int, input_type: String) -> void:
 	if not InputMap.has_action(action_name):
 		return
-	var events: Array[InputEvent] = _get_action_events(action_name)
-	if slot >= events.size():
-		return
-	# Удалить событие из слота
-	events.remove_at(slot)
-	# Перезаписать в InputMap
+	var km_events := _get_action_events(action_name)
+	var gp_events := _get_action_events_gamepad(action_name)
+	if input_type == "km":
+		if slot < km_events.size():
+			km_events.remove_at(slot)
+	elif input_type == "gp":
+		if slot < gp_events.size():
+			gp_events.remove_at(slot)
+	# Перезаписываем все события (сохраняем порядок: KM затем GP)
 	InputMap.action_erase_events(action_name)
-	for e: InputEvent in events:
+	for e in km_events:
+		InputMap.action_add_event(action_name, e)
+	for e in gp_events:
 		InputMap.action_add_event(action_name, e)
 	_refresh_all_rows()
 
-func _on_slot_rebind_pressed(action_name: String, slot: int, button: Button) -> void:
-	if _capture_action == action_name and _capture_slot == slot:
+func _on_slot_rebind_pressed(action_name: String, slot: int, button: Button, input_type: String) -> void:
+	if _capture_action == action_name and _capture_slot == slot and _capture_input_type == input_type:
 		_cancel_capture()
 		return
-	_enter_capture(action_name, slot, button)
+	_enter_capture(action_name, slot, button, input_type)
 
-func _enter_capture(action_name: String, slot: int, button: Button) -> void:
+func _enter_capture(action_name: String, slot: int, button: Button, input_type: String) -> void:
 	_cancel_capture()
 	_capture_action = action_name
 	_capture_slot = slot
 	_capture_button = button
-	button.text = "Нажмите клавишу... (Esc отмена)"
+	_capture_input_type = input_type
+	var prompt: String = ""
+	if input_type == "gp":
+		prompt = "Нажмите кнопку геймпада... (Esc отмена)"
+	else:
+		prompt = "Нажмите клавишу... (Esc отмена)"
+	button.text = prompt
 	button.button_pressed = true
 
 func _cancel_capture() -> void:
 	if _capture_button:
 		_capture_button.button_pressed = false
 	if _capture_action != "":
-		_refresh_action_row(_capture_action)
+		if _capture_input_type == "gp":
+			_refresh_action_row_gamepad(_capture_action)
+		else:
+			_refresh_action_row(_capture_action)
 	_capture_action = ""
 	_capture_slot = -1
 	_capture_button = null
+	_capture_input_type = ""
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _capture_action == "":
 		return
-	# Обработка клавиш
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE:
 			_cancel_capture()
 			return
+		if _capture_input_type == "km":
+			_assign_event_to_slot(event)
+			accept_event()
+		return
+	if event is InputEventMouseButton and event.pressed and _capture_input_type == "km":
 		_assign_event_to_slot(event)
 		accept_event()
 		return
-	# Обработка кнопок мыши
-	if event is InputEventMouseButton and event.pressed:
+	if event is InputEventJoypadButton and event.pressed and _capture_input_type == "gp":
 		_assign_event_to_slot(event)
 		accept_event()
 		return
 
 func _assign_event_to_slot(event: InputEvent) -> void:
-	"""
-	Назначает событие (клавиша или кнопка мыши) в текущий захваченный слот.
-	"""
 	if not InputMap.has_action(_capture_action):
 		push_warning("Действие исчезло: %s" % _capture_action)
 		_cancel_capture()
 		return
-	# Построить новый список событий (до MAX_SLOTS для действия)
-	var existing: Array[InputEvent] = _get_action_events(_capture_action)
+	var km_events := _get_action_events(_capture_action)
+	var gp_events := _get_action_events_gamepad(_capture_action)
 	var new_event: InputEvent = null
-	if event is InputEventKey:
-		var key_ev: InputEventKey = event as InputEventKey
-		var new_key: InputEventKey = InputEventKey.new()
-		new_key.keycode = key_ev.keycode
-		new_key.shift_pressed = key_ev.shift_pressed
-		new_key.alt_pressed = key_ev.alt_pressed
-		new_key.ctrl_pressed = key_ev.ctrl_pressed
-		new_key.meta_pressed = key_ev.meta_pressed
-		new_event = new_key
-	elif event is InputEventMouseButton:
-		var mb_ev: InputEventMouseButton = event as InputEventMouseButton
-		var new_mb: InputEventMouseButton = InputEventMouseButton.new()
-		new_mb.button_index = mb_ev.button_index
-		new_event = new_mb
+	if _capture_input_type == "km":
+		if event is InputEventKey:
+			var key_ev := event as InputEventKey
+			var new_key := InputEventKey.new()
+			new_key.keycode = key_ev.keycode
+			new_key.shift_pressed = key_ev.shift_pressed
+			new_key.alt_pressed = key_ev.alt_pressed
+			new_key.ctrl_pressed = key_ev.ctrl_pressed
+			new_key.meta_pressed = key_ev.meta_pressed
+			new_event = new_key
+		elif event is InputEventMouseButton:
+			var mb_ev := event as InputEventMouseButton
+			var new_mb := InputEventMouseButton.new()
+			new_mb.button_index = mb_ev.button_index
+			new_event = new_mb
+	elif _capture_input_type == "gp" and event is InputEventJoypadButton:
+		var jb_ev := event as InputEventJoypadButton
+		var new_jb := InputEventJoypadButton.new()
+		new_jb.button_index = jb_ev.button_index
+		new_event = new_jb
 	if new_event == null:
 		_cancel_capture()
 		return
-	# Убедиться что массив имеет нужную длину
-	if _capture_slot < existing.size():
-		existing[_capture_slot] = new_event
+	if _capture_input_type == "km":
+		if _capture_slot < km_events.size():
+			km_events[_capture_slot] = new_event
+		else:
+			while km_events.size() < _capture_slot:
+				km_events.append(new_event)
+			km_events.append(new_event)
 	else:
-		# Добавляем пустоты если перескок (теоретически не должен)
-		while existing.size() < _capture_slot:
-			existing.append(new_event) # заполняем тем же чтобы не оставлять дыр (редко)
-		existing.append(new_event)
-	# Перезаписываем в InputMap
+		if _capture_slot < gp_events.size():
+			gp_events[_capture_slot] = new_event
+		else:
+			while gp_events.size() < _capture_slot:
+				gp_events.append(new_event)
+			gp_events.append(new_event)
 	InputMap.action_erase_events(_capture_action)
-	for e: InputEvent in existing:
+	for e in km_events:
+		InputMap.action_add_event(_capture_action, e)
+	for e in gp_events:
 		InputMap.action_add_event(_capture_action, e)
 	_cancel_capture()
 
@@ -368,9 +501,6 @@ func _on_reset_pressed() -> void:
 	_refresh_all_rows()
 
 func _dict_to_event(d: Dictionary) -> InputEvent:
-	"""
-	Преобразует словарь с описанием события в InputEvent.
-	"""
 	var event_type: String = d.get("type", "")
 	if event_type == "key":
 		var ev: InputEventKey = InputEventKey.new()
@@ -381,17 +511,18 @@ func _dict_to_event(d: Dictionary) -> InputEvent:
 		ev.meta_pressed = bool(d.get("meta", false))
 		return ev
 	elif event_type == "mouse":
-		var ev: InputEventMouseButton = InputEventMouseButton.new()
-		ev.button_index = (int(d.get("button_index", 0)) as MouseButton)
-		return ev
+		var evm: InputEventMouseButton = InputEventMouseButton.new()
+		evm.button_index = (int(d.get("button_index", 0)) as MouseButton)
+		return evm
+	elif event_type == "joy_button":
+		var evj: InputEventJoypadButton = InputEventJoypadButton.new()
+		evj.button_index = int(d.get("button_index", 0)) as JoyButton
+		return evj
 	return null
 
 func _event_to_dict(ev: InputEvent) -> Dictionary:
-	"""
-	Преобразует InputEvent в словарь для сохранения.
-	"""
 	if ev is InputEventKey:
-		var key_event: InputEventKey = ev as InputEventKey
+		var key_event := ev as InputEventKey
 		return {
 			"type": "key",
 			"keycode": key_event.keycode,
@@ -401,32 +532,47 @@ func _event_to_dict(ev: InputEvent) -> Dictionary:
 			"meta": key_event.meta_pressed
 		}
 	elif ev is InputEventMouseButton:
-		var mb: InputEventMouseButton = ev as InputEventMouseButton
+		var mb := ev as InputEventMouseButton
 		return {
 			"type": "mouse",
 			"button_index": mb.button_index
 		}
+	elif ev is InputEventJoypadButton:
+		var jb := ev as InputEventJoypadButton
+		return {
+			"type": "joy_button",
+			"button_index": jb.button_index
+		}
 	return {}
 
 func _on_save_pressed() -> void:
-	var cfg: ConfigFile = ConfigFile.new()
+	var cfg := ConfigFile.new()
 	cfg.set_value("controls", "version", CONFIG_VERSION)
-	for action_name: String in _rows.keys():
+	var actions: Array[StringName] = InputMap.get_actions()
+	for action_name_sn in actions:
+		var action_name: String = String(action_name_sn)
+		if _is_action_excluded(action_name):
+			continue
 		var arr: Array[Dictionary] = []
 		if InputMap.has_action(action_name):
-			var events: Array[InputEvent] = _get_action_events(action_name)
-			for e: InputEvent in events:
-				var d: Dictionary = _event_to_dict(e)
+			var km_events := _get_action_events(action_name)
+			var gp_events := _get_action_events_gamepad(action_name)
+			for e in km_events:
+				var d := _event_to_dict(e)
 				if not d.is_empty():
 					arr.append(d)
+			for e in gp_events:
+				var d2 := _event_to_dict(e)
+				if not d2.is_empty():
+					arr.append(d2)
 		cfg.set_value("controls", action_name, arr)
-	var err: int = cfg.save("user://controls.cfg")
+	var err := cfg.save("user://controls.cfg")
 	if err != OK:
 		push_warning("Не удалось сохранить controls.cfg (%s)" % err)
 
 func _load_custom_or_apply_defaults() -> void:
-	var cfg: ConfigFile = ConfigFile.new()
-	var err: int = cfg.load("user://controls.cfg")
+	var cfg := ConfigFile.new()
+	var err := cfg.load("user://controls.cfg")
 	if err != OK:
 		_on_reset_pressed()
 		return
@@ -434,23 +580,35 @@ func _load_custom_or_apply_defaults() -> void:
 	if version not in [1, CONFIG_VERSION]:
 		_on_reset_pressed()
 		return
-	for action_name: String in _rows.keys():
+	var actions: Array[StringName] = InputMap.get_actions()
+	for action_name_sn in actions:
+		var action_name: String = String(action_name_sn)
+		if _is_action_excluded(action_name):
+			continue
 		if not InputMap.has_action(action_name):
 			continue
 		InputMap.action_erase_events(action_name)
 		var stored: Variant = cfg.get_value("controls", action_name, [])
 		if stored is Array and not (stored as Array).is_empty():
 			var max_slots: int = _get_max_slots_for_action(action_name)
-			var i: int = 0
+			var km_added := 0
+			var gp_added := 0
 			for d: Variant in stored:
-				if i >= max_slots:
-					break
 				if typeof(d) != TYPE_DICTIONARY:
 					continue
 				var ev: InputEvent = _dict_to_event(d)
-				if ev:
+				if ev == null:
+					continue
+				if ev is InputEventJoypadButton:
+					if gp_added >= max_slots:
+						continue
 					InputMap.action_add_event(action_name, ev)
-					i += 1
+					gp_added += 1
+				elif ev is InputEventKey or ev is InputEventMouseButton:
+					if km_added >= max_slots:
+						continue
+					InputMap.action_add_event(action_name, ev)
+					km_added += 1
 	_refresh_all_rows()
 
 func _on_back_pressed() -> void:

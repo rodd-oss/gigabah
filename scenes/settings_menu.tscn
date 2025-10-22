@@ -33,11 +33,37 @@ layout_mode = 2
 text = "Настройки управления"
 horizontal_alignment = 1
 
-[node name="ScrollContainer" type="ScrollContainer" parent="VBox"]
+[node name="TabContainer" type="TabContainer" parent="VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ActionsVBox" type="VBoxContainer" parent="VBox/ScrollContainer"]
+[node name="KeyboardMouse" type="VBoxContainer" parent="VBox/TabContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBox/TabContainer/KeyboardMouse"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ActionsVBox" type="VBoxContainer" parent="VBox/TabContainer/KeyboardMouse/ScrollContainer"]
+layout_mode = 2
+
+[node name="Gamepad" type="VBoxContainer" parent="VBox/TabContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="GamepadStatus" type="Label" parent="VBox/TabContainer/Gamepad"]
+layout_mode = 2
+text = "Нет подключенного геймпада"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBox/TabContainer/Gamepad"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ActionsVBox" type="VBoxContainer" parent="VBox/TabContainer/Gamepad/ScrollContainer"]
 layout_mode = 2
 
 [node name="Buttons" type="HBoxContainer" parent="VBox"]
