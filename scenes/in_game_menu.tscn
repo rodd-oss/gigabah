@@ -36,10 +36,14 @@ text = "PAUSED"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 42
 
-[node name="DisconnectButton" type="Button" parent="Center/VBox"]
+[node name="SettingsButton" type="Button" parent="Center/VBox"]
 size_flags_horizontal = 3
-text = "Disconnect"
+text = "Settings"
 
 [node name="BackButton" type="Button" parent="Center/VBox"]
 size_flags_horizontal = 3
 text = "Back"
+
+[node name="QuitButton" type="Button" parent="Center/VBox"]
+size_flags_horizontal = 3
+text = "Quit"

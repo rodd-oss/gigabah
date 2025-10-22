@@ -1,15 +1,17 @@
 extends Control
-## In-game pause menu: ESC toggles visibility, Disconnect returns to main menu, Back hides.
+## In-game pause menu: ESC toggles visibility, Settings opens settings menu, Back hides, Quit exits game.
 
-@onready var disconnect_button: Button = $Center/VBox/DisconnectButton
+@onready var settings_button: Button = $Center/VBox/SettingsButton
 @onready var back_button: Button = $Center/VBox/BackButton
+@onready var quit_button: Button = $Center/VBox/QuitButton
 
 var _visible_state: bool = false
 
 func _ready() -> void:
 	visible = false
-	disconnect_button.pressed.connect(_on_disconnect_pressed)
+	settings_button.pressed.connect(_on_settings_pressed)
 	back_button.pressed.connect(_on_back_pressed)
+	quit_button.pressed.connect(_on_quit_pressed)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -28,11 +30,8 @@ func _set_visible(v: bool) -> void:
 func _on_back_pressed() -> void:
 	_set_visible(false)
 
-func _on_disconnect_pressed() -> void:
-	var nm: Node = get_tree().root.get_node_or_null("NetworkManager")
-	if nm and nm.has_method("close_connection"):
-		nm.call("close_connection")
-	else:
-		print_debug("[InGameMenu] NetworkManager disconnect not available")
-	# Return to main menu scene
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+func _on_settings_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/settings_menu.tscn")
+
+func _on_quit_pressed() -> void:
+	get_tree().quit()
