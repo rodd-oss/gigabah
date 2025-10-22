@@ -81,6 +81,13 @@ jobs:
             builder-base:latest \
             sh -c "godot --headless --verbose --export-release 'Linux Desktop'"
           echo "::endgroup::"
+          echo "::group::Build Mac OS Desktop"
+          docker run --rm \
+            -v ${GITHUB_WORKSPACE}:/GIGABAH \
+            -w /GIGABAH \
+            builder-base:latest \
+            sh -c "godot --headless --verbose --export-release 'macOS Desktop'"
+          echo "::endgroup::"
           ls -lh ./.dist
 
       - name: Upload build artifacts
@@ -136,6 +143,7 @@ jobs:
             |------|----------|
             | Windows Desktop | [gigabah_${{ needs.compute-version.outputs.ver }}.exe](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah_${{ needs.compute-version.outputs.ver }}.exe) |
             | Linux Desktop | [gigabah_${{ needs.compute-version.outputs.ver }}.x86_64](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah_${{ needs.compute-version.outputs.ver }}.x86_64) |
+            | macOS Desktop | [gigabah_${{ needs.compute-version.outputs.ver }}.app](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah_${{ needs.compute-version.outputs.ver }}.app) |
             | Docker Server | `docker pull ghcr.io/${{ github.repository }}:${{ needs.compute-version.outputs.ver }}` |
           draft: false
           prerelease: ${{ needs.compute-version.outputs.release == 'false' }}
