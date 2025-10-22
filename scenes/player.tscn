@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=4 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=36 format=4 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/player.gd" id="1_qhqgy"]
 [ext_resource type="Script" uid="uid://wwr4smb84bc0" path="res://components/network_position.gd" id="3_dqkch"]
@@ -6,7 +6,6 @@
 [ext_resource type="PackedScene" uid="uid://cikxs0fl5lnxf" path="res://features/health-bar/health_bar_3d.tscn" id="5_health"]
 [ext_resource type="PackedScene" uid="uid://m02shnr1melc" path="res://scenes/radial_menu/emote_spawner.tscn" id="6_3v2ag"]
 [ext_resource type="Script" uid="uid://xrbns0ylm83m" path="res://scripts/network_vision_area_3d.gd" id="6_tuyoq"]
-[ext_resource type="PackedScene" uid="uid://b4pv22bpxxgng" path="res://scenes/poop.tscn" id="7_f1ej7"]
 [ext_resource type="Script" uid="uid://dnhu4bhw8o1as" path="res://scripts/radial_menu/radial_menu.gd" id="7_jej6c"]
 [ext_resource type="Script" uid="uid://bo87xn437osdk" path="res://scripts/radial_menu/radial_menu_item_behavior.gd" id="8_f1ej7"]
 [ext_resource type="AnimationLibrary" uid="uid://buk878wi5duma" path="res://animations/radial_menu/radial_menu_animations.res" id="9_oprun"]
@@ -1800,7 +1799,6 @@ fill_color = Color(0.61960787, 0.9098039, 0.65882355, 0.5882353)
 
 [node name="EmoteSpawner" parent="." instance=ExtResource("6_3v2ag")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.138998, 0)
-poop = ExtResource("7_f1ej7")
 
 [node name="RadialMenu" type="Control" parent="."]
 layout_mode = 3

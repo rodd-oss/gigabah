@@ -1,157 +1,144 @@
-name: Build and Release Clients
+name: Build and Release
 
 on:
   push:
     branches:
-      - main
+      - release
+    tags:
+      - "*"
+  workflow_dispatch:
 
 jobs:
-  export-linux:
-    name: Export Linux Client
+  compute-version:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Godot 4.5
+      - name: Compute version and release type
+        id: version
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip zip
-          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip
-          unzip Godot_v4.5-stable_linux.x86_64.zip
-          mv Godot_v4.5-stable_linux.x86_64 godot
-          chmod +x godot
-          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_export_templates.tpz
-          mkdir -p ~/.local/share/godot/export_templates/4.5.stable
-          unzip Godot_v4.5-stable_export_templates.tpz
-          mv templates/* ~/.local/share/godot/export_templates/4.5.stable/
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            VER="${GITHUB_REF_NAME}"
+            RELEASE="true"
+          else
+            VER="${GITHUB_SHA::8}"
+            RELEASE="false"
+          fi
+          echo "VER=$VER"
+          echo "ver=$VER" >> $GITHUB_OUTPUT
+          echo "RELEASE=$RELEASE"
+          echo "release=$RELEASE" >> $GITHUB_OUTPUT
 
-      - name: Export Linux Desktop (release)
+    outputs:
+      ver: ${{ steps.version.outputs.ver  }}
+      release: ${{ steps.version.outputs.release }}
+
+  build:
+    runs-on: ubuntu-latest
+    needs:
+      - compute-version
+    permissions:
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Login into ghcr.io registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build builder image
+        uses: docker/build-push-action@v6
+        with:
+          file: ./Dockerfile
+          target: builder-base
+          tags: builder-base:latest
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/builder-base:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/builder-base:cache,mode=max
+          push: false
+          load: true
+
+      - name: Build Desktop
         run: |
-          mkdir -p .dist/linux
-          ./godot --headless --export-release "Linux Desktop"
+          mkdir .dist
+          echo "::group::Build Windows Desktop"
+          docker run --rm \
+            -v ${GITHUB_WORKSPACE}:/GIGABAH \
+            -w /GIGABAH \
+            builder-base:latest \
+            sh -c "godot --headless --verbose --export-release 'Windows Desktop'"
+          echo "::endgroup::"
+          echo "::group::Build Linux Desktop"
+          docker run --rm \
+            -v ${GITHUB_WORKSPACE}:/GIGABAH \
+            -w /GIGABAH \
+            builder-base:latest \
+            sh -c "godot --headless --verbose --export-release 'Linux Desktop'"
+          echo "::endgroup::"
+          ls -lh ./.dist
 
-      - name: Archive Linux build
-        run: |
-          cd .dist/linux
-          zip -r ../bevryust-online-linux.zip .
-          cd -
-        shell: bash
-
-      - name: Upload artifact (linux)
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: bevryust-online-linux
-          path: .dist/bevryust-online-linux.zip
+          name: build-output-${{ needs.compute-version.outputs.ver }}
+          path: .dist
+          if-no-files-found: "error"
+          include-hidden-files: "true"
 
-  export-linux-server:
-    name: Export Linux Dedicated Server
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Godot 4.5
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip zip
-          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip
-          unzip Godot_v4.5-stable_linux.x86_64.zip
-          mv Godot_v4.5-stable_linux.x86_64 godot
-          chmod +x godot
-          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_export_templates.tpz
-          mkdir -p ~/.local/share/godot/export_templates/4.5.stable
-          unzip Godot_v4.5-stable_export_templates.tpz
-          mv templates/* ~/.local/share/godot/export_templates/4.5.stable/
-
-      - name: Export Linux Server (release)
-        run: |
-          mkdir -p .dist/linux-server
-          ./godot --headless --export-release "Linux Server"
-
-      - name: Archive Linux Server build
-        run: |
-          cd .dist/linux-server
-          zip -r ../linux-dedicated.zip .
-          cd -
-        shell: bash
-
-      - name: Upload artifact (linux-server)
-        uses: actions/upload-artifact@v4
+      - name: Build and push Dedicated Server docker image
+        uses: docker/build-push-action@v6
         with:
-          name: linux-dedicated
-          path: .dist/linux-dedicated.zip
-
-  export-windows:
-    name: Export Windows Client
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Godot 4.5
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip zip
-          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip
-          unzip Godot_v4.5-stable_linux.x86_64.zip
-          mv Godot_v4.5-stable_linux.x86_64 godot
-          chmod +x godot
-          wget https://github.com/godotengine/godot-builds/releases/download/4.5-stable/Godot_v4.5-stable_export_templates.tpz
-          mkdir -p ~/.local/share/godot/export_templates/4.5.stable
-          unzip Godot_v4.5-stable_export_templates.tpz
-          mv templates/* ~/.local/share/godot/export_templates/4.5.stable/
-
-      - name: Export Windows Desktop (release)
-        run: |
-          mkdir -p .dist/windows
-          ./godot --headless --export-release "Windows Desktop"
-
-      - name: Archive Windows build
-        run: |
-          cd .dist/windows
-          zip -r ../bevryust-online-windows.zip .
-          cd -
-        shell: bash
-
-      - name: Upload artifact (windows)
-        uses: actions/upload-artifact@v4
-        with:
-          name: bevryust-online-windows
-          path: .dist/bevryust-online-windows.zip
+          file: ./Dockerfile
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/builder-base:cache
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ needs.compute-version.outputs.ver }}
+            ${{ needs.compute-version.outputs.release == 'true' && format('ghcr.io/{0}:latest', github.repository) || '' }}
 
   release:
-    name: Create Release
     runs-on: ubuntu-latest
-    needs: [export-linux, export-windows, export-linux-server]
+    needs:
+      - compute-version
+      - build
+    permissions:
+      contents: write
+
     steps:
-      - name: Download linux artifact
-        uses: actions/download-artifact@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v5
         with:
-          name: bevryust-online-linux
-          path: dist
+          name: build-output-${{ needs.compute-version.outputs.ver }}
+          path: ./.dist
 
-      - name: Download windows artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: bevryust-online-windows
-          path: dist
+      - name: Add version to build artifacts
+        run: |
+          for f in ./.dist/*; do
+            base="${f%.*}"
+            ext="${f##*.}"
+            mv "$f" "${base}_${{ needs.compute-version.outputs.ver }}.${ext}"
+          done
 
-      - name: Download linux server artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: linux-dedicated
-          path: dist
-
-      - name: Create GitHub Release
+      - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          name: Latest main build
-          tag_name: main
-          make_latest: true
+          tag_name: ${{ needs.compute-version.outputs.ver }}
+          name: "${{ needs.compute-version.outputs.ver }}"
+          body: |
+            Release ${{ needs.compute-version.outputs.ver }}
+
+            | File | Download |
+            |------|----------|
+            | Windows Desktop | [gigabah_${{ needs.compute-version.outputs.ver }}.exe](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah_${{ needs.compute-version.outputs.ver }}.exe) |
+            | Linux Desktop | [gigabah_${{ needs.compute-version.outputs.ver }}.x86_64](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah_${{ needs.compute-version.outputs.ver }}.x86_64) |
+            | Docker Server | `docker pull ghcr.io/${{ github.repository }}:${{ needs.compute-version.outputs.ver }}` |
+          draft: false
+          prerelease: ${{ needs.compute-version.outputs.release == 'false' }}
+          make_latest: "${{ needs.compute-version.outputs.release == 'true' }}"
           files: |
-            dist/bevryust-online-linux.zip
-            dist/bevryust-online-windows.zip
-            dist/linux-dedicated.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            ./.dist/*
