@@ -21,7 +21,7 @@ jobs:
             RELEASE="true"
           else
             VER="${GITHUB_SHA::8}"
-            RELEASE="false"
+            RELEASE="true"
           fi
           echo "VER=$VER"
           echo "ver=$VER" >> $GITHUB_OUTPUT
