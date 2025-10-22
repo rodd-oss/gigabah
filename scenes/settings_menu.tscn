@@ -31,6 +31,76 @@ size_flags_vertical = 3
 [node name="ActionsVBox" type="VBoxContainer" parent="VBox/ScrollContainer"]
 layout_mode = 2
 
+[node name="move_left" type="HBoxContainer" parent="VBox/ScrollContainer/ActionsVBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBox/ScrollContainer/ActionsVBox/move_left"]
+layout_mode = 2
+text = "Влево"
+custom_minimum_size = Vector2(140, 0)
+
+[node name="Button" type="Button" parent="VBox/ScrollContainer/ActionsVBox/move_left"]
+layout_mode = 2
+name = "move_left"
+toggle_mode = true
+text = "..."
+
+[node name="move_right" type="HBoxContainer" parent="VBox/ScrollContainer/ActionsVBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBox/ScrollContainer/ActionsVBox/move_right"]
+layout_mode = 2
+text = "Вправо"
+custom_minimum_size = Vector2(140, 0)
+
+[node name="Button" type="Button" parent="VBox/ScrollContainer/ActionsVBox/move_right"]
+layout_mode = 2
+name = "move_right"
+toggle_mode = true
+text = "..."
+
+[node name="move_forward" type="HBoxContainer" parent="VBox/ScrollContainer/ActionsVBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBox/ScrollContainer/ActionsVBox/move_forward"]
+layout_mode = 2
+text = "Вперёд"
+custom_minimum_size = Vector2(140, 0)
+
+[node name="Button" type="Button" parent="VBox/ScrollContainer/ActionsVBox/move_forward"]
+layout_mode = 2
+name = "move_forward"
+toggle_mode = true
+text = "..."
+
+[node name="move_backward" type="HBoxContainer" parent="VBox/ScrollContainer/ActionsVBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBox/ScrollContainer/ActionsVBox/move_backward"]
+layout_mode = 2
+text = "Назад"
+custom_minimum_size = Vector2(140, 0)
+
+[node name="Button" type="Button" parent="VBox/ScrollContainer/ActionsVBox/move_backward"]
+layout_mode = 2
+name = "move_backward"
+toggle_mode = true
+text = "..."
+
+[node name="ui_accept" type="HBoxContainer" parent="VBox/ScrollContainer/ActionsVBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBox/ScrollContainer/ActionsVBox/ui_accept"]
+layout_mode = 2
+text = "Прыжок"
+custom_minimum_size = Vector2(140, 0)
+
+[node name="Button" type="Button" parent="VBox/ScrollContainer/ActionsVBox/ui_accept"]
+layout_mode = 2
+name = "ui_accept"
+toggle_mode = true
+text = "..."
+
 [node name="Buttons" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
 size_flags_vertical = 0

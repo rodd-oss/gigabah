@@ -46,28 +46,25 @@ var _capture_action: String = ""
 var _capture_button: Button = null
 
 func _ready() -> void:
-	_build_ui()
+	# Bind existing buttons added via scene.
+	for action_data: Dictionary in ACTIONS:
+		var action_name: String = action_data.name
+		var row: HBoxContainer = actions_container.get_node_or_null(action_name) as HBoxContainer
+		if not row:
+			push_warning("Row node missing for action: %s" % action_name)
+			continue
+		# Expect button child named same as action
+		var btn: Button = row.get_node_or_null("Button") as Button
+		if not btn:
+			push_warning("Button missing in row: %s" % action_name)
+			continue
+		btn.name = action_name # ensure name matches for later lookups
+		btn.text = _get_action_events_text(action_name)
+		btn.pressed.connect(func() -> void: _on_rebind_pressed(action_name, btn))
 	_load_custom_or_apply_defaults()
 	save_button.pressed.connect(_on_save_pressed)
 	reset_button.pressed.connect(_on_reset_pressed)
 	back_button.pressed.connect(_on_back_pressed)
-
-func _build_ui() -> void:
-	for action_data: Dictionary in ACTIONS:
-		var h: HBoxContainer = HBoxContainer.new()
-		var lbl: Label = Label.new()
-		lbl.text = action_data.label
-		lbl.custom_minimum_size.x = 140
-		h.add_child(lbl)
-
-		var btn: Button = Button.new()
-		btn.name = action_data.name
-		btn.toggle_mode = true
-		btn.text = _get_action_events_text(action_data.name)
-		btn.pressed.connect(func() -> void: _on_rebind_pressed(action_data.name, btn))
-		h.add_child(btn)
-
-		actions_container.add_child(h)
 
 func _get_action_events_text(action_name: String) -> String:
 	if not InputMap.has_action(action_name):
