@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://ygkgpca1ir66" path="res://scenes/radial_menu/emote.tscn" id="3_hhnvu"]
 [ext_resource type="Script" uid="uid://r2lrkrsoo1pr" path="res://scenes/radial_menu/poop.gd" id="4_cjd57"]
 [ext_resource type="PackedScene" uid="uid://cabfjhgqmmx3k" path="res://scenes/bullet.tscn" id="4_hhnvu"]
+[ext_resource type="PackedScene" path="res://scenes/in_game_menu.tscn" id="5_ingamemenu"]
 [ext_resource type="PackedScene" uid="uid://bccib7r8tci6f" path="res://models/maps/Arena.blend" id="6_khbhx"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2j24h"]
@@ -153,6 +154,7 @@ omni_range = 16.9915
 [node name="Bullet" parent="." instance=ExtResource("4_hhnvu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.00794, -0.0346527)
 
+[node name="InGameMenu" parent="." instance=ExtResource("5_ingamemenu")]
 [node name="Walls" type="Node3D" parent="."]
 
 [node name="Arena" parent="." instance=ExtResource("6_khbhx")]
