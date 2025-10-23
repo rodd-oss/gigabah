@@ -1,4 +1,5 @@
 extends MultiplayerSynchronizer
+
 class_name NetworkProjectile
 
 @export var speed: float = 1.0
@@ -6,9 +7,11 @@ class_name NetworkProjectile
 
 @onready var parent: CharacterBody3D = get_parent() as CharacterBody3D
 
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
 	pass
+
 
 func _physics_process(_delta: float) -> void:
 	if multiplayer.is_server():

@@ -1,0 +1,44 @@
+name: Lint
+
+on:
+  pull_request:
+    branches:
+      - main
+      - release
+
+jobs:
+  lint:
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v5
+
+        - name: Set up Python
+          uses: actions/setup-python@v6
+          with:
+            python-version: '3.x'
+
+        - run: |
+            wget -q https://github.com/GDQuest/GDScript-formatter/releases/download/${GDSCRIPT_FORMATTER_VERSION}/gdscript-formatter-linux-x86_64.zip
+            unzip gdscript-formatter-linux-x86_64.zip
+            mv gdscript-formatter-linux-x86_64 /usr/local/bin/gdscript-formatter
+          env:
+            GDSCRIPT_FORMATTER_VERSION: 0.14.0
+
+        - name: Run pre-commit
+          uses: ./.github/actions/pre-commit
+          env:
+            SKIP: gdscript-linter
+
+        - name: Run pre-commit gdscript-linter
+          uses: ./.github/actions/pre-commit
+          with:
+            extra_args: "gdscript-linter --all-files"
+          continue-on-error: true
+
+  build:
+    needs: lint
+    uses: ./.github/workflows/build.yml
+    with:
+      event_name: ${{ github.event_name }}

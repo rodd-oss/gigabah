@@ -1,4 +1,5 @@
 extends MultiplayerSynchronizer
+
 class_name NetworkPosition
 
 @onready var parent: CharacterBody3D = get_parent() as CharacterBody3D
@@ -9,6 +10,7 @@ class_name NetworkPosition
 @export var interpolation_speed: float = 18.0
 
 var _initialized: bool = false
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -31,6 +33,7 @@ func _process(delta: float) -> void:
 			parent.position = parent.position.lerp(server_position, clamp(interpolation_speed * delta, 0, 1))
 		else:
 			parent.position = server_position
+
 
 func _physics_process(_delta: float) -> void:
 	# Only the server moves the player
