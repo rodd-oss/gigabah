@@ -1,35 +1,31 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 
-version: "3"
+version: "3.45"
 
-tasks:     
-  deploy:
-    env:
-      IMAGE_URI: bevryust-server
-      REG: cr.yandex/crpqijg3j49fegqgp7aa
-      VM: epd976a2qt0id0tvld7o
-    vars:
-      GIT_COMMIT:
-        sh: git log -n 1 --format=%h
+tasks:
+  create-gd-filepaths-list:
+    sources:
+      - "**/*.gd"
+    generates:
+      - .gd_filepaths_list
     cmds:
-      - 7z a .dist/windows-client.zip .dist/windows
-      - 7z a .dist/linux-client.zip .dist/linux
-      - docker build . --file Dockerfile --tag $REG/$IMAGE_URI:{{.GIT_COMMIT}}
-      - docker push $REG/$IMAGE_URI:{{.GIT_COMMIT}}
-      - docker tag $REG/$IMAGE_URI:{{.GIT_COMMIT}} $REG/$IMAGE_URI:latest
-      - docker push $REG/$IMAGE_URI:latest
+      - for: sources
+        cmd: echo "{{.ITEM}}" >> .gd_filepaths_list
 
-  deploy-push:
-    env:
-      IMAGE_URI: bevryust-server
-      REG: cr.yandex/crpqijg3j49fegqgp7aa
-      VM: epd976a2qt0id0tvld7o
+  lint:
+    deps:
+      - create-gd-filepaths-list
     vars:
-      GIT_COMMIT:
-        sh: git log -n 1 --format=%h
+      FILES: $(cat .gd_filepaths_list)
     cmds:
-      - butler push .dist/windows-client.zip milanrodd/bevryust:windows-beta --userversion {{.GIT_COMMIT}}
-      - butler status milanrodd/bevryust:windows-beta
-      - butler push .dist/linux-client.zip milanrodd/bevryust:linux-beta --userversion {{.GIT_COMMIT}}
-      - butler status milanrodd/bevryust:linux-beta
-      - yc compute instance update-container $VM --container-image=$REG/$IMAGE_URI:{{.GIT_COMMIT}}
+      - defer: rm -rf .gd_filepaths_list
+      - gdscript-formatter lint --pretty {{.CLI_ARGS}} {{.FILES}}
+
+  format:
+    deps:
+      - create-gd-filepaths-list
+    vars:
+      FILES: $(cat .gd_filepaths_list)
+    cmds:
+      - defer: rm -rf .gd_filepaths_list
+      - gdscript-formatter {{.CLI_ARGS}} {{.FILES}}
