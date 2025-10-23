@@ -5,6 +5,7 @@ extends CharacterBody3D
 
 @export var input_controller: InputController
 
+
 func _physics_process(delta: float) -> void:
 	if multiplayer.is_server():
 		# Add the gravity.

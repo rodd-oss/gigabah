@@ -5,6 +5,7 @@ class_name InputController
 @export var move_direction: Vector2 = Vector2.ZERO
 @export var jump_input: bool = false
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	set_multiplayer_authority(owner.name.to_int(), false)

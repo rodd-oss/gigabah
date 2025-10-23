@@ -13,7 +13,7 @@ func _process(_delta: float) -> void:
 	if multiplayer.is_server():
 		animation_state = animation_player.current_animation
 		animation_speed = animation_player.speed_scale
-		# animation_frame = animation_player.current_frame
+	# animation_frame = animation_player.current_frame
 	else:
 		if animation_state != animation_player.current_animation:
 			animation_player.play(animation_state)

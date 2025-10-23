@@ -15,6 +15,6 @@ func _enter_tree() -> void:
 	if multiplayer.get_unique_id() == 1:
 		# Server does not need to set camera
 		return
-		
+
 	if name.to_int() == multiplayer.get_unique_id():
 		camera.make_current()
