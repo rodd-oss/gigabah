@@ -1,0 +1,18 @@
+name: godot-build
+description: builds Godot project using specified preset
+inputs:
+  preset:
+    description: preset to use for the build
+    required: true
+runs:
+  using: composite
+  steps:
+    - run: |
+          mkdir -p .dist
+          docker run --rm \
+            -v ${GITHUB_WORKSPACE}:/github/workspace \
+            -w /github/workspace \
+            builder-base:latest \
+            sh -c "godot --headless --verbose --export-release '${{ inputs.preset }}'"
+          ls -lh ./.dist
+      shell: bash
