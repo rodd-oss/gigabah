@@ -17,9 +17,10 @@ func spawn_player(id: int) -> void:
 	var player: Node = player_scene.instantiate()
 	player.name = str(id)
 	player.set_multiplayer_authority(1) # Ensure server authority
-	player.position.x = randf_range(-5, 5)
-	player.position.y = 0
-	player.position.z = randf_range(-5, 5)
+	var hero: CharacterBody3D = player.get_node("Hero") as CharacterBody3D
+	hero.position.x = randf_range(-5, 5)
+	hero.position.y = 0
+	hero.position.z = randf_range(-5, 5)
 	get_node(spawn_path).call_deferred("add_child", player)
 
 	set_visibility_for(id, player, true)
