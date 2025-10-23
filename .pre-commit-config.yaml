@@ -9,12 +9,10 @@ repos:
         require_serial: true
         types: [gdscript]
 
-  - repo: local
-    hooks:
       - id: gdscript-linter
         name: gdscript-linter
         description: "linter for GDScript"
-        entry: gdscript-formatter lint
+        entry: gdscript-formatter lint --pretty
         language: system
         require_serial: true
         types: [gdscript]
