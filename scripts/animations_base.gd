@@ -1,4 +1,5 @@
 extends Node
+
 @onready var player: CharacterBody3D = $".."
 @onready var player_model: Node3D = $"../PlayerModel"
 @onready var animation_player: AnimationPlayer = $"../PlayerModel/AnimationPlayer"

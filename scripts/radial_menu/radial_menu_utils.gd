@@ -1,4 +1,5 @@
 extends Object
+
 class_name RadialMenuUtils
 
 ## Creates a segment polygon (annular sector) between two radii.
@@ -11,7 +12,7 @@ class_name RadialMenuUtils
 ## [b]Parameters:[/b]
 ##   [code]center[/code] [Vector2] - Center point of the segment
 ##   [code]radius_a[/code] [float] - Outer radius of the segment
-##   [code]radius_b[/code] [float] - Inner radius of the segment  
+##   [code]radius_b[/code] [float] - Inner radius of the segment
 ##   [code]radius_padding[/code] [float] - Padding applied to radii
 ##   [code]start_angle[/code] [float] - Starting angle in radians (0 = right, PI/2 = down)
 ##   [code]end_angle[/code] [float] - Ending angle in radians
@@ -36,7 +37,7 @@ class_name RadialMenuUtils
 ##   var polygon = create_segment_polygon(
 ##       Vector2(100, 100),  # center
 ##       80.0,               # outer radius
-##       40.0,               # inner radius  
+##       40.0,               # inner radius
 ##       5.0,                # radius padding
 ##       0.0,                # start angle
 ##       PI/2,               # end angle (90°)
@@ -64,6 +65,7 @@ static func create_segment_polygon(center: Vector2, radius_a: float, radius_b: f
 		b = b.rotated(-step_angle)
 	points[pi] = points[0]
 	return points
-	
+
+
 static func segment_releative_point(center: Vector2, radius_a: float, radius_b: float, radius_padding: float, start_angle: float, end_angle: float, angle_padding: float, radius_t: float, angle_t: float) -> Vector2:
 	return center + Vector2((radius_a + radius_padding) + ((radius_b - radius_padding) - (radius_a + radius_padding)) / 2 * (radius_t + 1), 0).rotated((start_angle + angle_padding) + ((end_angle - angle_padding) - (start_angle + angle_padding)) / 2 * (angle_t + 1))

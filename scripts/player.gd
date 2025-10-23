@@ -8,6 +8,7 @@ extends CharacterBody3D
 var move_direction: Vector2 = Vector2.ZERO
 var jump_input: bool = false
 
+
 func _enter_tree() -> void:
 	if multiplayer.is_server():
 		$NetworkVisionArea3D.vision_owner_peer_id = name.to_int()
@@ -19,6 +20,7 @@ func _enter_tree() -> void:
 		return
 	if name.to_int() == multiplayer.get_unique_id():
 		camera.make_current()
+
 
 func _physics_process(delta: float) -> void:
 	if multiplayer.get_unique_id() == name.to_int() and multiplayer.get_unique_id() != 1:
@@ -47,7 +49,7 @@ func _physics_process(delta: float) -> void:
 
 		velocity.x = move_direction.x * SPEED
 		velocity.z = move_direction.y * SPEED
-			
+
 		move_and_slide()
 
 
