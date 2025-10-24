@@ -5,7 +5,7 @@ extends Node
 @export var init_state: State
 
 var current_state: State
-var states: Dictionary = {}
+var states: Dictionary = { }
 
 func _ready() -> void:
 	for child in get_children():
@@ -29,13 +29,13 @@ func _physics_process(delta: float) -> void:
 func _on_state_changed(new_state_name: String) -> void:
 	if !multiplayer.is_server():
 		return
-	if new_state_name not in  states:
+	if new_state_name not in states:
 		return
 	if current_state.name == new_state_name:
 		return
 	rpc("transition_to", new_state_name)
 
-@rpc("any_peer","call_local")
+@rpc("any_peer", "call_local")
 func transition_to(new_state_name: String) -> void:
 	if current_state:
 		current_state.exit()
