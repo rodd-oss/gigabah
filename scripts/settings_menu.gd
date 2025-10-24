@@ -91,7 +91,7 @@ const DEFAULT_BINDS: Dictionary = {
 		{ "type": "key", "keycode": KEY_LEFT },
 		# TODO: no type for axes
 		{ "type": "joy_button", "button_index": JOY_BUTTON_DPAD_LEFT },
-	]
+	],
 }
 
 const CONFIG_VERSION: int = 2
