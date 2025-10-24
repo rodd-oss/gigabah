@@ -39,6 +39,6 @@ func _on_state_changed(new_state_name: String) -> void:
 func transition_to(new_state_name: String) -> void:
 	if current_state:
 		current_state.exit()
-	
+
 	current_state = states[new_state_name]
 	current_state.enter()
