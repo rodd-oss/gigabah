@@ -7,6 +7,7 @@ extends Node
 var current_state: State
 var states: Dictionary = { }
 
+
 func _ready() -> void:
 	for child in get_children():
 		if child is State:
@@ -18,13 +19,16 @@ func _ready() -> void:
 		current_state = init_state
 		current_state.enter()
 
+
 func _process(delta: float) -> void:
 	if current_state:
 		current_state.process_logic(delta)
 
+
 func _physics_process(delta: float) -> void:
 	if current_state:
 		current_state.physics_logic(delta)
+
 
 func _on_state_changed(new_state_name: String) -> void:
 	if !multiplayer.is_server():
@@ -34,6 +38,7 @@ func _on_state_changed(new_state_name: String) -> void:
 	if current_state.name == new_state_name:
 		return
 	rpc("transition_to", new_state_name)
+
 
 @rpc("any_peer", "call_local")
 func transition_to(new_state_name: String) -> void:
