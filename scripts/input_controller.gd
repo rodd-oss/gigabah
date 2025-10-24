@@ -8,7 +8,9 @@ class_name InputController
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	set_multiplayer_authority(owner.name.to_int(), false)
+	var peer_id := owner.name.to_int()
+	set_multiplayer_authority(peer_id, false)
+	set_visibility_for(1, true)
 
 
 func _process(_delta: float) -> void:
