@@ -1,6 +1,8 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 
 version: "3.45"
+includes:
+  deps: ./Taskfile.deps.yml
 
 tasks:
   create-gd-filepaths-list:
@@ -19,7 +21,7 @@ tasks:
       FILES: $(cat .gd_filepaths_list)
     cmds:
       - defer: rm -rf .gd_filepaths_list
-      - gdscript-formatter lint --pretty {{.CLI_ARGS}} {{.FILES}}
+      - ./tools/gdscript-formatter lint --pretty {{.CLI_ARGS}} {{.FILES}}
 
   format:
     deps:
@@ -28,4 +30,4 @@ tasks:
       FILES: $(cat .gd_filepaths_list)
     cmds:
       - defer: rm -rf .gd_filepaths_list
-      - gdscript-formatter {{.CLI_ARGS}} {{.FILES}}
+      - ./tools/gdscript-formatter {{.CLI_ARGS}} {{.FILES}}
