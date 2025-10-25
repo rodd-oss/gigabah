@@ -1569,6 +1569,7 @@ vision_area = NodePath("Hero/NetworkVisionArea3D")
 replication_interval = 0.02
 delta_interval = 0.02
 replication_config = SubResource("SceneReplicationConfig_oprun")
+public_visibility = false
 script = ExtResource("2_f1ej7")
 metadata/_custom_type_script = "uid://c5687ukdvwk4m"
 
