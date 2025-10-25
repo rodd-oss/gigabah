@@ -59,7 +59,7 @@ metadata/_custom_type_script = "uid://1cdf55yjte8h"
 [node name="NetworkProjectile" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_l5glv")
 script = ExtResource("2_l5glv")
-speed = 10.0
+speed = 15.0
 metadata/_custom_type_script = "uid://7i1d2cf1nvak"
 
 [node name="NetworkBoundingArea3D" type="Area3D" parent="."]
