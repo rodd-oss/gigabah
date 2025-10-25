@@ -33,7 +33,7 @@ func _process(_delta: float) -> void:
 		if new_move_direction != move_direction:
 			move_direction = new_move_direction
 
-		var new_jump_input: bool = Input.is_action_just_pressed("ui_accept")
+		var new_jump_input: bool = Input.is_action_pressed("ui_accept")
 		if new_jump_input != jump_input:
 			jump_input = new_jump_input
 

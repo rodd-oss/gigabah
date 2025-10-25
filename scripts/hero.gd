@@ -8,6 +8,7 @@ extends CharacterBody3D
 
 var _local_peer := true
 var _prev_cast_mask := 0
+var _prev_jump := false
 
 
 func _ready() -> void:
@@ -18,8 +19,10 @@ func _physics_process(delta: float) -> void:
 	if multiplayer.is_server():
 		# Add the gravity.
 		if is_on_floor():
-			if input_controller.jump_input:
+			if input_controller.jump_input and not _prev_jump:
 				velocity.y = JUMP_VELOCITY
+
+			_prev_jump = input_controller.jump_input
 		else:
 			velocity += get_gravity() * delta
 
