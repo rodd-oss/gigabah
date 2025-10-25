@@ -22,7 +22,6 @@ func _cast_in_direction(dir: Vector3) -> CastError:
 	
 	var proj := ball.find_child("NetworkProjectile") as NetworkProjectile
 	proj.move_direction = (dir * Vector3(1.0, 0.0, 1.0)).normalized()
-	push_warning("dir: %v" % dir)
 
 	cooldown = 0.5
 

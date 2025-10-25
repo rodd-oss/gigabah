@@ -56,8 +56,6 @@ func _process(_delta: float) -> void:
 			cursor_raycast.force_raycast_update()
 
 			if not cursor_raycast.is_colliding():
-				print("no")
 				cursor_world_pos = Vector3(NAN, NAN, NAN)
 			else:
-				print("yea")
 				cursor_world_pos = cursor_raycast.get_collision_point()

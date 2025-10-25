@@ -41,7 +41,6 @@ func _process(_delta: float) -> void:
 
 			var ability := caster.get_ability(cast_slot_idx)
 			if ability:
-				push_warning("casting %s" % ability.name)
 				_cast_ability(ability)
 
 
@@ -51,6 +50,5 @@ func _cast_ability(ability: Ability) -> void:
 			ability.cast_notarget()
 		Ability.CastMethod.DIRECTIONAL:
 			if not is_nan(input_controller.cursor_world_pos.x):
-				push_warning("cursor_world_pos: %v" % input_controller.cursor_world_pos)
 				var dir := input_controller.cursor_world_pos - global_position
 				ability.cast_in_direction(dir.normalized())
