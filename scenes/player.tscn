@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=4 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=45 format=4 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/network_client.gd" id="1_qhqgy"]
 [ext_resource type="Script" uid="uid://c5687ukdvwk4m" path="res://scripts/input_controller.gd" id="2_f1ej7"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://xrbns0ylm83m" path="res://scripts/network_vision_area_3d.gd" id="6_tuyoq"]
 [ext_resource type="Script" uid="uid://dnhu4bhw8o1as" path="res://scripts/radial_menu/radial_menu.gd" id="7_jej6c"]
 [ext_resource type="Script" uid="uid://bxi4djnou368t" path="res://scripts/caster.gd" id="7_oprun"]
+[ext_resource type="Script" uid="uid://5tihk4woc060" path="res://scripts/hitbox_3d.gd" id="7_qfm1y"]
 [ext_resource type="Script" uid="uid://bo87xn437osdk" path="res://scripts/radial_menu/radial_menu_item_behavior.gd" id="8_f1ej7"]
 [ext_resource type="AnimationLibrary" uid="uid://buk878wi5duma" path="res://animations/radial_menu/radial_menu_animations.res" id="9_oprun"]
 [ext_resource type="Script" uid="uid://dygq0iwvhu8ou" path="res://scripts/animations_base.gd" id="11_d2wvv"]
@@ -1569,6 +1570,8 @@ radius = 1.1026574
 [sub_resource type="SphereShape3D" id="SphereShape3D_tuyoq"]
 radius = 20.0
 
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fulsm"]
+
 [node name="NetworkClient" type="Node" node_paths=PackedStringArray("camera", "vision_area")]
 script = ExtResource("1_qhqgy")
 camera = NodePath("Camera3D")
@@ -2021,6 +2024,18 @@ metadata/_custom_type_script = "uid://bxi4djnou368t"
 [node name="DevBall" type="Node" parent="Hero/Caster/Abilities"]
 script = ExtResource("16_a8ls1")
 metadata/_custom_type_script = "uid://1lurjfq8mjgm"
+
+[node name="HitBoxArea" type="Area3D" parent="Hero" node_paths=PackedStringArray("hp")]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("7_qfm1y")
+hp = NodePath("../Components/NetworkHp")
+metadata/_custom_type_script = "uid://5tihk4woc060"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hero/HitBoxArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_fulsm")
+debug_color = Color(0.9891284, 0, 0.29943526, 0.41960785)
 
 [connection signal="on_hower" from="Hero/RadialMenu/Clown/RadialMenuBehavior" to="Hero/RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
 [connection signal="on_press" from="Hero/RadialMenu/Clown/RadialMenuBehavior" to="Hero/EmoteSpawner" method="_on_clown_button_press"]
