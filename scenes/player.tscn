@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=4 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=46 format=4 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/network_client.gd" id="1_qhqgy"]
 [ext_resource type="Script" uid="uid://c5687ukdvwk4m" path="res://scripts/input_controller.gd" id="2_f1ej7"]
@@ -16,6 +16,7 @@
 [ext_resource type="AnimationLibrary" uid="uid://buk878wi5duma" path="res://animations/radial_menu/radial_menu_animations.res" id="9_oprun"]
 [ext_resource type="Script" uid="uid://dygq0iwvhu8ou" path="res://scripts/animations_base.gd" id="11_d2wvv"]
 [ext_resource type="Script" uid="uid://c1ur4seavqi8i" path="res://scripts/radial_menu/animation.gd" id="11_qfm1y"]
+[ext_resource type="Script" uid="uid://cw41hh8xohvjm" path="res://scripts/camera_controller.gd" id="15_oprun"]
 [ext_resource type="Script" uid="uid://1lurjfq8mjgm" path="res://scripts/abilities/devball.gd" id="16_a8ls1"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_oprun"]
@@ -1626,6 +1627,14 @@ delta_interval = 0.02
 replication_config = SubResource("SceneReplicationConfig_f1ej7")
 script = ExtResource("4_3v2ag")
 animation_player = NodePath("../../PlayerModel/AnimationPlayer")
+
+[node name="CameraController" type="Node" parent="Hero/Components" node_paths=PackedStringArray("camera", "view_target")]
+script = ExtResource("15_oprun")
+camera = NodePath("../../../Camera3D")
+view_target = NodePath("../..")
+distance = 15.0
+catchup_damping = 1.0
+metadata/_custom_type_script = "uid://cw41hh8xohvjm"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Hero"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9794922, 0)
