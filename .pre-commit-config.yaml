@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      - id: gdscript-formatter
+        name: gdscript-formatter
+        description: "formatter for GDScript"
+        entry: gdscript-formatter
+        language: system
+        require_serial: true
+        types: [gdscript]
+
+      - id: gdscript-linter
+        name: gdscript-linter
+        description: "linter for GDScript"
+        entry: gdscript-formatter lint --pretty
+        language: system
+        require_serial: true
+        types: [gdscript]

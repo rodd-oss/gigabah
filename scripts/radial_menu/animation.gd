@@ -1,14 +1,17 @@
 extends AnimationPlayer
 
-@export var anim:String
+@export var anim: String
 var playing := false
+
 
 func _on_radial_menu_behavior_on_hower() -> void:
 	play(anim)
 	playing = true
 
+
 func _on_radial_menu_behavior_on_unhower() -> void:
 	playing = false
+
 
 func _on_animation_finished(_anim_name: StringName) -> void:
 	if playing:

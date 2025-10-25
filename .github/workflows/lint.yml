@@ -1,0 +1,89 @@
+name: Lint
+
+on:
+  pull_request: # workflow runs from source branch
+    branches:
+      - main
+      - release
+
+jobs:
+  lint:
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v5
+
+        - name: Set up Python
+          uses: actions/setup-python@v6
+          with:
+            python-version: '3.x'
+
+        - name: Download GDScript-formatter
+          run: |
+            wget -q https://github.com/GDQuest/GDScript-formatter/releases/download/${GDSCRIPT_FORMATTER_VERSION}/gdscript-formatter-linux-x86_64.zip
+            unzip gdscript-formatter-linux-x86_64.zip
+            mv gdscript-formatter-linux-x86_64 /usr/local/bin/gdscript-formatter
+          env:
+            GDSCRIPT_FORMATTER_VERSION: 0.14.0
+
+        - name: Run pre-commit
+          uses: ./.github/actions/pre-commit
+          env:
+            SKIP: gdscript-linter
+
+        - name: Run pre-commit gdscript-linter
+          uses: ./.github/actions/pre-commit
+          with:
+            extra_args: "gdscript-linter --all-files"
+          continue-on-error: true
+
+  build-check:
+    runs-on: ubuntu-latest
+    needs: lint
+    permissions:
+      packages: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Login into ghcr.io registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build builder image
+        uses: docker/build-push-action@v6
+        with:
+          file: ./Dockerfile
+          target: builder-base
+          tags: builder-base:latest
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/builder-base:cache
+          load: true
+
+      - name: Build Windows Desktop
+        uses: ./.github/actions/godot-build
+        with:
+          preset: "Windows Desktop"
+
+      - name: Build Linux Desktop
+        uses: ./.github/actions/godot-build
+        with:
+          preset: "Linux Desktop"
+
+      - name: Build macOS Desktop
+        uses: ./.github/actions/godot-build
+        with:
+          preset: "macOS Desktop"
+
+      - name: Build Dedicated Server
+        uses: docker/build-push-action@v6
+        with:
+          file: ./Dockerfile
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/builder-base:cache
