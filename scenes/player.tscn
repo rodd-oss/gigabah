@@ -42,21 +42,21 @@ properties/2/replication_mode = 2
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_dqkch"]
 properties/0/path = NodePath("Components/NetworkHp:max_health")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 properties/1/path = NodePath("Components/NetworkHp:current_health")
 properties/1/spawn = true
-properties/1/replication_mode = 1
+properties/1/replication_mode = 2
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_f1ej7"]
 properties/0/path = NodePath("NetworkAnimationState:animation_state")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 properties/1/path = NodePath("NetworkAnimationState:animation_speed")
 properties/1/spawn = true
-properties/1/replication_mode = 1
+properties/1/replication_mode = 2
 properties/2/path = NodePath("NetworkAnimationState:animation_frame")
 properties/2/spawn = true
-properties/2/replication_mode = 1
+properties/2/replication_mode = 2
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
 radius = 0.32714844
