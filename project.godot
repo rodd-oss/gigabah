@@ -103,6 +103,9 @@ camera_rotation_ccw={
 
 [layer_names]
 
+3d_physics/layer_1="solid"
+3d_physics/layer_2="hit_box"
+3d_physics/layer_3="projectile"
 3d_physics/layer_32="network_visibility"
 
 [physics]
