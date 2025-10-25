@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=4 uid="uid://bde2flq2egpcv"]
+[gd_scene load_steps=20 format=4 uid="uid://bde2flq2egpcv"]
 
 [ext_resource type="Script" uid="uid://f0ylqu4wka2x" path="res://scripts/multiplayer_spawner.gd" id="2_hhnvu"]
 [ext_resource type="PackedScene" uid="uid://dmp8nc3aenbut" path="res://scenes/player.tscn" id="3_8s3bs"]
@@ -121,7 +121,7 @@ size = Vector2(11.885, 12.55)
 script = ExtResource("2_hhnvu")
 player_scene = ExtResource("3_8s3bs")
 spawn_path = NodePath("..")
-auto_spawnable_scenes = Array[PackedScene]([ExtResource("3_8s3bs"), ExtResource("3_hhnvu"), SubResource("PackedScene_vc6rt")])
+auto_spawnable_scenes = Array[PackedScene]([ExtResource("3_8s3bs"), ExtResource("3_hhnvu"), SubResource("PackedScene_vc6rt"), ExtResource("4_hhnvu")])
 metadata/_custom_type_script = "uid://f0ylqu4wka2x"
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
@@ -151,10 +151,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.77813, 0)
 shadow_enabled = true
 omni_range = 16.9915
 
-[node name="Bullet" parent="." instance=ExtResource("4_hhnvu")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.00794, -0.0346527)
-
 [node name="InGameMenu" parent="." instance=ExtResource("5_ingamemenu")]
+
 [node name="Walls" type="Node3D" parent="."]
 
 [node name="Arena" parent="." instance=ExtResource("6_khbhx")]
