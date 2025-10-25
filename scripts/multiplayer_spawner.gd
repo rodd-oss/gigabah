@@ -20,8 +20,12 @@ func spawn_player(id: int) -> void:
 	var hero: CharacterBody3D = player.get_node("Hero") as CharacterBody3D
 	hero.position.x = randf_range(-5, 5)
 	hero.position.y = 0
-	hero.position.z = randf_range(-5, 5)
+	hero.position.z = randf_range(-10, 0)
 	get_node(spawn_path).call_deferred("add_child", player)
+
+	var hp := hero.find_child("NetworkHp", true) as NetworkHP
+	if hp:
+		hp.health_depleted.connect(respawn_client.bind(player as NetworkClient))
 
 	set_visibility_for(id, player, true)
 
@@ -33,3 +37,15 @@ func despawn_player(id: int) -> void:
 	var player: Node = get_node(spawn_path).get_node(str(id))
 	if player:
 		player.queue_free()
+
+
+func respawn_client(client: NetworkClient) -> void:
+	var hero: CharacterBody3D = client.get_node("Hero") as CharacterBody3D
+
+	hero.position.x = randf_range(-5, 5)
+	hero.position.y = 0
+	hero.position.z = randf_range(-10, 0)
+
+	var hp := hero.find_child("NetworkHp", true) as NetworkHP
+	if hp:
+		hp.current_health = 50

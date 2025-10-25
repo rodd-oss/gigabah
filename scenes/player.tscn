@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=4 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=33 format=4 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/network_client.gd" id="1_qhqgy"]
 [ext_resource type="Script" uid="uid://c5687ukdvwk4m" path="res://scripts/input_controller.gd" id="2_f1ej7"]
@@ -7,14 +7,12 @@
 [ext_resource type="Script" uid="uid://l73tv27hnjlc" path="res://components/network_animation_state.gd" id="4_3v2ag"]
 [ext_resource type="Script" uid="uid://bfhjfynop50wf" path="res://components/hp.gd" id="4_dqkch"]
 [ext_resource type="PackedScene" uid="uid://cikxs0fl5lnxf" path="res://features/health-bar/health_bar_3d.tscn" id="5_health"]
-[ext_resource type="PackedScene" uid="uid://m02shnr1melc" path="res://scenes/radial_menu/emote_spawner.tscn" id="6_3v2ag"]
 [ext_resource type="Script" uid="uid://xrbns0ylm83m" path="res://scripts/network_vision_area_3d.gd" id="6_tuyoq"]
-[ext_resource type="Script" uid="uid://dnhu4bhw8o1as" path="res://scripts/radial_menu/radial_menu.gd" id="7_jej6c"]
-[ext_resource type="Script" uid="uid://bo87xn437osdk" path="res://scripts/radial_menu/radial_menu_item_behavior.gd" id="8_f1ej7"]
-[ext_resource type="AnimationLibrary" uid="uid://buk878wi5duma" path="res://animations/radial_menu/radial_menu_animations.res" id="9_oprun"]
+[ext_resource type="Script" uid="uid://bxi4djnou368t" path="res://scripts/caster.gd" id="7_oprun"]
+[ext_resource type="Script" uid="uid://5tihk4woc060" path="res://scripts/hitbox_3d.gd" id="7_qfm1y"]
 [ext_resource type="Script" uid="uid://dygq0iwvhu8ou" path="res://scripts/animations_base.gd" id="11_d2wvv"]
-[ext_resource type="Script" uid="uid://c1ur4seavqi8i" path="res://scripts/radial_menu/animation.gd" id="11_qfm1y"]
 [ext_resource type="Script" uid="uid://cw41hh8xohvjm" path="res://scripts/camera_controller.gd" id="15_oprun"]
+[ext_resource type="Script" uid="uid://1lurjfq8mjgm" path="res://scripts/abilities/devball.gd" id="16_a8ls1"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_oprun"]
 properties/0/path = NodePath("InputController:move_direction")
@@ -23,6 +21,12 @@ properties/0/replication_mode = 2
 properties/1/path = NodePath("InputController:jump_input")
 properties/1/spawn = true
 properties/1/replication_mode = 2
+properties/2/path = NodePath("InputController:cast_mask")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath("InputController:cursor_world_pos")
+properties/3/spawn = true
+properties/3/replication_mode = 2
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_jej6c"]
 properties/0/path = NodePath("Components/NetworkTransform:server_position")
@@ -1491,93 +1495,39 @@ _data = {
 &"Walk": SubResource("Animation_pcrvq")
 }
 
-[sub_resource type="LabelSettings" id="LabelSettings_4r5pv"]
-font_size = 32
-
-[sub_resource type="Animation" id="Animation_fjrip"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:rotation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath(".:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0, 8)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_smehm"]
-_data = {
-&"RESET": SubResource("Animation_fjrip")
-}
-
-[sub_resource type="LabelSettings" id="LabelSettings_60mlk"]
-font_size = 32
-
-[sub_resource type="LabelSettings" id="LabelSettings_i4ail"]
-font_size = 32
-
-[sub_resource type="Animation" id="Animation_ur7pv"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".:scale")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1, 1)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_y4r1p"]
-_data = {
-&"RESET": SubResource("Animation_ur7pv")
-}
-
-[sub_resource type="LabelSettings" id="LabelSettings_a38lo"]
-font_size = 32
-
 [sub_resource type="SphereShape3D" id="SphereShape3D_3v2ag"]
 radius = 1.1026574
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_tuyoq"]
 radius = 20.0
 
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fulsm"]
+
 [node name="NetworkClient" type="Node" node_paths=PackedStringArray("camera", "vision_area")]
 script = ExtResource("1_qhqgy")
 camera = NodePath("Camera3D")
 vision_area = NodePath("Hero/NetworkVisionArea3D")
 
-[node name="InputController" type="MultiplayerSynchronizer" parent="." node_paths=PackedStringArray("orientation_source")]
+[node name="InputController" type="MultiplayerSynchronizer" parent="." node_paths=PackedStringArray("camera", "cursor_raycast")]
 replication_interval = 0.02
 delta_interval = 0.02
 replication_config = SubResource("SceneReplicationConfig_oprun")
 public_visibility = false
 script = ExtResource("2_f1ej7")
-orientation_source = NodePath("../Camera3D")
+cursor_world_pos = Vector3(nan, nan, nan)
+camera = NodePath("../Camera3D")
+cursor_raycast = NodePath("CursorRaycast")
 metadata/_custom_type_script = "uid://c5687ukdvwk4m"
 
-[node name="Hero" type="CharacterBody3D" parent="." node_paths=PackedStringArray("input_controller")]
+[node name="CursorRaycast" type="RayCast3D" parent="InputController"]
+target_position = Vector3(6.945, 23.925, 6.02)
+debug_shape_custom_color = Color(1, 0, 0, 1)
+debug_shape_thickness = 5
+
+[node name="Hero" type="CharacterBody3D" parent="." node_paths=PackedStringArray("input_controller", "caster")]
 script = ExtResource("2_jej6c")
 input_controller = NodePath("../InputController")
+caster = NodePath("Caster")
 
 [node name="Components" type="Node" parent="Hero"]
 
@@ -1608,6 +1558,14 @@ delta_interval = 0.02
 replication_config = SubResource("SceneReplicationConfig_f1ej7")
 script = ExtResource("4_3v2ag")
 animation_player = NodePath("../../PlayerModel/AnimationPlayer")
+
+[node name="CameraController" type="Node" parent="Hero/Components" node_paths=PackedStringArray("camera", "view_target")]
+script = ExtResource("15_oprun")
+camera = NodePath("../../../Camera3D")
+view_target = NodePath("../..")
+distance = 15.0
+catchup_damping = 1.0
+metadata/_custom_type_script = "uid://cw41hh8xohvjm"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Hero"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9794922, 0)
@@ -1850,122 +1808,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 0)
 background_color = Color(0.6392157, 0.6392157, 0.6392157, 0.09803922)
 fill_color = Color(0.61960787, 0.9098039, 0.65882355, 0.5882353)
 
-[node name="EmoteSpawner" parent="Hero" instance=ExtResource("6_3v2ag")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.138998, 0)
-
-[node name="RadialMenu" type="Control" parent="Hero"]
-layout_mode = 3
-anchors_preset = 0
-script = ExtResource("7_jej6c")
-
-[node name="Clown" type="Label" parent="Hero/RadialMenu"]
-layout_mode = 0
-offset_top = 8.0
-offset_right = 60.0
-offset_bottom = 68.0
-pivot_offset = Vector2(30, 30)
-text = "🤡"
-label_settings = SubResource("LabelSettings_4r5pv")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="RadialMenuBehavior" type="Node" parent="Hero/RadialMenu/Clown"]
-script = ExtResource("8_f1ej7")
-color = Color(0, 0.42352942, 0.84705883, 1)
-hower_color = Color(0.10597397, 0.52481604, 0.99996525, 1)
-press_color = Color(0, 0.31075662, 0.63448113, 1)
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Hero/RadialMenu/Clown"]
-libraries = {
-&"": SubResource("AnimationLibrary_smehm"),
-&"radial_menu_animations": ExtResource("9_oprun")
-}
-script = ExtResource("11_qfm1y")
-anim = "radial_menu_animations/rotate"
-
-[node name="Like" type="Control" parent="Hero/RadialMenu"]
-anchors_preset = 0
-offset_right = 64.0
-offset_bottom = 64.0
-pivot_offset = Vector2(32, 32)
-
-[node name="Label2" type="Label" parent="Hero/RadialMenu/Like"]
-layout_mode = 0
-offset_top = 8.0
-offset_right = 63.999893
-offset_bottom = 71.99992
-pivot_offset = Vector2(32, 32)
-text = "👍"
-label_settings = SubResource("LabelSettings_60mlk")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Hero/RadialMenu/Like/Label2"]
-libraries = {
-&"": SubResource("AnimationLibrary_smehm"),
-&"radial_menu_animations": ExtResource("9_oprun")
-}
-script = ExtResource("11_qfm1y")
-anim = "radial_menu_animations/sin"
-
-[node name="RadialMenuBehavior" type="Node" parent="Hero/RadialMenu/Like"]
-script = ExtResource("8_f1ej7")
-color = Color(1.2032688e-06, 0.56621134, 0.33317363, 1)
-hower_color = Color(2.117753e-06, 0.6495023, 0.38647014, 1)
-press_color = Color(0, 0.42239466, 0.2441552, 1)
-
-[node name="Poop" type="Label" parent="Hero/RadialMenu"]
-layout_mode = 0
-offset_left = 57.0
-offset_top = 30.0
-offset_right = 121.0
-offset_bottom = 94.0
-pivot_offset = Vector2(32, 32)
-text = "💩"
-label_settings = SubResource("LabelSettings_i4ail")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="RadialMenuBehavior" type="Node" parent="Hero/RadialMenu/Poop"]
-script = ExtResource("8_f1ej7")
-color = Color(0.5067515, 0.29393405, 9.62615e-08, 1)
-hower_color = Color(0.39, 0.2275, 0, 1)
-press_color = Color(0.28, 0.16333334, 0, 1)
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Hero/RadialMenu/Poop"]
-libraries = {
-&"": SubResource("AnimationLibrary_y4r1p"),
-&"radial_menu_animations": ExtResource("9_oprun")
-}
-script = ExtResource("11_qfm1y")
-anim = "radial_menu_animations/scale"
-
-[node name="Dislike" type="Control" parent="Hero/RadialMenu"]
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="Label" type="Label" parent="Hero/RadialMenu/Dislike"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 45.0
-text = "👎"
-label_settings = SubResource("LabelSettings_a38lo")
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Hero/RadialMenu/Dislike/Label"]
-libraries = {
-&"radial_menu_animations": ExtResource("9_oprun")
-}
-script = ExtResource("11_qfm1y")
-anim = "radial_menu_animations/sin"
-
-[node name="RadialMenuBehavior" type="Node" parent="Hero/RadialMenu/Dislike"]
-script = ExtResource("8_f1ej7")
-color = Color(0.60567385, 1.311563e-06, 2.8878452e-07, 1)
-hower_color = Color(0.5, 0, 0, 1)
-press_color = Color(0.4, 0, 0, 1)
-metadata/_custom_type_script = "uid://bo87xn437osdk"
-
 [node name="AnimationsBase" type="Node" parent="Hero" node_paths=PackedStringArray("input_controller")]
 script = ExtResource("11_d2wvv")
 input_controller = NodePath("../../InputController")
@@ -1989,32 +1831,31 @@ metadata/_custom_type_script = "uid://xrbns0ylm83m"
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Hero/NetworkVisionArea3D"]
 shape = SubResource("SphereShape3D_tuyoq")
 
+[node name="Caster" type="Node3D" parent="Hero"]
+script = ExtResource("7_oprun")
+abilities_container = NodePath("Abilities")
+metadata/_custom_type_script = "uid://bxi4djnou368t"
+
+[node name="Abilities" type="Node" parent="Hero/Caster"]
+
+[node name="DevBall" type="Node" parent="Hero/Caster/Abilities"]
+script = ExtResource("16_a8ls1")
+metadata/_custom_type_script = "uid://1lurjfq8mjgm"
+
+[node name="HitBoxArea" type="Area3D" parent="Hero" node_paths=PackedStringArray("hp")]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("7_qfm1y")
+hp = NodePath("../Components/NetworkHp")
+metadata/_custom_type_script = "uid://5tihk4woc060"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hero/HitBoxArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_fulsm")
+debug_color = Color(0.9891284, 0, 0.29943526, 0.41960785)
+
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.5533916, 0.83292127, 0, -0.83292127, 0.5533916, 0, 16.35, 7.479)
 fov = 70.8
 size = 15.755
 near = 0.001
-
-[node name="CameraController" type="Node" parent="Camera3D" node_paths=PackedStringArray("camera", "view_target")]
-script = ExtResource("15_oprun")
-camera = NodePath("..")
-view_target = NodePath("../../Hero")
-catchup_damping = 1.0
-metadata/_custom_type_script = "uid://cw41hh8xohvjm"
-
-[connection signal="on_hower" from="Hero/RadialMenu/Clown/RadialMenuBehavior" to="Hero/RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
-[connection signal="on_press" from="Hero/RadialMenu/Clown/RadialMenuBehavior" to="Hero/EmoteSpawner" method="_on_clown_button_press"]
-[connection signal="on_unhower" from="Hero/RadialMenu/Clown/RadialMenuBehavior" to="Hero/RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_unhower"]
-[connection signal="animation_finished" from="Hero/RadialMenu/Clown/AnimationPlayer" to="Hero/RadialMenu/Clown/AnimationPlayer" method="_on_animation_finished"]
-[connection signal="animation_finished" from="Hero/RadialMenu/Like/Label2/AnimationPlayer" to="Hero/RadialMenu/Like/Label2/AnimationPlayer" method="_on_animation_finished"]
-[connection signal="on_hower" from="Hero/RadialMenu/Like/RadialMenuBehavior" to="Hero/RadialMenu/Like/Label2/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
-[connection signal="on_press" from="Hero/RadialMenu/Like/RadialMenuBehavior" to="Hero/EmoteSpawner" method="_on_like_button_press"]
-[connection signal="on_unhower" from="Hero/RadialMenu/Like/RadialMenuBehavior" to="Hero/RadialMenu/Like/Label2/AnimationPlayer" method="_on_radial_menu_behavior_on_unhower"]
-[connection signal="on_hower" from="Hero/RadialMenu/Poop/RadialMenuBehavior" to="Hero/RadialMenu/Poop/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
-[connection signal="on_press" from="Hero/RadialMenu/Poop/RadialMenuBehavior" to="Hero/EmoteSpawner" method="_on_poop_button_press"]
-[connection signal="on_unhower" from="Hero/RadialMenu/Poop/RadialMenuBehavior" to="Hero/RadialMenu/Poop/AnimationPlayer" method="_on_radial_menu_behavior_on_unhower"]
-[connection signal="animation_finished" from="Hero/RadialMenu/Poop/AnimationPlayer" to="Hero/RadialMenu/Poop/AnimationPlayer" method="_on_animation_finished"]
-[connection signal="animation_finished" from="Hero/RadialMenu/Dislike/Label/AnimationPlayer" to="Hero/RadialMenu/Dislike/Label/AnimationPlayer" method="_on_animation_finished"]
-[connection signal="on_hower" from="Hero/RadialMenu/Dislike/RadialMenuBehavior" to="Hero/RadialMenu/Dislike/Label/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
-[connection signal="on_press" from="Hero/RadialMenu/Dislike/RadialMenuBehavior" to="Hero/EmoteSpawner" method="_on_dislike_button_press"]
-[connection signal="on_unhower" from="Hero/RadialMenu/Dislike/RadialMenuBehavior" to="Hero/RadialMenu/Dislike/Label/AnimationPlayer" method="_on_radial_menu_behavior_on_unhower"]
