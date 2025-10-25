@@ -17,7 +17,6 @@
 [ext_resource type="Script" uid="uid://dygq0iwvhu8ou" path="res://scripts/animations_base.gd" id="11_d2wvv"]
 [ext_resource type="Script" uid="uid://c1ur4seavqi8i" path="res://scripts/radial_menu/animation.gd" id="11_qfm1y"]
 [ext_resource type="Script" uid="uid://1lurjfq8mjgm" path="res://scripts/abilities/devball.gd" id="16_a8ls1"]
-[ext_resource type="Script" uid="uid://cw41hh8xohvjm" path="res://scripts/camera_controller.gd" id="15_oprun"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_oprun"]
 properties/0/path = NodePath("InputController:move_direction")
@@ -1584,7 +1583,7 @@ replication_config = SubResource("SceneReplicationConfig_oprun")
 public_visibility = false
 script = ExtResource("2_f1ej7")
 cursor_world_pos = Vector3(nan, nan, nan)
-camera = NodePath("../Hero/Camera3D")
+camera = NodePath("../Camera3D")
 cursor_raycast = NodePath("CursorRaycast")
 metadata/_custom_type_script = "uid://c5687ukdvwk4m"
 
@@ -2008,12 +2007,6 @@ metadata/_custom_type_script = "uid://xrbns0ylm83m"
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Hero/NetworkVisionArea3D"]
 shape = SubResource("SphereShape3D_tuyoq")
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.5533916, 0.83292127, 0, -0.83292127, 0.5533916, 0, 16.35, 7.479)
-fov = 70.8
-size = 15.755
-near = 0.001
-
 [node name="Caster" type="Node3D" parent="Hero"]
 script = ExtResource("7_oprun")
 abilities_container = NodePath("Abilities")
@@ -2036,6 +2029,12 @@ metadata/_custom_type_script = "uid://5tihk4woc060"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_fulsm")
 debug_color = Color(0.9891284, 0, 0.29943526, 0.41960785)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5533916, 0.83292127, 0, -0.83292127, 0.5533916, 0, 16.35, 7.479)
+fov = 70.8
+size = 15.755
+near = 0.001
 
 [connection signal="on_hower" from="Hero/RadialMenu/Clown/RadialMenuBehavior" to="Hero/RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
 [connection signal="on_press" from="Hero/RadialMenu/Clown/RadialMenuBehavior" to="Hero/EmoteSpawner" method="_on_clown_button_press"]
