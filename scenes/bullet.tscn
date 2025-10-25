@@ -63,6 +63,7 @@ metadata/_custom_type_script = "uid://1cdf55yjte8h"
 replication_config = SubResource("SceneReplicationConfig_l5glv")
 script = ExtResource("2_l5glv")
 speed = 15.0
+damage = 5
 hit_area = NodePath("../HitArea")
 metadata/_custom_type_script = "uid://7i1d2cf1nvak"
 
