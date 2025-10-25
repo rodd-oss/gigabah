@@ -7,7 +7,7 @@ func spawn_emote(text: String) -> void:
 	var start := (get_parent() as Node3D).position + position
 	var end := start + Vector3(randf() * 2 - 1, max_y, randf() * 2 - 1)
 	var emote := preload("res://scenes/radial_menu/emote.tscn").instantiate() as Label3D
-	get_parent().get_parent().add_child(emote, true)
+	owner.get_parent().add_child(emote, true)
 	emote.position = start
 	emote.text = text
 	var tw := emote.create_tween()
@@ -19,28 +19,28 @@ func spawn_emote(text: String) -> void:
 
 @rpc("any_peer", "reliable")
 func spawn_clown() -> void:
-	if get_parent().name.to_int() != multiplayer.get_remote_sender_id():
+	if owner.name.to_int() != multiplayer.get_remote_sender_id():
 		return
 	spawn_emote("🤡")
 
 
 @rpc("any_peer", "reliable")
 func spawn_like() -> void:
-	if get_parent().name.to_int() != multiplayer.get_remote_sender_id():
+	if owner.name.to_int() != multiplayer.get_remote_sender_id():
 		return
 	spawn_emote("👍")
 
 
 @rpc("any_peer", "reliable")
 func spawn_poop() -> void:
-	if get_parent().name.to_int() != multiplayer.get_remote_sender_id():
+	if owner.name.to_int() != multiplayer.get_remote_sender_id():
 		return
 	spawn_emote("💩")
 
 
 @rpc("any_peer", "reliable")
 func spawn_dislike() -> void:
-	if get_parent().name.to_int() != multiplayer.get_remote_sender_id():
+	if owner.name.to_int() != multiplayer.get_remote_sender_id():
 		return
 	spawn_emote("👎")
 

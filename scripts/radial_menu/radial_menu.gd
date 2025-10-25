@@ -26,7 +26,7 @@ func _enter_tree() -> void:
 	if Engine.is_editor_hint():
 		return
 	# Only show on clients, not on server or other players
-	if get_parent().name.to_int() != multiplayer.get_unique_id():
+	if owner.name.to_int() != multiplayer.get_unique_id():
 		queue_free()
 		return
 	_is_local = true
