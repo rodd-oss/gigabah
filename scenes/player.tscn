@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=4 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=42 format=4 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/network_client.gd" id="1_qhqgy"]
 [ext_resource type="Script" uid="uid://c5687ukdvwk4m" path="res://scripts/input_controller.gd" id="2_f1ej7"]
@@ -16,6 +16,7 @@
 [ext_resource type="Script" uid="uid://c3f0isfdiahmo" path="res://scripts/animation/animation_state_machine.gd" id="14_a8ls1"]
 [ext_resource type="Script" uid="uid://1suj5uo5r0oa" path="res://scripts/animation/states/Idle.gd" id="15_qfm1y"]
 [ext_resource type="Script" uid="uid://c8vkjewtt1q0c" path="res://scripts/animation/states/Running.gd" id="16_fulsm"]
+[ext_resource type="Script" uid="uid://cw41hh8xohvjm" path="res://scripts/camera_controller.gd" id="15_oprun"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_oprun"]
 properties/0/path = NodePath("InputController:move_direction")
@@ -1564,14 +1565,16 @@ radius = 20.0
 
 [node name="NetworkClient" type="Node" node_paths=PackedStringArray("camera", "vision_area")]
 script = ExtResource("1_qhqgy")
-camera = NodePath("Hero/Camera3D")
+camera = NodePath("Camera3D")
 vision_area = NodePath("Hero/NetworkVisionArea3D")
 
-[node name="InputController" type="MultiplayerSynchronizer" parent="."]
+[node name="InputController" type="MultiplayerSynchronizer" parent="." node_paths=PackedStringArray("orientation_source")]
 replication_interval = 0.02
 delta_interval = 0.02
 replication_config = SubResource("SceneReplicationConfig_oprun")
+public_visibility = false
 script = ExtResource("2_f1ej7")
+orientation_source = NodePath("../Camera3D")
 metadata/_custom_type_script = "uid://c5687ukdvwk4m"
 
 [node name="Hero" type="CharacterBody3D" parent="." node_paths=PackedStringArray("input_controller")]
@@ -1984,7 +1987,7 @@ metadata/_custom_type_script = "uid://xrbns0ylm83m"
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Hero/NetworkVisionArea3D"]
 shape = SubResource("SphereShape3D_tuyoq")
 
-[node name="Camera3D" type="Camera3D" parent="Hero"]
+[node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.5533916, 0.83292127, 0, -0.83292127, 0.5533916, 0, 16.35, 7.479)
 fov = 70.8
 size = 15.755
@@ -2005,6 +2008,12 @@ animation_name = "Idle"
 script = ExtResource("16_fulsm")
 input_controller = NodePath("../../../InputController")
 animation_name = "Walk"
+[node name="CameraController" type="Node" parent="Camera3D" node_paths=PackedStringArray("camera", "view_target")]
+script = ExtResource("15_oprun")
+camera = NodePath("..")
+view_target = NodePath("../../Hero")
+catchup_damping = 1.0
+metadata/_custom_type_script = "uid://cw41hh8xohvjm"
 
 [connection signal="on_hower" from="Hero/RadialMenu/Clown/RadialMenuBehavior" to="Hero/RadialMenu/Clown/AnimationPlayer" method="_on_radial_menu_behavior_on_hower"]
 [connection signal="on_press" from="Hero/RadialMenu/Clown/RadialMenuBehavior" to="Hero/EmoteSpawner" method="_on_clown_button_press"]
