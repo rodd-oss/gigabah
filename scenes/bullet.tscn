@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cabfjhgqmmx3k"]
+[gd_scene load_steps=10 format=3 uid="uid://cabfjhgqmmx3k"]
 
 [ext_resource type="Script" uid="uid://1cdf55yjte8h" path="res://components/network_transform.gd" id="1_y25gk"]
 [ext_resource type="Script" uid="uid://7i1d2cf1nvak" path="res://components/network_projectile.gd" id="2_l5glv"]
@@ -36,6 +36,9 @@ properties/1/replication_mode = 2
 [sub_resource type="SphereShape3D" id="SphereShape3D_y25gk"]
 radius = 1.0
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_l5glv"]
+radius = 0.3
+
 [node name="Bullet" type="CharacterBody3D"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
@@ -56,10 +59,11 @@ server_rotation = Vector3(nan, nan, nan)
 server_scale = Vector3(nan, nan, nan)
 metadata/_custom_type_script = "uid://1cdf55yjte8h"
 
-[node name="NetworkProjectile" type="MultiplayerSynchronizer" parent="."]
+[node name="NetworkProjectile" type="MultiplayerSynchronizer" parent="." node_paths=PackedStringArray("hit_area")]
 replication_config = SubResource("SceneReplicationConfig_l5glv")
 script = ExtResource("2_l5glv")
 speed = 15.0
+hit_area = NodePath("../HitArea")
 metadata/_custom_type_script = "uid://7i1d2cf1nvak"
 
 [node name="NetworkBoundingArea3D" type="Area3D" parent="."]
@@ -74,5 +78,13 @@ shape = SubResource("SphereShape3D_y25gk")
 wait_time = 5.0
 one_shot = true
 autostart = true
+
+[node name="HitArea" type="Area3D" parent="."]
+collision_layer = 5
+collision_mask = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HitArea"]
+shape = SubResource("SphereShape3D_l5glv")
+debug_color = Color(0.9928821, 0, 0.25229195, 0.41960785)
 
 [connection signal="timeout" from="DecayTimer" to="NetworkProjectile" method="_on_decay_timer_timeout"]
