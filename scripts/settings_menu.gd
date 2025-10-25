@@ -47,6 +47,9 @@ const ACTION_LABELS: Dictionary = {
 	"move_backward": "Назад",
 	"ui_accept": "Прыжок",
 	"show_radial_menu": "Открыть радиальное меню",
+	"mouse_camera_rotation": "Вращение мышкой",
+	"camera_rotation_cw": "Вращать камеру по часовой",
+	"camera_rotation_ccw": "Вращать камеру против часовой",
 }
 
 # Дефолтные бинды (каждая запись: массив InputEvent dict для сериализации)
@@ -75,6 +78,19 @@ const DEFAULT_BINDS: Dictionary = {
 	"show_radial_menu": [
 		{ "type": "key", "keycode": KEY_Q },
 		{ "type": "joy_button", "button_index": 4 }, # LB
+	],
+	"mouse_camera_rotation": [
+		{ "type": "mouse", "button_index": MOUSE_BUTTON_MIDDLE },
+	],
+	"camera_rotation_cw": [
+		{ "type": "key", "keycode": KEY_RIGHT },
+		# TODO: no type for axes
+		{ "type": "joy_button", "button_index": JOY_BUTTON_DPAD_RIGHT },
+	],
+	"camera_rotation_ccw": [
+		{ "type": "key", "keycode": KEY_LEFT },
+		# TODO: no type for axes
+		{ "type": "joy_button", "button_index": JOY_BUTTON_DPAD_LEFT },
 	],
 }
 

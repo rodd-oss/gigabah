@@ -4,6 +4,7 @@ class_name InputController
 
 @export var move_direction: Vector2 = Vector2.ZERO
 @export var jump_input: bool = false
+@export var orientation_source: Node3D
 
 
 # Called when the node enters the scene tree for the first time.
@@ -19,6 +20,10 @@ func _process(_delta: float) -> void:
 
 	if is_multiplayer_authority():
 		var new_move_direction: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+
+		if orientation_source:
+			new_move_direction = new_move_direction.rotated(-orientation_source.global_rotation.y)
+
 		if new_move_direction != move_direction:
 			move_direction = new_move_direction
 
