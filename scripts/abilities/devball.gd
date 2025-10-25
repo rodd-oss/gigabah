@@ -19,7 +19,7 @@ func _cast_in_direction(dir: Vector3) -> CastError:
 
 	ball.global_position = caster.global_position + dir.normalized() * 1.0
 	ball.global_position += Vector3.UP * 1.5
-	
+
 	var proj := ball.find_child("NetworkProjectile") as NetworkProjectile
 	proj.move_direction = (dir * Vector3(1.0, 0.0, 1.0)).normalized()
 

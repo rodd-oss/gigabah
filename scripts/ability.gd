@@ -25,7 +25,6 @@ signal succesfully_casted()
 func _cast_notarget() -> CastError:
 	return CastError.ABILITY_NOT_NOTARGET
 
-
 ## Overridable, don't call super it's placeholder
 # func _cast_targeted(_target: Node) -> CastError:
 # 	return CastError.ABILITY_NOT_TARGETED
@@ -51,14 +50,13 @@ func cast_notarget() -> CastError:
 
 	return CastError.OK
 
-
 # func cast_targeted(target: Node) -> CastError:
 # 	var err := _is_castable()
 # 	if err:
 # 		return err
 
 # 	_pre_cast()
-	
+
 # 	err = _cast_targeted(target)
 # 	if err:
 # 		return err

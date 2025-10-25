@@ -38,6 +38,7 @@ func despawn_player(id: int) -> void:
 	if player:
 		player.queue_free()
 
+
 func respawn_client(client: NetworkClient) -> void:
 	var hero: CharacterBody3D = client.get_node("Hero") as CharacterBody3D
 

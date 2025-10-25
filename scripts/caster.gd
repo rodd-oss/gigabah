@@ -5,7 +5,6 @@ extends Node3D
 ## will be automatically added to this caster.
 @export var abilities_container: NodePath = "."
 
-
 signal ability_added(ability_index: int)
 signal ability_removed(ability: Ability)
 ## Emits when all basic checks done but before calling ability's cast code

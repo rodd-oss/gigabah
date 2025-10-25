@@ -38,7 +38,7 @@ func _on_hit_area_area_entered(other: Area3D) -> void:
 	var hitbox_area := other as HitBox3D
 	if not hitbox_area:
 		return
-	
+
 	hitbox_area.hp.take_damage(damage)
 
 	if destroy_on_hitbox_hit:
