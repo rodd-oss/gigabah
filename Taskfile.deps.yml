@@ -1,0 +1,200 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3.45"
+vars:
+  TOOLS_DIR: ./.tools
+  TEMP_DIR: ./.tools/tmp
+  VERSIONS:
+    map:
+      godot: 4.5-stable
+      blender: 4.5.3
+      gdscript_formatter: 0.14.0
+
+tasks:
+  install:
+    desc: "Download dev dependencies"
+    cmds:
+      - task: install:godot
+      - task: install:godot-export-templates
+      - task: install:blender
+      - task: install:gdscript-formatter
+      - defer: rm -rf {{.TEMP_DIR}}
+        silent: true
+
+  prepare:
+    internal: true
+    cmds:
+      - mkdir -p {{.TOOLS_DIR}}
+      - mkdir -p {{.TEMP_DIR}}
+    status:
+      - test -d {{.TOOLS_DIR}}
+      - test -d {{.TEMP_DIR}}
+
+  install:gdscript-formatter:
+    vars:
+      GDSCRIPT_FORMATTER_VERSION: "{{.VERSIONS.gdscript_formatter}}"
+    cmds:
+      - task: install:gdscript-formatter:{{OS}}
+        vars:
+          GDSCRIPT_FORMATTER_VERSION: "{{.GDSCRIPT_FORMATTER_VERSION}}"
+    status:
+      - "{{.TOOLS_DIR}}/gdscript-formatter --version | grep {{.GDSCRIPT_FORMATTER_VERSION}}"
+
+  install:gdscript-formatter:windows:
+    platforms: [windows]
+    internal: true
+    vars:
+      GDSCRIPT_FORMATTER_ARTIFACT: gdscript-formatter-windows-x86_64.exe
+    deps:
+      - task: prepare
+        silent: true
+    cmds:
+      - defer: rm {{.TEMP_DIR}}/{{.GDSCRIPT_FORMATTER_ARTIFACT}}.zip
+      - powershell -Command "Invoke-WebRequest https://github.com/GDQuest/GDScript-formatter/releases/download/{{.GDSCRIPT_FORMATTER_VERSION}}/{{.GDSCRIPT_FORMATTER_ARTIFACT}}.zip -OutFile {{.TEMP_DIR}}/{{.GDSCRIPT_FORMATTER_ARTIFACT}}.zip"
+      - powershell -Command "Expand-Archive -Path "{{.TEMP_DIR}}/{{.GDSCRIPT_FORMATTER_ARTIFACT}}.zip" -DestinationPath "{{.TEMP_DIR}}" -Force"
+      - mv {{.TEMP_DIR}}/{{.GDSCRIPT_FORMATTER_ARTIFACT}} {{.TOOLS_DIR}}/gdscript-formatter
+
+  install:gdscript-formatter:linux:
+    platforms: [darwin,linux]
+    internal: true
+    vars:
+      GDSCRIPT_FORMATTER_ARTIFACT: gdscript-formatter-linux-x86_64
+    deps:
+      - task: prepare
+        silent: true
+    cmds:
+      - defer: rm {{.TEMP_DIR}}/{{.GDSCRIPT_FORMATTER_ARTIFACT}}.zip
+      - wget -nv -P {{.TEMP_DIR}} https://github.com/GDQuest/GDScript-formatter/releases/download/{{.GDSCRIPT_FORMATTER_VERSION}}/{{.GDSCRIPT_FORMATTER_ARTIFACT}}.zip
+      - unzip {{.TEMP_DIR}}/{{.GDSCRIPT_FORMATTER_ARTIFACT}}.zip -d {{.TEMP_DIR}}
+      - mv {{.TEMP_DIR}}/{{.GDSCRIPT_FORMATTER_ARTIFACT}} {{.TOOLS_DIR}}/gdscript-formatter\
+      - chmod +x {{.TOOLS_DIR}}/gdscript-formatter
+
+  install:gdscript-formatter:darwin:
+    platforms: [darwin]
+    internal: true
+    deps:
+      - task: install:gdscript-formatter:linux
+        vars:
+          GDSCRIPT_FORMATTER_ARTIFACT: gdscript-formatter-macos-aarch64
+          GDSCRIPT_FORMATTER_VERSION: "{{.GDSCRIPT_FORMATTER_VERSION}}"
+
+  install:godot:
+    vars:
+      GODOT_VERSION: "{{.VERSIONS.godot}}"
+      GODOT_VERSION_SANITIZED:
+        sh: echo {{.GODOT_VERSION}} | tr - .
+    cmds:
+      - task: install:godot:{{OS}}
+        vars:
+          GODOT_VERSION: "{{.GODOT_VERSION}}"
+    status:
+      - "{{.TOOLS_DIR}}/godot/godot --version | grep {{.GODOT_VERSION_SANITIZED}}"
+      - "{{.TOOLS_DIR}}/godot/godot_console --version | grep {{.GODOT_VERSION_SANITIZED}}"
+
+  install:godot:windows:
+    platforms: [windows]
+    internal: true
+    vars:
+      GODOT_ARTIFACT: Godot_v{{.GODOT_VERSION}}_win64
+      EXT: .exe
+    deps:
+      - task: prepare
+        silent: true
+    cmds:
+      - defer: rm {{.TEMP_DIR}}/{{.GODOT_ARTIFACT}}{{.EXT}}.zip
+      - powershell -Command "Invoke-WebRequest https://github.com/godotengine/godot-builds/releases/download/{{.GODOT_VERSION}}/{{.GODOT_ARTIFACT}}{{.EXT}}.zip -OutFile {{.TEMP_DIR}}/{{.GODOT_ARTIFACT}}{{.EXT}}.zip"
+      - powershell -Command "Expand-Archive -Path "{{.TEMP_DIR}}/{{.GODOT_ARTIFACT}}{{.EXT}}.zip" -DestinationPath "{{.TEMP_DIR}}" -Force"
+      - mkdir -p {{.TOOLS_DIR}}/godot
+      - mv {{.TEMP_DIR}}/{{.GODOT_ARTIFACT}}{{.EXT}} {{.TOOLS_DIR}}/godot/godot{{.EXT}}
+      - mv {{.TEMP_DIR}}/{{.GODOT_ARTIFACT}}_console{{.EXT}} {{.TOOLS_DIR}}/godot/godot_console{{.EXT}}
+      - touch {{.TOOLS_DIR}}/godot/._sc_
+
+  install:godot:linux:
+    platforms: [linux]
+    internal: true
+    cmds:
+      - echo "Not implemented yet."
+
+  install:godot:darwin:
+    platforms: [darwin]
+    internal: true
+    cmds:
+      - echo "Not implemented yet."
+
+  install:godot-export-templates:
+    vars:
+      GODOT_VERSION: "{{.VERSIONS.godot}}"
+      GODOT_VERSION_SANITIZED:
+        sh: echo {{.GODOT_VERSION}} | tr - .
+    cmds:
+      - task: install:godot-export-templates:{{OS}}
+        vars:
+          GODOT_VERSION: "{{.GODOT_VERSION}}"
+          GODOT_VERSION_SANITIZED: "{{.GODOT_VERSION_SANITIZED}}"
+    status:
+      - "test -d {{.TOOLS_DIR}}/godot/editor_data/export_templates/{{.GODOT_VERSION_SANITIZED}}"
+
+  install:godot-export-templates:windows:
+    platforms: [windows]
+    internal: true
+    vars:
+      GODOT_TEMPLATES_ARTIFACT: Godot_v{{.GODOT_VERSION}}_export_templates
+    deps:
+      - task: prepare
+        silent: true
+    cmds:
+      - defer: rm {{.TEMP_DIR}}/{{.GODOT_TEMPLATES_ARTIFACT}}.zip
+      - powershell -Command "Invoke-WebRequest https://github.com/godotengine/godot-builds/releases/download/{{.GODOT_VERSION}}/{{.GODOT_TEMPLATES_ARTIFACT}}.tpz -OutFile {{.TEMP_DIR}}/{{.GODOT_TEMPLATES_ARTIFACT}}.zip"
+      - powershell -Command "Expand-Archive -Path "{{.TEMP_DIR}}/{{.GODOT_TEMPLATES_ARTIFACT}}.zip" -DestinationPath "{{.TEMP_DIR}}" -Force"
+      - mkdir -p {{.TOOLS_DIR}}/godot/editor_data/export_templates
+      - mv {{.TEMP_DIR}}/templates {{.TOOLS_DIR}}/godot/editor_data/export_templates/{{.GODOT_VERSION_SANITIZED}}
+
+  install:godot-export-templates:linux:
+    platforms: [linux]
+    internal: true
+    cmds:
+      - echo "Not implemented yet."
+
+  install:godot-export-templates:darwin:
+    platforms: [darwin]
+    internal: true
+    cmds:
+      - echo "Not implemented yet."
+
+  install:blender:
+    vars:
+      BLENDER_VERSION: "{{.VERSIONS.blender}}"
+    cmds:
+      - task: install:blender:{{OS}}
+        vars:
+          BLENDER_VERSION: "{{.BLENDER_VERSION}}"
+    status:
+      - '{{.TOOLS_DIR}}/blender/blender --version | grep "Blender {{.BLENDER_VERSION}}"'
+
+  install:blender:windows:
+    platforms: [windows]
+    internal: true
+    vars:
+      BLENDER_ARTIFACT: blender-{{.BLENDER_VERSION}}-windows-x64
+      BLENDER_MINOR_VERSION:
+        sh: 'echo "{{.BLENDER_VERSION}}" | cut -d. -f1,2'
+    deps:
+      - task: prepare
+        silent: true
+    cmds:
+      - defer: rm {{.TEMP_DIR}}/{{.BLENDER_ARTIFACT}}.zip
+      - powershell -Command "Invoke-WebRequest https://mirrors.dotsrc.org/blender/release/Blender{{.BLENDER_MINOR_VERSION}}/{{.BLENDER_ARTIFACT}}.zip -OutFile {{.TEMP_DIR}}/{{.BLENDER_ARTIFACT}}.zip"
+      - powershell -Command "Expand-Archive -Path "{{.TEMP_DIR}}/{{.BLENDER_ARTIFACT}}.zip" -DestinationPath "{{.TEMP_DIR}}" -Force"
+      - mv {{.TEMP_DIR}}/{{.BLENDER_ARTIFACT}} {{.TOOLS_DIR}}/blender
+
+  install:blender:linux:
+    platforms: [linux]
+    internal: true
+    cmds:
+      - echo "Not implemented yet."
+
+  install:blender:darwin:
+    platforms: [darwin]
+    internal: true
+    cmds:
+      - echo "Not implemented yet."

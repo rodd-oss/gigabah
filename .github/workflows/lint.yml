@@ -19,13 +19,16 @@ jobs:
           with:
             python-version: '3.x'
 
+        - name: Install Task
+          uses: go-task/setup-task@v1
+
+        - uses: actions/cache@v4
+          with:
+            path: ./.tools
+            key: tools|${{ hashFiles('Taskfile.deps.yml') }}
+
         - name: Download GDScript-formatter
-          run: |
-            wget -q https://github.com/GDQuest/GDScript-formatter/releases/download/${GDSCRIPT_FORMATTER_VERSION}/gdscript-formatter-linux-x86_64.zip
-            unzip gdscript-formatter-linux-x86_64.zip
-            mv gdscript-formatter-linux-x86_64 /usr/local/bin/gdscript-formatter
-          env:
-            GDSCRIPT_FORMATTER_VERSION: 0.14.0
+          run: task deps:install:gdscript-formatter
 
         - name: Run pre-commit
           uses: ./.github/actions/pre-commit
