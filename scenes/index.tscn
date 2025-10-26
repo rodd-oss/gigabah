@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=4 uid="uid://bde2flq2egpcv"]
+[gd_scene load_steps=21 format=4 uid="uid://bde2flq2egpcv"]
 
 [ext_resource type="Script" uid="uid://f0ylqu4wka2x" path="res://scripts/multiplayer_spawner.gd" id="2_hhnvu"]
 [ext_resource type="PackedScene" uid="uid://dmp8nc3aenbut" path="res://scenes/player.tscn" id="3_8s3bs"]
@@ -7,6 +7,9 @@
 [ext_resource type="PackedScene" uid="uid://cabfjhgqmmx3k" path="res://scenes/bullet.tscn" id="4_hhnvu"]
 [ext_resource type="PackedScene" path="res://scenes/in_game_menu.tscn" id="5_ingamemenu"]
 [ext_resource type="PackedScene" uid="uid://bccib7r8tci6f" path="res://models/maps/Arena.blend" id="6_khbhx"]
+
+[sub_resource type="Environment" id="Environment_cjd57"]
+glow_enabled = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2j24h"]
 resource_name = "Material.001"
@@ -116,6 +119,9 @@ size = Vector2(11.885, 12.55)
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_4bt8n"]
 
 [node name="Index3d" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_cjd57")
 
 [node name="AdvancedMultiplayerSpawner" type="Node" parent="."]
 script = ExtResource("2_hhnvu")
