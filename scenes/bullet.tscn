@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://cabfjhgqmmx3k"]
 
-[ext_resource type="Script" uid="uid://1cdf55yjte8h" path="res://components/network_transform.gd" id="1_y25gk"]
-[ext_resource type="Script" uid="uid://7i1d2cf1nvak" path="res://components/network_projectile.gd" id="2_l5glv"]
+[ext_resource type="Script" uid="uid://1cdf55yjte8h" path="res://scripts/components/network_transform.gd" id="1_y25gk"]
+[ext_resource type="Script" uid="uid://7i1d2cf1nvak" path="res://scripts/components/network_projectile.gd" id="2_l5glv"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h1aey"]
 albedo_color = Color(0.637629, 0.524874, 0, 1)
