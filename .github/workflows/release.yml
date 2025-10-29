@@ -69,9 +69,9 @@ jobs:
       - name: Add version to build artifacts
         run: |
           for f in ./.dist/*; do
-            base="${f%.*}"
-            ext="${f##*.}"
-            mv "$f" "${base}_${{ needs.compute-version.outputs.ver }}.${ext}"
+            base="${f%%-*}"
+            suffix="${f#*-}"
+            mv "$f" "${base}-${{ needs.compute-version.outputs.ver }}-${suffix}"
           done
 
       - name: Create GitHub release
@@ -83,9 +83,11 @@ jobs:
           body: |
             | File | Download |
             |------|----------|
-            | Windows Desktop | [gigabah_${{ needs.compute-version.outputs.ver }}.exe](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah_${{ needs.compute-version.outputs.ver }}.exe) |
-            | Linux Desktop | [gigabah_${{ needs.compute-version.outputs.ver }}.x86_64](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah_${{ needs.compute-version.outputs.ver }}.x86_64) |
-            | macOS Desktop | [gigabah_${{ needs.compute-version.outputs.ver }}.zip](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah_${{ needs.compute-version.outputs.ver }}.zip) |
+            | Windows Desktop x86_64 | [gigabah-${{ needs.compute-version.outputs.ver }}-windows-x86_64.exe](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah-${{ needs.compute-version.outputs.ver }}-windows-x86_64.exe) |
+            | Windows Desktop arm64 | [gigabah-${{ needs.compute-version.outputs.ver }}-windows-arm64.exe](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah-${{ needs.compute-version.outputs.ver }}-windows-arm64.exe) |
+            | Linux Desktop x86_64 | [gigabah-${{ needs.compute-version.outputs.ver }}-linux-x86_64](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah-${{ needs.compute-version.outputs.ver }}-linux-x86_64) |
+            | Linux Desktop arm64 | [gigabah-${{ needs.compute-version.outputs.ver }}-linux-arm64](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah-${{ needs.compute-version.outputs.ver }}-linux-arm64) |
+            | macOS Desktop | [gigabah-${{ needs.compute-version.outputs.ver }}-macos-universal.zip](https://github.com/${{ github.repository }}/releases/download/${{ needs.compute-version.outputs.ver }}/gigabah-${{ needs.compute-version.outputs.ver }}-macos-universal.zip) |
             | Docker Server | `docker pull ghcr.io/${{ github.repository }}:${{ needs.compute-version.outputs.ver }}` |
           generate_release_notes: true
           draft: false
