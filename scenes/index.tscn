@@ -159,6 +159,4 @@ omni_range = 16.9915
 
 [node name="InGameMenu" parent="." instance=ExtResource("5_ingamemenu")]
 
-[node name="Walls" type="Node3D" parent="."]
-
 [node name="Arena" parent="." instance=ExtResource("7_cjd57")]
