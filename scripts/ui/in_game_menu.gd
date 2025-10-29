@@ -51,7 +51,7 @@ func _on_back_pressed() -> void:
 
 func _on_settings_pressed() -> void:
 	# Load and instance settings menu
-	var settings_scene: PackedScene = load("res://scenes/settings_menu.tscn")
+	var settings_scene: PackedScene = preload("res://scenes/ui/settings_menu.tscn")
 	if settings_scene:
 		_settings_menu_instance = settings_scene.instantiate()
 		get_tree().root.add_child(_settings_menu_instance)
