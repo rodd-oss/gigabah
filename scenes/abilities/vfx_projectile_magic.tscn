@@ -1,10 +1,10 @@
 [gd_scene load_steps=40 format=3 uid="uid://c8inhpa5wpa5t"]
 
-[ext_resource type="Shader" uid="uid://ikf77r6n1uil" path="res://materials/shaders/magicpan.tres" id="1_ghuhw"]
-[ext_resource type="Texture2D" uid="uid://cwo58kkyhtu5" path="res://materials/textures/Voronoi.png" id="2_o177o"]
-[ext_resource type="Texture2D" uid="uid://cvokf5sbtskxa" path="res://materials/textures/magicflare.png" id="3_wehrw"]
-[ext_resource type="Texture2D" uid="uid://5cuf43b2jgd7" path="res://materials/textures/magictrail.png" id="4_lc8bo"]
-[ext_resource type="ArrayMesh" uid="uid://cgujr6h1fiekf" path="res://models/abilities/FireTrail.obj" id="5_hp44u"]
+[ext_resource type="Shader" uid="uid://ikf77r6n1uil" path="res://assets/shaders/magicpan.tres" id="1_ghuhw"]
+[ext_resource type="Texture2D" uid="uid://cwo58kkyhtu5" path="res://assets/textures/Voronoi.png" id="2_o177o"]
+[ext_resource type="Texture2D" uid="uid://cvokf5sbtskxa" path="res://assets/textures/magicflare.png" id="3_wehrw"]
+[ext_resource type="Texture2D" uid="uid://5cuf43b2jgd7" path="res://assets/textures/magictrail.png" id="4_lc8bo"]
+[ext_resource type="ArrayMesh" uid="uid://cgujr6h1fiekf" path="res://assets/models/abilities/FireTrail.obj" id="5_hp44u"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7kba2"]
 render_priority = 0
@@ -17,7 +17,7 @@ shader_parameter/MainTexPow = 3.0
 gravity = Vector3(0, 0, 0)
 scale_min = 0.29999998
 scale_max = 0.29999998
-color = Color(2.9208019, 2.3200166, 4.3890944, 1)
+color = Color(5.1329317, 5.1329317, 5.1329317, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_vqoxj"]
 
@@ -37,7 +37,7 @@ particles_anim_loop = false
 gravity = Vector3(0, 0, 0)
 scale_min = 0.35
 scale_max = 0.35
-color = Color(0.16320524, 0.03337259, 0.3211704, 1)
+color = Color(0.32, 0.32, 0.32, 1)
 
 [sub_resource type="QuadMesh" id="QuadMesh_wyo3q"]
 
@@ -181,7 +181,7 @@ shader_parameter/MainTexPow = 5.0
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_78lm5"]
 gravity = Vector3(0, 0, 0)
-color = Color(4.2552333, 1.7842402, 6.768805, 1)
+color = Color(6.768805, 6.768805, 6.768805, 1)
 
 [sub_resource type="VisualShaderNodeVec2Parameter" id="VisualShaderNodeVec2Parameter_t3q5t"]
 parameter_name = "MainTexSpeed"
@@ -345,7 +345,7 @@ process_material = SubResource("ParticleProcessMaterial_mi4h5")
 draw_pass_1 = SubResource("QuadMesh_wyo3q")
 
 [node name="TrailADD" type="GPUParticles3D" parent="."]
-transform = Transform3D(0.225, 0, 0, 0, 0.225, 0, 0, 0, 0.225, 0, 0, 0)
+transform = Transform3D(0.255, 0, 0, 0, 0.255, 0, 0, 0, 0.255, 0, 0, 0)
 sorting_offset = -2.0
 material_override = SubResource("ShaderMaterial_752b4")
 amount = 1
@@ -355,7 +355,7 @@ process_material = SubResource("ParticleProcessMaterial_78lm5")
 draw_pass_1 = ExtResource("5_hp44u")
 
 [node name="TrailABD" type="GPUParticles3D" parent="."]
-transform = Transform3D(0.403077, 0, 0, 0, 0.3364153, 0, 0, 0, 0.2635538, 0, 0, 0)
+transform = Transform3D(0.368, 0, 0, 0, 0.307, 0, 0, 0, 0.241, 0, 0, 0)
 sorting_offset = -4.0
 material_override = SubResource("ShaderMaterial_5xqsm")
 amount = 1
