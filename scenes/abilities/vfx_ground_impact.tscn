@@ -1,0 +1,50 @@
+[gd_scene load_steps=11 format=3 uid="uid://v22bns6cyyc5"]
+
+[ext_resource type="Texture2D" uid="uid://76avdl8qdjt0" path="res://assets/textures/groundpatina.png" id="1_tcs2u"]
+
+[sub_resource type="Curve" id="Curve_2bq2g"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.12430938, 1), 0.0, 0.0, 0, 0, Vector2(0.7458563, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_boyvw"]
+curve = SubResource("Curve_2bq2g")
+
+[sub_resource type="Gradient" id="Gradient_ji8uu"]
+offsets = PackedFloat32Array(0.077380955, 0.76488096)
+colors = PackedColorArray(1.3167266, 1.3167266, 1.3167266, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_q201u"]
+gradient = SubResource("Gradient_ji8uu")
+
+[sub_resource type="Curve" id="Curve_8qfh6"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.06629834, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_4n43l"]
+curve = SubResource("Curve_8qfh6")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_e5yj4"]
+gravity = Vector3(0, 0, 0)
+scale_curve = SubResource("CurveTexture_4n43l")
+color = Color(2.3464565, 2.3464565, 2.3464565, 1)
+color_ramp = SubResource("GradientTexture1D_q201u")
+alpha_curve = SubResource("CurveTexture_boyvw")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h80ds"]
+transparency = 1
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("1_tcs2u")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_in2kw"]
+material = SubResource("StandardMaterial3D_h80ds")
+
+[node name="Ground_Impact" type="Node3D"]
+
+[node name="Ground" type="GPUParticles3D" parent="."]
+emitting = false
+amount = 1
+lifetime = 2.0
+one_shot = true
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_e5yj4")
+draw_pass_1 = SubResource("PlaneMesh_in2kw")

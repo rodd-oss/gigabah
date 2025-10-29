@@ -35,7 +35,7 @@ gravity = Vector3(0, 0, 0)
 scale_min = 6.0
 scale_max = 6.0
 scale_curve = SubResource("CurveTexture_wsbt0")
-color = Color(2.019123, 1.4158322, 2.4539971, 1)
+color = Color(2.454227, 2.454227, 2.454227, 1)
 alpha_curve = SubResource("CurveTexture_auh4s")
 
 [sub_resource type="QuadMesh" id="QuadMesh_wsbt0"]
@@ -66,7 +66,7 @@ gravity = Vector3(0, 0, 0)
 scale_min = 4.0
 scale_max = 6.0
 scale_curve = SubResource("CurveTexture_yfbhi")
-color = Color(2.019123, 1.4158322, 2.4539971, 1)
+color = Color(2.454227, 2.454227, 2.454227, 1)
 alpha_curve = SubResource("CurveTexture_m8ya7")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_auh4s"]
@@ -85,7 +85,7 @@ gravity = Vector3(0, 0, 0)
 scale_min = 3.5
 scale_max = 4.0
 scale_curve = SubResource("CurveTexture_yfbhi")
-color = Color(2.0189176, 1.4169463, 2.454227, 0.68)
+color = Color(2.454227, 2.454227, 2.454227, 0.6784314)
 alpha_curve = SubResource("CurveTexture_m8ya7")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2gtgh"]
@@ -122,7 +122,7 @@ gravity = Vector3(0, 0, 0)
 scale_min = 0.049999997
 scale_max = 0.099999994
 scale_curve = SubResource("CurveXYZTexture_sfsl2")
-color = Color(3.640301, 2.5677102, 4.415934, 1)
+color = Color(4.415934, 4.415934, 4.415934, 1)
 alpha_curve = SubResource("CurveTexture_auh4s")
 
 [node name="VFX_impact" type="Node3D"]
@@ -131,7 +131,7 @@ alpha_curve = SubResource("CurveTexture_auh4s")
 material_override = SubResource("StandardMaterial3D_ah0cb")
 emitting = false
 amount = 1
-lifetime = 0.09999999999999999
+lifetime = 0.1
 one_shot = true
 fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_7o4mp")
