@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://r2lrkrsoo1pr" path="res://scenes/radial_menu/poop.gd" id="4_cjd57"]
 [ext_resource type="PackedScene" uid="uid://cabfjhgqmmx3k" path="res://scenes/bullet.tscn" id="4_hhnvu"]
 [ext_resource type="PackedScene" path="res://scenes/in_game_menu.tscn" id="5_ingamemenu"]
-[ext_resource type="PackedScene" uid="uid://bccib7r8tci6f" path="res://models/maps/Arena.blend" id="6_khbhx"]
+[ext_resource type="PackedScene" uid="uid://bccib7r8tci6f" path="res://assets/models/maps/Arena.blend" id="7_cjd57"]
 
 [sub_resource type="Environment" id="Environment_cjd57"]
 glow_enabled = true
@@ -161,4 +161,4 @@ omni_range = 16.9915
 
 [node name="Walls" type="Node3D" parent="."]
 
-[node name="Arena" parent="." instance=ExtResource("6_khbhx")]
+[node name="Arena" parent="." instance=ExtResource("7_cjd57")]
