@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://ygkgpca1ir66" path="res://scenes/radial_menu/emote.tscn" id="3_hhnvu"]
 [ext_resource type="Script" uid="uid://r2lrkrsoo1pr" path="res://scenes/radial_menu/poop.gd" id="4_cjd57"]
 [ext_resource type="PackedScene" uid="uid://cabfjhgqmmx3k" path="res://scenes/bullet.tscn" id="4_hhnvu"]
-[ext_resource type="PackedScene" path="res://scenes/in_game_menu.tscn" id="5_ingamemenu"]
+[ext_resource type="PackedScene" path="res://scenes/ui/in_game_menu.tscn" id="5_ingamemenu"]
 [ext_resource type="PackedScene" uid="uid://bccib7r8tci6f" path="res://assets/models/maps/Arena.blend" id="7_cjd57"]
 
 [sub_resource type="Environment" id="Environment_cjd57"]
