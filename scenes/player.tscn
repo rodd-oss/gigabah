@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=4 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=35 format=4 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/network_client.gd" id="1_qhqgy"]
 [ext_resource type="Script" uid="uid://c5687ukdvwk4m" path="res://scripts/input_controller.gd" id="2_f1ej7"]
@@ -6,10 +6,12 @@
 [ext_resource type="Script" uid="uid://1cdf55yjte8h" path="res://components/network_transform.gd" id="3_3v2ag"]
 [ext_resource type="Script" uid="uid://l73tv27hnjlc" path="res://components/network_animation_state.gd" id="4_3v2ag"]
 [ext_resource type="Script" uid="uid://bfhjfynop50wf" path="res://components/hp.gd" id="4_dqkch"]
-[ext_resource type="PackedScene" uid="uid://cikxs0fl5lnxf" path="res://features/health-bar/health_bar_3d.tscn" id="5_health"]
+[ext_resource type="PackedScene" uid="uid://cikxs0fl5lnxf" path="res://scenes/ui/hud/overhead_info.tscn" id="5_health"]
 [ext_resource type="Script" uid="uid://xrbns0ylm83m" path="res://scripts/network_vision_area_3d.gd" id="6_tuyoq"]
 [ext_resource type="Script" uid="uid://bxi4djnou368t" path="res://scripts/caster.gd" id="7_oprun"]
 [ext_resource type="Script" uid="uid://5tihk4woc060" path="res://scripts/hitbox_3d.gd" id="7_qfm1y"]
+[ext_resource type="Script" uid="uid://e77x8efudd8g" path="res://scripts/ui/hud/screen_space_position.gd" id="8_f1ej7"]
+[ext_resource type="Script" uid="uid://btqg13317lydt" path="res://scripts/ui/hud/hp_sync.gd" id="10_oprun"]
 [ext_resource type="Script" uid="uid://dygq0iwvhu8ou" path="res://scripts/animations_base.gd" id="11_d2wvv"]
 [ext_resource type="Script" uid="uid://cw41hh8xohvjm" path="res://scripts/camera_controller.gd" id="15_oprun"]
 [ext_resource type="Script" uid="uid://1lurjfq8mjgm" path="res://scripts/abilities/devball.gd" id="16_a8ls1"]
@@ -42,21 +44,21 @@ properties/2/replication_mode = 2
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_dqkch"]
 properties/0/path = NodePath("Components/NetworkHp:max_health")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 properties/1/path = NodePath("Components/NetworkHp:current_health")
 properties/1/spawn = true
-properties/1/replication_mode = 1
+properties/1/replication_mode = 2
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_f1ej7"]
 properties/0/path = NodePath("NetworkAnimationState:animation_state")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 properties/1/path = NodePath("NetworkAnimationState:animation_speed")
 properties/1/spawn = true
-properties/1/replication_mode = 1
+properties/1/replication_mode = 2
 properties/2/path = NodePath("NetworkAnimationState:animation_frame")
 properties/2/spawn = true
-properties/2/replication_mode = 1
+properties/2/replication_mode = 2
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
 radius = 0.32714844
@@ -1549,7 +1551,6 @@ delta_interval = 0.02
 replication_config = SubResource("SceneReplicationConfig_dqkch")
 script = ExtResource("4_dqkch")
 current_health = 50
-health_bar_path = NodePath("../../HealthBar3D")
 metadata/_custom_type_script = "uid://bfhjfynop50wf"
 
 [node name="NetworkAnimationState" type="MultiplayerSynchronizer" parent="Hero/Components" node_paths=PackedStringArray("animation_player")]
@@ -1803,10 +1804,19 @@ libraries = {
 &"": SubResource("AnimationLibrary_gk0oe")
 }
 
-[node name="HealthBar3D" parent="Hero" instance=ExtResource("5_health")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 0)
-background_color = Color(0.6392157, 0.6392157, 0.6392157, 0.09803922)
-fill_color = Color(0.61960787, 0.9098039, 0.65882355, 0.5882353)
+[node name="ScreenSpacePosition" type="Node3D" parent="Hero" node_paths=PackedStringArray("canvas_layer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+script = ExtResource("8_f1ej7")
+canvas_layer = NodePath("OverheadInfo")
+
+[node name="OverheadInfo" parent="Hero/ScreenSpacePosition" instance=ExtResource("5_health")]
+follow_viewport_enabled = false
+
+[node name="HPSync" type="Node" parent="Hero/ScreenSpacePosition" node_paths=PackedStringArray("range_control", "hp")]
+script = ExtResource("10_oprun")
+range_control = NodePath("../OverheadInfo/HealthContainer/HealthBar")
+hp = NodePath("../../Components/NetworkHp")
+metadata/_custom_type_script = "uid://btqg13317lydt"
 
 [node name="AnimationsBase" type="Node" parent="Hero" node_paths=PackedStringArray("input_controller")]
 script = ExtResource("11_d2wvv")
@@ -1859,3 +1869,5 @@ transform = Transform3D(1, 0, 0, 0, 0.5533916, 0.83292127, 0, -0.83292127, 0.553
 fov = 70.8
 size = 15.755
 near = 0.001
+
+[editable path="Hero/ScreenSpacePosition/OverheadInfo"]
