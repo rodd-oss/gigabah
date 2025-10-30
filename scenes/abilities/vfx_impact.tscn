@@ -1,8 +1,9 @@
-[gd_scene load_steps=24 format=3 uid="uid://w5v21hbuap5c"]
+[gd_scene load_steps=25 format=3 uid="uid://w5v21hbuap5c"]
 
-[ext_resource type="Texture2D" uid="uid://dapkl6f2yfwm1" path="res://materials/textures/flare.png" id="1_nkvmh"]
-[ext_resource type="Texture2D" uid="uid://f74dg8jevy26" path="res://materials/textures/flare2.png" id="2_ah0cb"]
-[ext_resource type="Texture2D" uid="uid://c5w6mic0iawp3" path="res://materials/textures/shockwave.png" id="3_2gtgh"]
+[ext_resource type="Script" uid="uid://dxyp0peqgj2ff" path="res://scripts/oneshot_effect.gd" id="1_auh4s"]
+[ext_resource type="Texture2D" uid="uid://dapkl6f2yfwm1" path="res://assets/textures/flare.png" id="1_nkvmh"]
+[ext_resource type="Texture2D" uid="uid://f74dg8jevy26" path="res://assets/textures/flare2.png" id="2_ah0cb"]
+[ext_resource type="Texture2D" uid="uid://c5w6mic0iawp3" path="res://assets/textures/shockwave.png" id="3_2gtgh"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ah0cb"]
 transparency = 1
@@ -125,7 +126,9 @@ scale_curve = SubResource("CurveXYZTexture_sfsl2")
 color = Color(4.415934, 4.415934, 4.415934, 1)
 alpha_curve = SubResource("CurveTexture_auh4s")
 
-[node name="VFX_impact" type="Node3D"]
+[node name="VFX_impact" type="Node3D" node_paths=PackedStringArray("emitters")]
+script = ExtResource("1_auh4s")
+emitters = [NodePath("Flash"), NodePath("Flare"), NodePath("Shockwave"), NodePath("Sparks")]
 
 [node name="Flash" type="GPUParticles3D" parent="."]
 material_override = SubResource("StandardMaterial3D_ah0cb")
