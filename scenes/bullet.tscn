@@ -1,15 +1,8 @@
-[gd_scene load_steps=10 format=3 uid="uid://cabfjhgqmmx3k"]
+[gd_scene load_steps=9 format=3 uid="uid://cabfjhgqmmx3k"]
 
+[ext_resource type="PackedScene" uid="uid://c8inhpa5wpa5t" path="res://scenes/abilities/vfx_projectile_magic.tscn" id="1_l5glv"]
 [ext_resource type="Script" uid="uid://1cdf55yjte8h" path="res://scripts/components/network_transform.gd" id="1_y25gk"]
 [ext_resource type="Script" uid="uid://7i1d2cf1nvak" path="res://scripts/components/network_projectile.gd" id="2_l5glv"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h1aey"]
-albedo_color = Color(0.637629, 0.524874, 0, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_h1aey"]
-material = SubResource("StandardMaterial3D_h1aey")
-radial_segments = 7
-rings = 9
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_mkf8s"]
 radius = 0.250923
@@ -41,9 +34,8 @@ radius = 0.3
 
 [node name="Bullet" type="CharacterBody3D"]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
-mesh = SubResource("SphereMesh_h1aey")
+[node name="Magicball" parent="." instance=ExtResource("1_l5glv")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_mkf8s")
