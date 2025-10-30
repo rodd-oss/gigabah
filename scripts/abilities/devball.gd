@@ -10,6 +10,7 @@ func _get_cast_method() -> CastMethod:
 
 
 func _cast_in_direction(dir: Vector3) -> CastError:
+	var plain_dir := (dir * Vector3(1.0, 0.0, 1.0)).normalized()
 	var ball := devball_scene.instantiate() as Node3D
 
 	# TODO: temp, find better way to do it
@@ -18,17 +19,28 @@ func _cast_in_direction(dir: Vector3) -> CastError:
 
 	ball.name = "devball_%d" % ball.get_instance_id()
 
-	ball.global_position = caster.global_position + dir.normalized() * 1.0
+	ball.global_position = caster.global_position + plain_dir.normalized() * 1.0
 	ball.global_position += Vector3.UP * 1.5
-	ball.look_at(ball.global_position + dir)
+	ball.look_at(ball.global_position + plain_dir)
 	ball.tree_exiting.connect(_on_projectile_despawning.bind(ball), CONNECT_ONE_SHOT)
 
 	var proj := ball.find_child("NetworkProjectile") as NetworkProjectile
-	proj.move_direction = (dir * Vector3(1.0, 0.0, 1.0)).normalized()
+	proj.move_direction = plain_dir
+	proj.entered_hitbox.connect(_on_projectile_entered_hitbox.bind(ball), CONNECT_ONE_SHOT)
+	proj.hit_wall.connect(_on_projectile_hit_wall.bind(ball))
 
 	cooldown = 0.5
 
 	return CastError.OK
+
+
+func _on_projectile_entered_hitbox(hitbox: HitBox3D, proj: Node3D) -> void:
+	hitbox.hp.take_damage(5)
+	proj.queue_free()
+
+
+func _on_projectile_hit_wall(_collision: KinematicCollision3D, proj: Node3D) -> void:
+	proj.queue_free()
 
 
 func _on_projectile_despawning(projectile: Node3D) -> void:

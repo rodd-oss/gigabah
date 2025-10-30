@@ -33,6 +33,9 @@ radius = 1.0
 radius = 0.3
 
 [node name="Bullet" type="CharacterBody3D"]
+motion_mode = 1
+platform_floor_layers = 0
+platform_wall_layers = 1
 
 [node name="Magicball" parent="." instance=ExtResource("1_l5glv")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
@@ -51,12 +54,12 @@ server_rotation = Vector3(nan, nan, nan)
 server_scale = Vector3(nan, nan, nan)
 metadata/_custom_type_script = "uid://1cdf55yjte8h"
 
-[node name="NetworkProjectile" type="MultiplayerSynchronizer" parent="." node_paths=PackedStringArray("hit_area")]
+[node name="NetworkProjectile" type="MultiplayerSynchronizer" parent="." node_paths=PackedStringArray("hit_area", "move_controller")]
 replication_config = SubResource("SceneReplicationConfig_l5glv")
 script = ExtResource("2_l5glv")
 speed = 15.0
-damage = 5
 hit_area = NodePath("../HitArea")
+move_controller = NodePath("..")
 metadata/_custom_type_script = "uid://7i1d2cf1nvak"
 
 [node name="NetworkBoundingArea3D" type="Area3D" parent="."]
