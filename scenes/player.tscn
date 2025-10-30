@@ -65,15 +65,6 @@ properties/1/replication_mode = 2
 properties/2/path = NodePath(".:parameters/Alive/BodyBottomGraph/WalkBlend/blend_position")
 properties/2/spawn = true
 properties/2/replication_mode = 2
-properties/3/path = NodePath(".:parameters/Alive/FullBodyCastAnim/transition_request")
-properties/3/spawn = true
-properties/3/replication_mode = 2
-properties/4/path = NodePath(".:parameters/Alive/UpperBodyCastAnim/transition_request")
-properties/4/spawn = true
-properties/4/replication_mode = 2
-properties/5/path = NodePath(".:parameters/Alive/UpperBodyCasts/active")
-properties/5/spawn = true
-properties/5/replication_mode = 2
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
 radius = 0.32714844
