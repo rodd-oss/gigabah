@@ -1,5 +1,6 @@
-[gd_scene load_steps=11 format=3 uid="uid://v22bns6cyyc5"]
+[gd_scene load_steps=12 format=3 uid="uid://v22bns6cyyc5"]
 
+[ext_resource type="Script" uid="uid://dxyp0peqgj2ff" path="res://scripts/oneshot_effect.gd" id="1_nqy4k"]
 [ext_resource type="Texture2D" uid="uid://76avdl8qdjt0" path="res://assets/textures/groundpatina.png" id="1_tcs2u"]
 
 [sub_resource type="Curve" id="Curve_2bq2g"]
@@ -38,7 +39,9 @@ albedo_texture = ExtResource("1_tcs2u")
 [sub_resource type="PlaneMesh" id="PlaneMesh_in2kw"]
 material = SubResource("StandardMaterial3D_h80ds")
 
-[node name="Ground_Impact" type="Node3D"]
+[node name="Ground_Impact" type="Node3D" node_paths=PackedStringArray("emitters")]
+script = ExtResource("1_nqy4k")
+emitters = [NodePath("Ground")]
 
 [node name="Ground" type="GPUParticles3D" parent="."]
 emitting = false

@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://dmp8nc3aenbut"]
+[gd_scene load_steps=50 format=3 uid="uid://dmp8nc3aenbut"]
 
 [ext_resource type="Script" uid="uid://coahpswxwi2pg" path="res://scripts/network_client.gd" id="1_qhqgy"]
 [ext_resource type="Script" uid="uid://c5687ukdvwk4m" path="res://scripts/input_controller.gd" id="2_f1ej7"]
@@ -51,19 +51,154 @@ properties/1/spawn = true
 properties/1/replication_mode = 2
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_f1ej7"]
-properties/0/path = NodePath("NetworkAnimationState:animation_state")
+properties/0/path = NodePath("../PlayerModel:rotation")
 properties/0/spawn = true
 properties/0/replication_mode = 2
-properties/1/path = NodePath("NetworkAnimationState:animation_speed")
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_a8ls1"]
+properties/0/path = NodePath(".:parameters/Alive/BodyBottomGraph/conditions/grounded")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:parameters/Alive/BodyBottomGraph/conditions/jumped")
 properties/1/spawn = true
 properties/1/replication_mode = 2
-properties/2/path = NodePath("NetworkAnimationState:animation_frame")
+properties/2/path = NodePath(".:parameters/Alive/BodyBottomGraph/WalkBlend/blend_position")
 properties/2/spawn = true
 properties/2/replication_mode = 2
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_g2els"]
 radius = 0.32714844
 height = 1.9589844
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_qfm1y"]
+animation = &"Jump"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_4r5pv"]
+animation = &"Land"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_60mlk"]
+animation = &"Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_i4ail"]
+animation = &"Walk"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_a38lo"]
+animation = &"Walk"
+play_mode = 1
+
+[sub_resource type="AnimationNodeBlendSpace1D" id="AnimationNodeBlendSpace1D_4ni07"]
+blend_point_0/node = SubResource("AnimationNodeAnimation_60mlk")
+blend_point_0/pos = 0.0
+blend_point_1/node = SubResource("AnimationNodeAnimation_i4ail")
+blend_point_1/pos = 1.0
+blend_point_2/node = SubResource("AnimationNodeAnimation_a38lo")
+blend_point_2/pos = -1.0
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_l71n6"]
+switch_mode = 2
+advance_mode = 2
+advance_condition = &"grounded"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ke2ow"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ujl30"]
+xfade_time = 0.1
+advance_mode = 2
+advance_condition = &"jumped"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_31cv2"]
+xfade_time = 0.2
+reset = false
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_pf23h"]
+states/Jump/node = SubResource("AnimationNodeAnimation_qfm1y")
+states/Jump/position = Vector2(365, 243)
+states/Land/node = SubResource("AnimationNodeAnimation_4r5pv")
+states/Land/position = Vector2(604, 243)
+states/WalkBlend/node = SubResource("AnimationNodeBlendSpace1D_4ni07")
+states/WalkBlend/position = Vector2(481, 100)
+transitions = ["Jump", "Land", SubResource("AnimationNodeStateMachineTransition_l71n6"), "Start", "WalkBlend", SubResource("AnimationNodeStateMachineTransition_ke2ow"), "WalkBlend", "Jump", SubResource("AnimationNodeStateMachineTransition_ujl30"), "Land", "WalkBlend", SubResource("AnimationNodeStateMachineTransition_31cv2")]
+graph_offset = Vector2(-7, -44)
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_fulsm"]
+animation = &"Cast1"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_f1ej7"]
+animation = &"Cast2"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_oprun"]
+animation = &"Cast3"
+
+[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_f1ej7"]
+input_0/name = "Cast3"
+input_0/auto_advance = false
+input_0/break_loop_at_end = false
+input_0/reset = true
+
+[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_qfm1y"]
+fadein_time = 0.1
+fadeout_time = 0.1
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_fulsm"]
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_4r5pv"]
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_i4ail"]
+
+[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_a8ls1"]
+input_0/name = "Cast1"
+input_0/auto_advance = false
+input_0/break_loop_at_end = false
+input_0/reset = true
+input_1/name = "Cast2"
+input_1/auto_advance = false
+input_1/break_loop_at_end = false
+input_1/reset = true
+
+[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_4r5pv"]
+filter_enabled = true
+filters = ["", "Armature/Skeleton3D:Arm.L", "Armature/Skeleton3D:Arm.R", "Armature/Skeleton3D:Biceps.L", "Armature/Skeleton3D:Biceps.R", "Armature/Skeleton3D:Hand.L", "Armature/Skeleton3D:Hand.R", "Armature/Skeleton3D:HandIK.L", "Armature/Skeleton3D:HandIK.R", "Armature/Skeleton3D:Neck", "Armature/Skeleton3D:Pelvis", "Armature/Skeleton3D:Spine1"]
+fadein_time = 0.1
+fadeout_time = 0.1
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_ujl30"]
+graph_offset = Vector2(-620.61475, -93.36322)
+nodes/output/position = Vector2(200, 140)
+nodes/BodyBottomGraph/node = SubResource("AnimationNodeStateMachine_pf23h")
+nodes/BodyBottomGraph/position = Vector2(-700, -360)
+nodes/UpperBodyCasts/node = SubResource("AnimationNodeOneShot_4r5pv")
+nodes/UpperBodyCasts/position = Vector2(-100, -20)
+nodes/Cast1/node = SubResource("AnimationNodeAnimation_fulsm")
+nodes/Cast1/position = Vector2(-700, 220)
+nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_i4ail")
+nodes/TimeScale/position = Vector2(-520, 220)
+nodes/UpperBodyCastAnim/node = SubResource("AnimationNodeTransition_a8ls1")
+nodes/UpperBodyCastAnim/position = Vector2(-340, 220)
+nodes/Cast2/node = SubResource("AnimationNodeAnimation_f1ej7")
+nodes/Cast2/position = Vector2(-700, 400)
+"nodes/TimeScale 2/node" = SubResource("AnimationNodeTimeScale_fulsm")
+"nodes/TimeScale 2/position" = Vector2(-520, 400)
+nodes/Cast3/node = SubResource("AnimationNodeAnimation_oprun")
+nodes/Cast3/position = Vector2(-1000, -80)
+nodes/FullBodyCasts/node = SubResource("AnimationNodeOneShot_qfm1y")
+nodes/FullBodyCasts/position = Vector2(-300, -140)
+"nodes/TimeScale 3/node" = SubResource("AnimationNodeTimeScale_4r5pv")
+"nodes/TimeScale 3/position" = Vector2(-800, -80)
+nodes/FullBodyCastAnim/node = SubResource("AnimationNodeTransition_f1ej7")
+nodes/FullBodyCastAnim/position = Vector2(-500, -80)
+node_connections = [&"output", 0, &"UpperBodyCasts", &"UpperBodyCasts", 0, &"FullBodyCasts", &"UpperBodyCasts", 1, &"UpperBodyCastAnim", &"TimeScale", 0, &"Cast1", &"UpperBodyCastAnim", 0, &"TimeScale", &"UpperBodyCastAnim", 1, &"TimeScale 2", &"TimeScale 2", 0, &"Cast2", &"FullBodyCasts", 0, &"BodyBottomGraph", &"FullBodyCasts", 1, &"FullBodyCastAnim", &"TimeScale 3", 0, &"Cast3", &"FullBodyCastAnim", 0, &"TimeScale 3"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gl8cc"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_487ah"]
+states/Alive/node = SubResource("AnimationNodeBlendTree_ujl30")
+states/Alive/position = Vector2(439, 100)
+transitions = ["Start", "Alive", SubResource("AnimationNodeStateMachineTransition_gl8cc")]
+graph_offset = Vector2(-7, -101)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_3v2ag"]
 radius = 1.1026574
@@ -126,7 +261,7 @@ replication_interval = 0.02
 delta_interval = 0.02
 replication_config = SubResource("SceneReplicationConfig_f1ej7")
 script = ExtResource("4_3v2ag")
-animation_player = NodePath("")
+animation_player = NodePath("../../PlayerModel/AnimationPlayer")
 
 [node name="CameraController" type="Node" parent="Hero/Components" node_paths=PackedStringArray("camera", "view_target")]
 script = ExtResource("15_oprun")
@@ -136,6 +271,23 @@ distance = 15.0
 catchup_damping = 1.0
 metadata/_custom_type_script = "uid://cw41hh8xohvjm"
 
+[node name="AnimationTreeSynchronizer" type="MultiplayerSynchronizer" parent="Hero/Components"]
+root_path = NodePath("../../PlayerModel/AnimationTree")
+replication_interval = 0.1
+delta_interval = 0.1
+replication_config = SubResource("SceneReplicationConfig_a8ls1")
+
+[node name="AnimationsBase" type="Node" parent="Hero/Components" node_paths=PackedStringArray("input_controller", "hero", "caster", "model_root", "animation_tree")]
+script = ExtResource("11_d2wvv")
+input_controller = NodePath("../../../InputController")
+hero = NodePath("../..")
+caster = NodePath("../../Caster")
+model_root = NodePath("../../PlayerModel")
+animation_tree = NodePath("../../PlayerModel/AnimationTree")
+
+[node name="ModelRotationSynchronizer" type="MultiplayerSynchronizer" parent="Hero/Components"]
+replication_config = SubResource("SceneReplicationConfig_f1ej7")
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Hero"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9794922, 0)
 shape = SubResource("CapsuleShape3D_g2els")
@@ -143,28 +295,52 @@ shape = SubResource("CapsuleShape3D_g2els")
 [node name="PlayerModel" parent="Hero" instance=ExtResource("8_a8ls1")]
 
 [node name="Skeleton3D" parent="Hero/PlayerModel/Armature" index="0"]
-bones/0/position = Vector3(0, 0.83705944, 0)
+bones/0/position = Vector3(0, 0.830443, 0)
 bones/0/rotation = Quaternion(-2.9802326e-08, 1.1920928e-07, -2.5243543e-29, 1)
-bones/1/rotation = Quaternion(-2.6428326e-10, -2.1618989e-10, 0.0011146875, 0.9999994)
+bones/1/rotation = Quaternion(7.2960677e-09, 5.7696843e-09, -0.029773364, 0.9995568)
 bones/3/rotation = Quaternion(8.882343e-16, 4.7590512e-15, 5.821475e-11, 1)
-bones/6/rotation = Quaternion(0.10689641, 0.11855817, 0.65877676, 0.7352076)
-bones/7/rotation = Quaternion(-0.31278208, 1.1831921e-07, -2.4815687e-08, 0.9498249)
-bones/9/rotation = Quaternion(0.08212976, -0.13971852, -0.65552044, 0.73758143)
-bones/10/rotation = Quaternion(-0.30505228, -1.1598874e-07, 2.044376e-08, 0.9523356)
-bones/11/rotation = Quaternion(0.999998, -3.647943e-10, 1.3948195e-07, -0.0020092)
-bones/12/rotation = Quaternion(-0.0057972996, 2.757552e-12, -1.8612054e-09, 0.9999832)
-bones/13/rotation = Quaternion(0.999998, 4.7351223e-10, 7.987885e-08, -0.0020092)
-bones/14/rotation = Quaternion(-0.0057973, 2.7700678e-12, 9.031621e-10, 0.9999832)
+bones/6/rotation = Quaternion(0.094737075, 0.10859017, 0.6689449, 0.729209)
+bones/7/rotation = Quaternion(-0.27414235, 1.1304595e-07, 1.7038422e-09, 0.9616891)
+bones/9/rotation = Quaternion(0.15171671, -0.17509219, -0.63652766, 0.73563397)
+bones/10/rotation = Quaternion(-0.44587898, -1.0901674e-07, 7.161592e-09, 0.8950933)
+bones/11/rotation = Quaternion(0.9969245, -1.4228652e-08, 1.3905327e-07, -0.078368016)
+bones/12/rotation = Quaternion(-0.22600144, 2.6857128e-12, -7.255707e-08, 0.974127)
+bones/13/rotation = Quaternion(0.9988282, 1.1406261e-08, 7.978543e-08, -0.04839889)
+bones/14/rotation = Quaternion(-0.13961688, 2.7426256e-12, 2.1750935e-08, 0.99020565)
+bones/15/position = Vector3(-0.11312069, 0.10186326, 0)
 bones/15/rotation = Quaternion(0.7071068, 5.3385087e-08, 5.3385087e-08, 0.7071068)
 bones/17/position = Vector3(1.0398227e-08, 2.0699955e-09, 6.370502e-08)
-bones/19/position = Vector3(-0.39310825, 0.7574043, 8.236989e-08)
+bones/19/position = Vector3(-0.39403248, 0.76581657, 0.0056936108)
 bones/19/rotation = Quaternion(-0.047778815, 0.366911, 0.92703885, -0.060765684)
 bones/21/position = Vector3(5.6507947e-06, 1.570515e-05, -1.669209e-05)
 bones/23/rotation = Quaternion(0.7071068, -5.3385087e-08, -5.3385087e-08, 0.7071068)
 bones/25/position = Vector3(-2.9476466e-09, 2.0699944e-09, 6.3705016e-08)
-bones/27/position = Vector3(0.39310825, 0.7574043, 8.236989e-08)
+bones/27/position = Vector3(0.3921076, 0.76490843, 3.5024466e-05)
 bones/27/rotation = Quaternion(-0.0012944937, 0.7071056, 0.7071057, -0.0012946073)
 bones/29/position = Vector3(-1.1386778e-06, -8.6467907e-07, -1.2696355e-05)
+
+[node name="AnimationTree" type="AnimationTree" parent="Hero/PlayerModel"]
+tree_root = SubResource("AnimationNodeStateMachine_487ah")
+advance_expression_base_node = NodePath("../..")
+anim_player = NodePath("../AnimationPlayer")
+parameters/Alive/BodyBottomGraph/conditions/grounded = false
+parameters/Alive/BodyBottomGraph/conditions/jumped = false
+parameters/Alive/BodyBottomGraph/WalkBlend/blend_position = 0.0
+parameters/Alive/UpperBodyCasts/active = false
+parameters/Alive/UpperBodyCasts/internal_active = false
+parameters/Alive/UpperBodyCasts/request = 0
+parameters/Alive/TimeScale/scale = 0.6000000000000014
+parameters/Alive/UpperBodyCastAnim/current_state = "Cast1"
+parameters/Alive/UpperBodyCastAnim/transition_request = ""
+parameters/Alive/UpperBodyCastAnim/current_index = 0
+"parameters/Alive/TimeScale 2/scale" = 0.6499999999999986
+parameters/Alive/FullBodyCasts/active = false
+parameters/Alive/FullBodyCasts/internal_active = false
+parameters/Alive/FullBodyCasts/request = 0
+"parameters/Alive/TimeScale 3/scale" = 0.75
+parameters/Alive/FullBodyCastAnim/current_state = "Cast3"
+parameters/Alive/FullBodyCastAnim/transition_request = ""
+parameters/Alive/FullBodyCastAnim/current_index = 0
 
 [node name="ScreenSpacePosition" type="Node3D" parent="Hero" node_paths=PackedStringArray("canvas_layer")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
@@ -180,9 +356,13 @@ range_control = NodePath("../OverheadInfo/HealthContainer/HealthBar")
 hp = NodePath("../../Components/NetworkHp")
 metadata/_custom_type_script = "uid://btqg13317lydt"
 
-[node name="AnimationsBase" type="Node" parent="Hero" node_paths=PackedStringArray("input_controller")]
+[node name="AnimationsBase" type="Node" parent="Hero" node_paths=PackedStringArray("input_controller", "hero", "caster", "model_root", "animation_tree")]
 script = ExtResource("11_d2wvv")
 input_controller = NodePath("../../InputController")
+hero = NodePath("..")
+caster = NodePath("../Caster")
+model_root = NodePath("../PlayerModel")
+animation_tree = NodePath("../PlayerModel/AnimationTree")
 
 [node name="NetworkBoundingArea3D" type="Area3D" parent="Hero"]
 collision_layer = 2147483648
