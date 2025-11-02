@@ -67,15 +67,25 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/builder-base:cache
           load: true
 
-      - name: Build Windows Desktop
+      - name: Build Windows Desktop x86_64
         uses: ./.github/actions/godot-build
         with:
-          preset: "Windows Desktop"
+          preset: "Windows Desktop x86_64"
 
-      - name: Build Linux Desktop
+      - name: Build Windows Desktop arm64
         uses: ./.github/actions/godot-build
         with:
-          preset: "Linux Desktop"
+          preset: "Windows Desktop arm64"
+
+      - name: Build Linux Desktop x86_64
+        uses: ./.github/actions/godot-build
+        with:
+          preset: "Linux Desktop x86_64"
+
+      - name: Build Linux Desktop arm64
+        uses: ./.github/actions/godot-build
+        with:
+          preset: "Linux Desktop arm64"
 
       - name: Build macOS Desktop
         uses: ./.github/actions/godot-build

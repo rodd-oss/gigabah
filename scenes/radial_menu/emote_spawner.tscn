@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://m02shnr1melc"]
-
-[ext_resource type="Script" uid="uid://m1fyuhdud8jb" path="res://scenes/radial_menu/emote_spawner.gd" id="1_uhx1j"]
-
-[node name="EmoteSpawner" type="Node3D"]
-script = ExtResource("1_uhx1j")

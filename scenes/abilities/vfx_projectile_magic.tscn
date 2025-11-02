@@ -1,0 +1,365 @@
+[gd_scene load_steps=40 format=3 uid="uid://c8inhpa5wpa5t"]
+
+[ext_resource type="Shader" uid="uid://ikf77r6n1uil" path="res://assets/shaders/magicpan.tres" id="1_ghuhw"]
+[ext_resource type="Texture2D" uid="uid://cwo58kkyhtu5" path="res://assets/textures/Voronoi.png" id="2_o177o"]
+[ext_resource type="Texture2D" uid="uid://cvokf5sbtskxa" path="res://assets/textures/magicflare.png" id="3_wehrw"]
+[ext_resource type="Texture2D" uid="uid://5cuf43b2jgd7" path="res://assets/textures/magictrail.png" id="4_lc8bo"]
+[ext_resource type="ArrayMesh" uid="uid://cgujr6h1fiekf" path="res://assets/models/abilities/FireTrail.obj" id="5_hp44u"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7kba2"]
+render_priority = 0
+shader = ExtResource("1_ghuhw")
+shader_parameter/MainTexSpeed = Vector2(0, 2)
+shader_parameter/MainTex = ExtResource("2_o177o")
+shader_parameter/MainTexPow = 3.0
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_43lgj"]
+gravity = Vector3(0, 0, 0)
+scale_min = 0.29999998
+scale_max = 0.29999998
+color = Color(5.1329317, 5.1329317, 5.1329317, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_vqoxj"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qaphm"]
+transparency = 1
+blend_mode = 4
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("3_wehrw")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_mi4h5"]
+gravity = Vector3(0, 0, 0)
+scale_min = 0.35
+scale_max = 0.35
+color = Color(0.32, 0.32, 0.32, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_wyo3q"]
+
+[sub_resource type="VisualShaderNodeVec2Parameter" id="VisualShaderNodeVec2Parameter_1fb5b"]
+parameter_name = "MainTexSpeed"
+default_value_enabled = true
+
+[sub_resource type="VisualShaderNodeInput" id="VisualShaderNodeInput_tyqc2"]
+input_name = "time"
+
+[sub_resource type="VisualShaderNodeVectorOp" id="VisualShaderNodeVectorOp_pq144"]
+default_input_values = [0, Vector2(0, 0), 1, Vector2(0, 0)]
+op_type = 0
+operator = 2
+
+[sub_resource type="VisualShaderNodeTexture2DParameter" id="VisualShaderNodeTexture2DParameter_0rtms"]
+parameter_name = "MainTex"
+
+[sub_resource type="VisualShaderNodeTexture" id="VisualShaderNodeTexture_nxa2u"]
+source = 5
+
+[sub_resource type="VisualShaderNodeInput" id="VisualShaderNodeInput_7iiyt"]
+input_name = "color"
+
+[sub_resource type="VisualShaderNodeVectorOp" id="VisualShaderNodeVectorOp_y511n"]
+default_input_values = [0, Quaternion(0, 0, 0, 0), 1, Quaternion(0, 0, 0, 0)]
+op_type = 2
+operator = 2
+
+[sub_resource type="VisualShaderNodeVectorDecompose" id="VisualShaderNodeVectorDecompose_e52x5"]
+default_input_values = [0, Quaternion(0, 0, 0, 0)]
+op_type = 2
+
+[sub_resource type="VisualShaderNodeFloatOp" id="VisualShaderNodeFloatOp_hylm5"]
+operator = 5
+
+[sub_resource type="VisualShaderNodeFloatParameter" id="VisualShaderNodeFloatParameter_y3iw0"]
+parameter_name = "MainTexPow"
+default_value_enabled = true
+default_value = 1.0
+
+[sub_resource type="VisualShaderNodeUVFunc" id="VisualShaderNodeUVFunc_k0dvs"]
+
+[sub_resource type="VisualShader" id="VisualShader_ycxca"]
+code = "shader_type spatial;
+render_mode blend_add, depth_draw_opaque, depth_test_default, cull_disabled, diffuse_lambert, specular_schlick_ggx;
+
+uniform vec2 MainTexSpeed = vec2(0.000000, 0.000000);
+uniform sampler2D MainTex;
+uniform float MainTexPow = 1.0;
+
+
+
+void fragment() {
+// Input:4
+	vec4 n_out4p0 = COLOR;
+
+
+// Input:11
+	float n_out11p0 = TIME;
+
+
+// Vector2Parameter:10
+	vec2 n_out10p0 = MainTexSpeed;
+
+
+// VectorOp:12
+	vec2 n_out12p0 = vec2(n_out11p0) * n_out10p0;
+
+
+// UVFunc:9
+	vec2 n_in9p1 = vec2(1.00000, 1.00000);
+	vec2 n_out9p0 = n_out12p0 * n_in9p1 + UV;
+
+
+	vec4 n_out3p0;
+// Texture2D:3
+	n_out3p0 = texture(MainTex, n_out9p0);
+
+
+// FloatParameter:8
+	float n_out8p0 = MainTexPow;
+
+
+// FloatOp:7
+	float n_out7p0 = pow(n_out3p0.x, n_out8p0);
+
+
+// VectorOp:5
+	vec4 n_out5p0 = n_out4p0 * vec4(n_out7p0);
+
+
+// VectorDecompose:6
+	float n_out6p0 = n_out5p0.x;
+	float n_out6p1 = n_out5p0.y;
+	float n_out6p2 = n_out5p0.z;
+	float n_out6p3 = n_out5p0.w;
+
+
+// Output:0
+	ALBEDO = vec3(n_out5p0.xyz);
+	ALPHA = n_out6p3;
+
+
+}
+"
+modes/blend = 1
+modes/cull = 2
+nodes/vertex/0/position = Vector2(580, 120)
+nodes/fragment/0/position = Vector2(560, 300)
+nodes/fragment/2/node = SubResource("VisualShaderNodeTexture2DParameter_0rtms")
+nodes/fragment/2/position = Vector2(-1140, 300)
+nodes/fragment/3/node = SubResource("VisualShaderNodeTexture_nxa2u")
+nodes/fragment/3/position = Vector2(-780, 380)
+nodes/fragment/4/node = SubResource("VisualShaderNodeInput_7iiyt")
+nodes/fragment/4/position = Vector2(-800, 120)
+nodes/fragment/5/node = SubResource("VisualShaderNodeVectorOp_y511n")
+nodes/fragment/5/position = Vector2(-140, 220)
+nodes/fragment/6/node = SubResource("VisualShaderNodeVectorDecompose_e52x5")
+nodes/fragment/6/position = Vector2(54.918625, 465.82306)
+nodes/fragment/7/node = SubResource("VisualShaderNodeFloatOp_hylm5")
+nodes/fragment/7/position = Vector2(-460, 400)
+nodes/fragment/8/node = SubResource("VisualShaderNodeFloatParameter_y3iw0")
+nodes/fragment/8/position = Vector2(-840, 680)
+nodes/fragment/9/node = SubResource("VisualShaderNodeUVFunc_k0dvs")
+nodes/fragment/9/position = Vector2(-1140, -100)
+nodes/fragment/10/node = SubResource("VisualShaderNodeVec2Parameter_1fb5b")
+nodes/fragment/10/position = Vector2(-1700, -40)
+nodes/fragment/11/node = SubResource("VisualShaderNodeInput_tyqc2")
+nodes/fragment/11/position = Vector2(-1700, -180)
+nodes/fragment/12/node = SubResource("VisualShaderNodeVectorOp_pq144")
+nodes/fragment/12/position = Vector2(-1340, -80)
+nodes/fragment/connections = PackedInt32Array(2, 0, 3, 2, 4, 0, 5, 0, 5, 0, 0, 0, 5, 0, 6, 0, 6, 3, 0, 1, 3, 0, 7, 0, 7, 0, 5, 1, 8, 0, 7, 1, 11, 0, 12, 0, 10, 0, 12, 1, 12, 0, 9, 2, 9, 0, 3, 0)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_752b4"]
+render_priority = 0
+shader = SubResource("VisualShader_ycxca")
+shader_parameter/MainTexSpeed = Vector2(-2, 0)
+shader_parameter/MainTex = ExtResource("4_lc8bo")
+shader_parameter/MainTexPow = 5.0
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_78lm5"]
+gravity = Vector3(0, 0, 0)
+color = Color(6.768805, 6.768805, 6.768805, 1)
+
+[sub_resource type="VisualShaderNodeVec2Parameter" id="VisualShaderNodeVec2Parameter_t3q5t"]
+parameter_name = "MainTexSpeed"
+default_value_enabled = true
+
+[sub_resource type="VisualShaderNodeInput" id="VisualShaderNodeInput_s0qjw"]
+input_name = "time"
+
+[sub_resource type="VisualShaderNodeVectorOp" id="VisualShaderNodeVectorOp_je0ky"]
+default_input_values = [0, Vector2(0, 0), 1, Vector2(0, 0)]
+op_type = 0
+operator = 2
+
+[sub_resource type="VisualShaderNodeTexture2DParameter" id="VisualShaderNodeTexture2DParameter_apom7"]
+parameter_name = "MainTex"
+
+[sub_resource type="VisualShaderNodeTexture" id="VisualShaderNodeTexture_5l13b"]
+source = 5
+
+[sub_resource type="VisualShaderNodeInput" id="VisualShaderNodeInput_04qh8"]
+input_name = "color"
+
+[sub_resource type="VisualShaderNodeVectorOp" id="VisualShaderNodeVectorOp_fup1f"]
+default_input_values = [0, Quaternion(0, 0, 0, 0), 1, Quaternion(0, 0, 0, 0)]
+op_type = 2
+operator = 2
+
+[sub_resource type="VisualShaderNodeVectorDecompose" id="VisualShaderNodeVectorDecompose_hy5nw"]
+default_input_values = [0, Quaternion(0, 0, 0, 0)]
+op_type = 2
+
+[sub_resource type="VisualShaderNodeFloatOp" id="VisualShaderNodeFloatOp_pvss2"]
+operator = 5
+
+[sub_resource type="VisualShaderNodeFloatParameter" id="VisualShaderNodeFloatParameter_6nip3"]
+parameter_name = "MainTexPow"
+default_value_enabled = true
+default_value = 1.0
+
+[sub_resource type="VisualShaderNodeUVFunc" id="VisualShaderNodeUVFunc_g8qal"]
+
+[sub_resource type="VisualShader" id="VisualShader_1d4ar"]
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, depth_test_default, cull_disabled, diffuse_lambert, specular_schlick_ggx;
+
+uniform vec2 MainTexSpeed = vec2(0.000000, 0.000000);
+uniform sampler2D MainTex;
+uniform float MainTexPow = 1.0;
+
+
+
+void fragment() {
+// Input:4
+	vec4 n_out4p0 = COLOR;
+
+
+// Input:11
+	float n_out11p0 = TIME;
+
+
+// Vector2Parameter:10
+	vec2 n_out10p0 = MainTexSpeed;
+
+
+// VectorOp:12
+	vec2 n_out12p0 = vec2(n_out11p0) * n_out10p0;
+
+
+// UVFunc:9
+	vec2 n_in9p1 = vec2(1.00000, 1.00000);
+	vec2 n_out9p0 = n_out12p0 * n_in9p1 + UV;
+
+
+	vec4 n_out3p0;
+// Texture2D:3
+	n_out3p0 = texture(MainTex, n_out9p0);
+
+
+// FloatParameter:8
+	float n_out8p0 = MainTexPow;
+
+
+// FloatOp:7
+	float n_out7p0 = pow(n_out3p0.x, n_out8p0);
+
+
+// VectorOp:5
+	vec4 n_out5p0 = n_out4p0 * vec4(n_out7p0);
+
+
+// VectorDecompose:6
+	float n_out6p0 = n_out5p0.x;
+	float n_out6p1 = n_out5p0.y;
+	float n_out6p2 = n_out5p0.z;
+	float n_out6p3 = n_out5p0.w;
+
+
+// Output:0
+	ALBEDO = vec3(n_out5p0.xyz);
+	ALPHA = n_out6p3;
+
+
+}
+"
+modes/cull = 2
+nodes/vertex/0/position = Vector2(580, 120)
+nodes/fragment/0/position = Vector2(560, 300)
+nodes/fragment/2/node = SubResource("VisualShaderNodeTexture2DParameter_apom7")
+nodes/fragment/2/position = Vector2(-1140, 300)
+nodes/fragment/3/node = SubResource("VisualShaderNodeTexture_5l13b")
+nodes/fragment/3/position = Vector2(-780, 380)
+nodes/fragment/4/node = SubResource("VisualShaderNodeInput_04qh8")
+nodes/fragment/4/position = Vector2(-800, 120)
+nodes/fragment/5/node = SubResource("VisualShaderNodeVectorOp_fup1f")
+nodes/fragment/5/position = Vector2(-140, 220)
+nodes/fragment/6/node = SubResource("VisualShaderNodeVectorDecompose_hy5nw")
+nodes/fragment/6/position = Vector2(54.918625, 465.82306)
+nodes/fragment/7/node = SubResource("VisualShaderNodeFloatOp_pvss2")
+nodes/fragment/7/position = Vector2(-460, 400)
+nodes/fragment/8/node = SubResource("VisualShaderNodeFloatParameter_6nip3")
+nodes/fragment/8/position = Vector2(-840, 680)
+nodes/fragment/9/node = SubResource("VisualShaderNodeUVFunc_g8qal")
+nodes/fragment/9/position = Vector2(-1140, -100)
+nodes/fragment/10/node = SubResource("VisualShaderNodeVec2Parameter_t3q5t")
+nodes/fragment/10/position = Vector2(-1700, -40)
+nodes/fragment/11/node = SubResource("VisualShaderNodeInput_s0qjw")
+nodes/fragment/11/position = Vector2(-1700, -180)
+nodes/fragment/12/node = SubResource("VisualShaderNodeVectorOp_je0ky")
+nodes/fragment/12/position = Vector2(-1340, -80)
+nodes/fragment/connections = PackedInt32Array(2, 0, 3, 2, 4, 0, 5, 0, 5, 0, 0, 0, 5, 0, 6, 0, 6, 3, 0, 1, 3, 0, 7, 0, 7, 0, 5, 1, 8, 0, 7, 1, 11, 0, 12, 0, 10, 0, 12, 1, 12, 0, 9, 2, 9, 0, 3, 0)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5xqsm"]
+render_priority = 0
+shader = SubResource("VisualShader_1d4ar")
+shader_parameter/MainTexSpeed = Vector2(-1, 0)
+shader_parameter/MainTex = ExtResource("4_lc8bo")
+shader_parameter/MainTexPow = 5.0
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_v4n3w"]
+gravity = Vector3(0, 0, 0)
+color = Color(0, 0, 0, 0.55200005)
+
+[node name="Magicball" type="Node3D"]
+
+[node name="Head" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.8820468e-08, 1, 0, -1.1168821, -4.371139e-08, 0, 0, -0.011653364)
+material_override = SubResource("ShaderMaterial_7kba2")
+amount = 1
+fixed_fps = 60
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_43lgj")
+draw_pass_1 = SubResource("SphereMesh_vqoxj")
+
+[node name="Core" type="GPUParticles3D" parent="."]
+sorting_offset = -1.0
+material_override = SubResource("StandardMaterial3D_qaphm")
+amount = 1
+fixed_fps = 60
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_mi4h5")
+draw_pass_1 = SubResource("QuadMesh_wyo3q")
+
+[node name="TrailADD" type="GPUParticles3D" parent="."]
+transform = Transform3D(0.255, 0, 0, 0, 0.255, 0, 0, 0, 0.255, 0, 0, 0)
+sorting_offset = -2.0
+material_override = SubResource("ShaderMaterial_752b4")
+amount = 1
+fixed_fps = 60
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_78lm5")
+draw_pass_1 = ExtResource("5_hp44u")
+
+[node name="TrailABD" type="GPUParticles3D" parent="."]
+transform = Transform3D(0.368, 0, 0, 0, 0.307, 0, 0, 0, 0.241, 0, 0, 0)
+sorting_offset = -4.0
+material_override = SubResource("ShaderMaterial_5xqsm")
+amount = 1
+fixed_fps = 60
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_v4n3w")
+draw_pass_1 = ExtResource("5_hp44u")
