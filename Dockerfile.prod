@@ -1,0 +1,2 @@
+# Release image for deployment
+FROM ghcr.io/rodd-oss/gigabah:latest AS game-server

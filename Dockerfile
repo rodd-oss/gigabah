@@ -65,6 +65,3 @@ RUN chmod +x ./linux-dedicated.x86_64
 
 ENTRYPOINT [ "./linux-dedicated.x86_64" ]
 CMD ["--headless", "--server"]
-
-# Release image for deployment
-FROM ghcr.io/rodd-oss/gigabah:latest AS release
