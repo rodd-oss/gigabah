@@ -1,0 +1,174 @@
+[gd_scene load_steps=22 format=3 uid="uid://g3vqsddbpqr8"]
+
+[ext_resource type="Texture2D" uid="uid://cu51fnfxkwig1" path="res://assets/textures/buble.png" id="1_2m4ay"]
+[ext_resource type="Texture2D" uid="uid://76avdl8qdjt0" path="res://assets/textures/groundpatina.png" id="2_c44xe"]
+
+[sub_resource type="Curve" id="Curve_amgkb"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.12707183, 1), 0.0, 0.0, 0, 0, Vector2(0.63535905, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_kjfli"]
+curve = SubResource("Curve_amgkb")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_alnuk"]
+emission_shape_scale = Vector3(1, 0, 1)
+emission_shape = 1
+emission_sphere_radius = 0.4
+gravity = Vector3(0, 2, 0)
+damping_min = 1.7
+damping_max = 2.0
+scale_min = 0.099999994
+scale_max = 0.19999999
+scale_curve = SubResource("CurveTexture_kjfli")
+turbulence_noise_scale = 4.675
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_33ss4"]
+transparency = 1
+albedo_color = Color(0.02800004, 0.56, 0, 0.40784314)
+albedo_texture = ExtResource("1_2m4ay")
+
+[sub_resource type="QuadMesh" id="QuadMesh_b8nso"]
+material = SubResource("StandardMaterial3D_33ss4")
+
+[sub_resource type="VisualShaderNodeTexture2DParameter" id="VisualShaderNodeTexture2DParameter_6mggo"]
+parameter_name = "MainTex"
+
+[sub_resource type="VisualShaderNodeTexture" id="VisualShaderNodeTexture_bmbqn"]
+output_port_for_preview = 0
+source = 5
+
+[sub_resource type="VisualShaderNodeVectorDecompose" id="VisualShaderNodeVectorDecompose_eg2wv"]
+default_input_values = [0, Quaternion(0, 0, 0, 0)]
+op_type = 2
+
+[sub_resource type="VisualShaderNodeInput" id="VisualShaderNodeInput_m1igv"]
+input_name = "color"
+
+[sub_resource type="VisualShaderNodeVectorOp" id="VisualShaderNodeVectorOp_bhswa"]
+default_input_values = [0, Quaternion(0, 0, 0, 0), 1, Quaternion(0, 0, 0, 0)]
+op_type = 2
+operator = 2
+
+[sub_resource type="VisualShaderNodeBillboard" id="VisualShaderNodeBillboard_udfxj"]
+billboard_type = 3
+keep_scale = true
+
+[sub_resource type="VisualShader" id="VisualShader_1p7lx"]
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, depth_test_default, cull_back, diffuse_lambert, specular_schlick_ggx;
+
+uniform sampler2D MainTex;
+
+
+
+void vertex() {
+	mat4 n_out2p0;
+// GetBillboardMatrix:2
+	{
+		mat4 __wm = mat4(normalize(INV_VIEW_MATRIX[0]), normalize(INV_VIEW_MATRIX[1]), normalize(INV_VIEW_MATRIX[2]), MODEL_MATRIX[3]);
+		__wm = __wm * mat4(vec4(cos(INSTANCE_CUSTOM.x), -sin(INSTANCE_CUSTOM.x), 0.0, 0.0), vec4(sin(INSTANCE_CUSTOM.x), cos(INSTANCE_CUSTOM.x), 0.0, 0.0), vec4(0.0, 0.0, 1.0, 0.0), vec4(0.0, 0.0, 0.0, 1.0));
+		__wm = __wm * mat4(vec4(length(MODEL_MATRIX[0].xyz), 0.0, 0.0, 0.0), vec4(0.0, length(MODEL_MATRIX[1].xyz), 0.0, 0.0), vec4(0.0, 0.0, length(MODEL_MATRIX[2].xyz), 0.0), vec4(0.0, 0.0, 0.0, 1.0));
+		n_out2p0 = VIEW_MATRIX * __wm;
+	}
+
+
+// Output:0
+	MODELVIEW_MATRIX = n_out2p0;
+
+
+}
+
+void fragment() {
+// Input:5
+	vec4 n_out5p0 = COLOR;
+
+
+	vec4 n_out3p0;
+// Texture2D:3
+	n_out3p0 = texture(MainTex, UV);
+
+
+// VectorOp:6
+	vec4 n_out6p0 = n_out5p0 * n_out3p0;
+
+
+// VectorDecompose:4
+	float n_out4p0 = n_out6p0.x;
+	float n_out4p1 = n_out6p0.y;
+	float n_out4p2 = n_out6p0.z;
+	float n_out4p3 = n_out6p0.w;
+
+
+// Output:0
+	ALBEDO = vec3(n_out6p0.xyz);
+	ALPHA = n_out4p3;
+
+
+}
+"
+nodes/vertex/2/node = SubResource("VisualShaderNodeBillboard_udfxj")
+nodes/vertex/2/position = Vector2(-220, 340)
+nodes/vertex/connections = PackedInt32Array(2, 0, 0, 10)
+nodes/fragment/0/position = Vector2(740, 160)
+nodes/fragment/2/node = SubResource("VisualShaderNodeTexture2DParameter_6mggo")
+nodes/fragment/2/position = Vector2(-960, 580)
+nodes/fragment/3/node = SubResource("VisualShaderNodeTexture_bmbqn")
+nodes/fragment/3/position = Vector2(-560, 400)
+nodes/fragment/4/node = SubResource("VisualShaderNodeVectorDecompose_eg2wv")
+nodes/fragment/4/position = Vector2(320, 420)
+nodes/fragment/5/node = SubResource("VisualShaderNodeInput_m1igv")
+nodes/fragment/5/position = Vector2(-380, 200)
+nodes/fragment/6/node = SubResource("VisualShaderNodeVectorOp_bhswa")
+nodes/fragment/6/position = Vector2(160, 140)
+nodes/fragment/connections = PackedInt32Array(2, 0, 3, 2, 4, 3, 0, 1, 5, 0, 6, 0, 6, 0, 0, 0, 6, 0, 4, 0, 3, 0, 6, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4vass"]
+render_priority = 0
+shader = SubResource("VisualShader_1p7lx")
+shader_parameter/MainTex = ExtResource("2_c44xe")
+
+[sub_resource type="Gradient" id="Gradient_g1vha"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_bumfc"]
+gradient = SubResource("Gradient_g1vha")
+
+[sub_resource type="Curve" id="Curve_bbj7y"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.3038674, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_oh472"]
+curve = SubResource("Curve_bbj7y")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_vd5xa"]
+emission_shape = 1
+emission_sphere_radius = 0.6
+gravity = Vector3(0, 3, 0)
+damping_min = 2.0
+damping_max = 2.0
+scale_min = 0.19999999
+scale_curve = SubResource("CurveTexture_oh472")
+color = Color(0.16787326, 2.184344, 0, 0.24705882)
+color_ramp = SubResource("GradientTexture1D_bumfc")
+turbulence_noise_strength = 0.3
+turbulence_noise_scale = 5.149
+
+[sub_resource type="QuadMesh" id="QuadMesh_kfgj5"]
+
+[node name="vfx_poison" type="Node3D"]
+
+[node name="PoisonBubbles" type="GPUParticles3D" parent="."]
+amount = 25
+lifetime = 5.0
+transform_align = 1
+process_material = SubResource("ParticleProcessMaterial_alnuk")
+draw_pass_1 = SubResource("QuadMesh_b8nso")
+
+[node name="ToxicSmoke" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5160643, 0)
+sorting_offset = 1.0
+material_override = SubResource("ShaderMaterial_4vass")
+amount = 20
+lifetime = 2.0
+process_material = SubResource("ParticleProcessMaterial_vd5xa")
+draw_pass_1 = SubResource("QuadMesh_kfgj5")
