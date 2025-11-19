@@ -1,0 +1,18 @@
+key,ru
+ability_DevBall,DevBall
+ability_description_DevBall,"Выпускает снаряд который летит по прямой пока не столкнётся с чем либо или не исчезнет"
+
+ability_InnerSpirit,Внутренний дух
+ability_description_InnerSpirit,"Выпускает облако миазмов которое медленно двигается в указанном направлении и наносит постоянный урон всем, кто касается облака"
+
+ability_Dash,Скольжение
+ability_description_Dash,"Быстрое перемещение на короткое расстояние"
+
+ability_Jump,Прыжок
+ability_description_Jump,"Прыгнуть в указанную точку[br][br]Если во время полёта наткулся на препядствие - прыжок завершится"
+
+modifier_HeroBaseModifier,Базовые характеристики игрока
+modifier_DevBallTarget,Замедление от попадания
+modifier_CrystalAuraModifier,Свет кристала
+modifier_MiasmaInfluence,Влияние миазмов
+modifier_Dashing,Скользит

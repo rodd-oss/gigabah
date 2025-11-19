@@ -134,13 +134,14 @@ toggle_in_game_menu={
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://i18n/ui.ru.translation", "res://i18n/input.ru.translation")
+locale/translations=PackedStringArray("res://i18n/ui.ru.translation", "res://i18n/input.ru.translation", "res://i18n/abilities.ru.translation")
 
 [layer_names]
 
 3d_physics/layer_1="solid"
 3d_physics/layer_2="hit_box"
 3d_physics/layer_3="projectile"
+3d_physics/layer_4="aura"
 3d_physics/layer_32="network_visibility"
 
 [physics]

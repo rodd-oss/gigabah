@@ -44,6 +44,7 @@ script = ExtResource("1_nqy4k")
 emitters = [NodePath("Ground")]
 
 [node name="Ground" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
 emitting = false
 amount = 1
 lifetime = 2.0

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://dvghod301bs4s"]
+[gd_scene load_steps=9 format=3 uid="uid://dvghod301bs4s"]
 
 [ext_resource type="Script" uid="uid://dbk240ju40uc4" path="res://scripts/ui/hud/hero_hud.gd" id="1_j61h5"]
 
@@ -29,6 +29,9 @@ colors = PackedColorArray(0.42822, 0.78, 0.26519996, 1)
 gradient = SubResource("Gradient_trx4l")
 width = 1
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_j61h5"]
+content_margin_right = 5.0
+
 [node name="HeroHud" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -36,10 +39,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 1
 script = ExtResource("1_j61h5")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -51,23 +53,34 @@ offset_top = -35.0
 offset_right = 205.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_constants/separation = 5
+
+[node name="ModifiersBar" type="HFlowContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 5
+theme_override_constants/v_separation = 5
+reverse_fill = true
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_j61h5")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/PanelContainer"]
 layout_mode = 2
 
-[node name="AbilitiesBar" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+[node name="AbilitiesBar" type="HBoxContainer" parent="VBoxContainer/PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="ResourceBars" type="VBoxContainer" parent="PanelContainer/VBoxContainer"]
+[node name="ResourceBars" type="VBoxContainer" parent="VBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="PanelContainer" type="PanelContainer" parent="PanelContainer/VBoxContainer/ResourceBars"]
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/PanelContainer/VBoxContainer/ResourceBars"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_5whc6")
 
-[node name="HealthBar" type="TextureProgressBar" parent="PanelContainer/VBoxContainer/ResourceBars/PanelContainer"]
+[node name="HealthBar" type="TextureProgressBar" parent="VBoxContainer/PanelContainer/VBoxContainer/ResourceBars/PanelContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(400, 25)
 layout_mode = 2
@@ -76,11 +89,22 @@ nine_patch_stretch = true
 texture_under = SubResource("GradientTexture1D_j61h5")
 texture_progress = SubResource("GradientTexture1D_5whc6")
 
-[node name="HealthNumber" type="Label" parent="PanelContainer/VBoxContainer/ResourceBars/PanelContainer"]
+[node name="HealthNumber" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/ResourceBars/PanelContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.7647059)
 theme_override_font_sizes/font_size = 14
 text = "80/100"
 horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HealthRegenNumber" type="Label" parent="VBoxContainer/PanelContainer/VBoxContainer/ResourceBars/PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.36, 1, 0.36, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.7647059)
+theme_override_font_sizes/font_size = 11
+theme_override_styles/normal = SubResource("StyleBoxEmpty_j61h5")
+text = "+5"
+horizontal_alignment = 2
 vertical_alignment = 1

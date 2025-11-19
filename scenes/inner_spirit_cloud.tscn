@@ -1,0 +1,93 @@
+[gd_scene load_steps=10 format=3 uid="uid://bow403vq00ocd"]
+
+[ext_resource type="Script" uid="uid://dh2ghf6exg7ai" path="res://scripts/modifier_aura.gd" id="1_v2ybc"]
+[ext_resource type="Script" uid="uid://7i1d2cf1nvak" path="res://scripts/components/network_projectile.gd" id="2_qyb3x"]
+[ext_resource type="Script" uid="uid://blqfkidcduojs" path="res://scripts/modifiers/miasma_influence.gd" id="3_lyp2q"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lyp2q"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_qyb3x"]
+radius = 2.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lyp2q"]
+transparency = 3
+alpha_hash_scale = 0.11
+alpha_antialiasing_mode = 0
+cull_mode = 2
+diffuse_mode = 2
+albedo_color = Color(0.15686275, 0.5254902, 0.13725491, 0.08627451)
+
+[sub_resource type="SphereMesh" id="SphereMesh_pxexw"]
+material = SubResource("StandardMaterial3D_lyp2q")
+radius = 2.5
+height = 5.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_lyp2q"]
+properties/0/path = NodePath("Projectile:speed")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath("Projectile:move_direction")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath("MeshInstance3D:transparency")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath("MeshInstance3D:scale")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:position")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_lyp2q"]
+
+[node name="CharacterBody3D" type="CharacterBody3D"]
+collision_layer = 0
+collision_mask = 0
+motion_mode = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_lyp2q")
+disabled = true
+
+[node name="InnerSpiritCloud" type="Area3D" parent="." node_paths=PackedStringArray("modifier")]
+collision_layer = 8
+collision_mask = 2
+monitorable = false
+script = ExtResource("1_v2ybc")
+modifier = NodePath("../MiasmaInfluence")
+metadata/_custom_type_script = "uid://dh2ghf6exg7ai"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InnerSpiritCloud"]
+shape = SubResource("SphereShape3D_qyb3x")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_pxexw")
+skeleton = NodePath("")
+
+[node name="Projectile" type="MultiplayerSynchronizer" parent="." node_paths=PackedStringArray("move_controller")]
+unique_name_in_owner = true
+replication_config = SubResource("SceneReplicationConfig_lyp2q")
+public_visibility = false
+script = ExtResource("2_qyb3x")
+move_controller = NodePath("..")
+metadata/_custom_type_script = "uid://7i1d2cf1nvak"
+
+[node name="MiasmaInfluence" type="Node" parent="."]
+script = ExtResource("3_lyp2q")
+
+[node name="NetworkBoundingArea3D" type="Area3D" parent="."]
+collision_layer = 2147483648
+collision_mask = 2147483648
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NetworkBoundingArea3D"]
+shape = SubResource("SphereShape3D_lyp2q")
+
+[node name="DecayTimer" type="Timer" parent="."]
+process_callback = 0
+wait_time = 5.0
+one_shot = true
+autostart = true
+
+[connection signal="timeout" from="DecayTimer" to="." method="queue_free"]

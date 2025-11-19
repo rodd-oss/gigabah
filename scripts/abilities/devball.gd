@@ -9,8 +9,14 @@ func _get_cast_method() -> CastMethod:
 	return Ability.CastMethod.DIRECTIONAL
 
 
-func _cast_in_direction(dir: Vector3) -> CastError:
-	var plain_dir := (dir * Vector3(1.0, 0.0, 1.0)).normalized()
+func _get_cast_config() -> AbilityCastConfig:
+	return preload("res://scenes/resources/ability_cast_configs/hand_cast.tres")
+
+
+func _cast() -> CastResult:
+	if not _has_target_direction():
+		return CastResult.ERROR_NO_TARGET
+
 	var ball := devball_scene.instantiate() as Node3D
 
 	# TODO: temp, find better way to do it
@@ -19,23 +25,24 @@ func _cast_in_direction(dir: Vector3) -> CastError:
 
 	ball.name = "devball_%d" % ball.get_instance_id()
 
-	ball.global_position = caster.global_position + plain_dir.normalized() * 1.0
+	ball.global_position = caster.global_position + _target_direction * 1.0
 	ball.global_position += Vector3.UP * 1.5
-	ball.look_at(ball.global_position + plain_dir)
+	ball.look_at(ball.global_position + _target_direction)
 	ball.tree_exiting.connect(_on_projectile_despawning.bind(ball), CONNECT_ONE_SHOT)
 
 	var proj := ball.find_child("NetworkProjectile") as NetworkProjectile
-	proj.move_direction = plain_dir
+	proj.move_direction = (_target_point - ball.global_position).normalized()
 	proj.entered_hitbox.connect(_on_projectile_entered_hitbox.bind(ball), CONNECT_ONE_SHOT)
 	proj.hit_wall.connect(_on_projectile_hit_wall.bind(ball))
 
 	cooldown = 0.5
 
-	return CastError.OK
+	return CastResult.OK
 
 
 func _on_projectile_entered_hitbox(hitbox: HitBox3D, proj: Node3D) -> void:
 	hitbox.hp.take_damage(5)
+	hitbox.hero.modifiers.add_modifier(DevballTargetModifier.new())
 	proj.queue_free()
 
 

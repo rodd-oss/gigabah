@@ -1,5 +1,8 @@
 extends Node
 
+const METHOD_NET_SERIALIZE = &"network_serialize"
+const METHOD_NET_DESERIALIZE = &"network_deserialize"
+
 var _netnode_by_instid: Dictionary[int, _NetworkNodeInfo] = { }
 var _netnode_by_netid: Dictionary[int, _NetworkNodeInfo] = { }
 
@@ -29,7 +32,8 @@ func set_visibility_for(peer_id: int, node: Node, visibility: bool) -> Visibilit
 
 	var net_node := _get_netnode_by_instance_id(node.get_instance_id())
 	if !net_node:
-		if node.scene_file_path.is_empty():
+		if node.scene_file_path.is_empty() and node.get_child_count() > 0:
+			push_error("node to be networked must be instance of scene or be childless")
 			return VisibilityError.ONLY_INSTANTIATED_NODES_SUPPORTED
 
 		if visibility:
@@ -100,7 +104,7 @@ func inherit_visibility(source_node: Node, target_node: Node, continously: bool 
 			_register_tracking_node(target_net_node)
 			_on_start_tracking_node(target_node, target_net_node)
 
-		net_node.inherited_vision_nodes.push_back(target_net_node)
+		net_node.add_inherited_vision_netnode(target_net_node)
 
 	for peer_id: int in net_node.peers_vision:
 		set_visibility_for(peer_id, target_node, true)
@@ -274,8 +278,30 @@ func _on_peer_got_vision(node: Node, net_node: _NetworkNodeInfo, peer_id: int) -
 			if node2d:
 				pos = Vector3(node2d.global_position.x, node2d.global_position.y, 0)
 
+	var node_source := node.scene_file_path
+	if node_source.is_empty():
+		var script := node.get_script() as Script
+		if script:
+			node_source = "%s|%s" % [node.get_class(), script.resource_path]
+		else:
+			node_source = node.get_class()
 	var spawn_path := node.get_path()
-	_rpc_spawn.rpc_id(peer_id, node.scene_file_path, spawn_path, pos, net_node.network_id, null)
+
+	# [node_path(NodePath), serialized_data(Variant), ...]
+	var data: Array
+	for subnode: Node in Utils.RecursiveChildrenIterator.new(node, true, true):
+		if not subnode.has_method(METHOD_NET_SERIALIZE):
+			continue
+
+		var subdata: Variant = subnode.call(METHOD_NET_SERIALIZE)
+		if subdata == null:
+			continue
+
+		var subnode_path := node.get_path_to(subnode)
+		data.append(subnode_path)
+		data.append(subdata)
+
+	_rpc_spawn.rpc_id(peer_id, node_source, spawn_path, pos, net_node.network_id, data)
 
 
 ## called only on owner side
@@ -308,7 +334,13 @@ func _release_network_id(_network_id: int) -> void:
 
 
 @rpc("reliable")
-func _rpc_spawn(scene_path: String, spawn_path: NodePath, pos: Vector3, network_id: int, data: Variant = null) -> void:
+func _rpc_spawn(
+		node_source: String,
+		spawn_path: NodePath,
+		pos: Vector3,
+		network_id: int,
+		data: Variant = null,
+) -> void:
 	var last_name_idx := spawn_path.get_name_count() - 1
 	var spawn_target_path := spawn_path.slice(0, last_name_idx)
 	var spawn_name := spawn_path.get_name(last_name_idx)
@@ -319,15 +351,47 @@ func _rpc_spawn(scene_path: String, spawn_path: NodePath, pos: Vector3, network_
 
 	var existing_node: Node = spawn_target.find_child(spawn_name, false, true)
 	if existing_node:
-		push_error("authority sent rpc to spawn node with name that already occupied in spawn_path by %s" % existing_node)
+		push_error(
+			"authority sent rpc to spawn node with name " +
+			"that already occupied in spawn_path by %s" % existing_node,
+		)
 		return
 
-	var node: Node
-	if data != null:
-		node = MultiplayerCustomSpawn.try_custom_spawn(spawn_target, scene_path, data)
-		push_error("got rpc spawn with custom data, but failed to find and call custom_function in spawn target")
+	var create_node := func() -> Node:
+		var replicated_node: Node
+		if node_source.get_extension().to_lower() == "tscn":
+			# node_source is path to scene resource
+			replicated_node = (load(node_source) as PackedScene).instantiate()
+		else:
+			# node_source is class name and path to gd script
+			var splits := node_source.split("|", true, 1)
+			var class_nam := splits[0]
+			var script_path := splits[1]
+			replicated_node = ClassDB.instantiate(class_nam) as Node
+			replicated_node.set_script(load(script_path) as Script)
+
+		if data == null:
+			return replicated_node
+
+		var data_arr := data as Array
+		@warning_ignore("integer_division")
+		for i: int in range(data_arr.size() / 2):
+			var subnode_path := data_arr[i * 2 + 0] as NodePath
+			var subnode_data: Variant = data_arr[i * 2 + 1]
+
+			var subnode := replicated_node.get_node(subnode_path)
+			assert(
+				subnode.has_method(METHOD_NET_DESERIALIZE),
+				"Got serialized network data, but method %s not found" % METHOD_NET_DESERIALIZE,
+			)
+
+			subnode.call(METHOD_NET_DESERIALIZE, subnode_data)
+
+		return replicated_node
+
+	var node := MultiplayerCustomSpawn.try_custom_spawn(spawn_target, create_node, data)
 	if not is_instance_valid(node):
-		node = (load(scene_path) as PackedScene).instantiate()
+		node = create_node.call()
 
 	node.name = spawn_name
 
@@ -375,6 +439,28 @@ class _NetworkNodeInfo:
 		self.node = nod
 		self.node_instance_id = nod.get_instance_id()
 		self.network_id = net_id
+
+
+	func add_inherited_vision_netnode(net_node: _NetworkNodeInfo) -> void:
+		assert(net_node != self, "Attempt to inherit network visibility from itself")
+		assert(is_instance_valid(net_node.node), "net_node.node is invalid node")
+
+		if net_node in inherited_vision_nodes:
+			push_warning("Node already inherits visibility")
+			return
+
+		inherited_vision_nodes.append(net_node)
+
+		net_node.node.tree_exiting.connect(
+			_on_inherited_vis_node_exiting_tree.bind(net_node),
+			CONNECT_ONE_SHOT,
+		)
+
+
+	func _on_inherited_vis_node_exiting_tree(net_node: _NetworkNodeInfo) -> void:
+		var index := inherited_vision_nodes.find(net_node)
+		if index >= 0:
+			Utils.array_erase_replacing(inherited_vision_nodes, index)
 
 
 enum VisibilityError {

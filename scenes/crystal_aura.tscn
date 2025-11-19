@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://ytyta0dtvgah"]
+
+[ext_resource type="Script" uid="uid://dh2ghf6exg7ai" path="res://scripts/modifier_aura.gd" id="1_atrci"]
+[ext_resource type="Script" uid="uid://doak1a38wno7f" path="res://scripts/modifiers/crystal_aura.gd" id="2_gmrqg"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_cjd57"]
+height = 6.1938477
+radius = 5.225586
+
+[node name="SouthCrystalAura" type="Area3D" node_paths=PackedStringArray("modifier")]
+collision_layer = 8
+collision_mask = 2
+monitorable = false
+script = ExtResource("1_atrci")
+modifier = NodePath("CrystalAuraModifier")
+metadata/_custom_type_script = "uid://dh2ghf6exg7ai"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.080322266, 0)
+shape = SubResource("CylinderShape3D_cjd57")
+
+[node name="CrystalAuraModifier" type="Node" parent="."]
+script = ExtResource("2_gmrqg")
+hp_regen = 1.5

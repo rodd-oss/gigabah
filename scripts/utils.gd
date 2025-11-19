@@ -82,3 +82,70 @@ static func array_erase_replacing(array: Variant, index: int) -> void:
 	if index < last_idx:
 		array[index] = array[last_idx]
 	array.resize(last_idx)
+
+
+static func quadratic_bezier_3d(p0: Vector3, p1: Vector3, p2: Vector3, t: float) -> Vector3:
+	return p0.lerp(p1, t).lerp(p2, t)
+
+
+static func cycle_float(v: float, v_min: float, v_max: float) -> float:
+	var v_range := v_max - v_min
+	if v_range == 0.0:
+		return v_min
+	var rem := fmod(v - v_min, v_range)
+	if rem < 0.0:
+		rem += v_range
+	return v_min + rem
+
+
+## Order of iteration should be considered as random
+class RecursiveChildrenIterator:
+	var parent: Node
+	var include_self_node: bool
+	var include_internal_nodes: bool
+
+	var _to_visit: Array[Node]
+	var _current: Node
+
+
+	func _init(
+			node_parent: Node,
+			include_self: bool = false,
+			include_internal: bool = false,
+	) -> void:
+		assert(node_parent != null, "node_parent is null")
+		parent = node_parent
+		include_self_node = include_self
+		include_internal_nodes = include_internal
+
+
+	func _iter_init(_iter: Array) -> bool:
+		if include_self_node:
+			_current = parent
+			return true
+
+		if parent.get_child_count(include_internal_nodes) == 0:
+			return false
+
+		_to_visit = parent.get_children(include_internal_nodes)
+
+		if _to_visit.is_empty():
+			return false
+
+		_current = _to_visit.pop_back()
+		return true
+
+
+	func _iter_get(_iter: Variant) -> Variant:
+		return _current
+
+
+	func _iter_next(_iter: Array) -> bool:
+		if _current:
+			_to_visit.append_array(_current.get_children(include_internal_nodes))
+
+		if _to_visit.is_empty():
+			return false
+
+		_current = _to_visit.pop_back()
+		return true

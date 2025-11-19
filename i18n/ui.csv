@@ -36,3 +36,9 @@ time_diff_ago,%s назад
 audio_bus_Master,Мастер
 audio_bus_voice,Голос
 audio_bus_sfx,Эффекты
+
+ability_tooltip_cast_method,Применение
+ability_tooltip_cast_method_NO_TARGET,Без цели
+ability_tooltip_cast_method_TARGET,На цель
+ability_tooltip_cast_method_DIRECTIONAL,Направленная
+ability_tooltip_cast_method_POINT,На точку

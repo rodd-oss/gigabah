@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://c6sb5hrrgf5bq"]
+
+[ext_resource type="Script" uid="uid://brped5sdqxs2s" path="res://scripts/abilities/jump.gd" id="1_7tr1a"]
+
+[node name="Jump" type="Node"]
+script = ExtResource("1_7tr1a")
+metadata/_custom_type_script = "uid://brped5sdqxs2s"

@@ -6,70 +6,68 @@ const WALK_ANIM_SPEED = 5.0
 @export var input_controller: InputController
 @export var hero: Hero
 @export var caster: Caster
-@export var model_root: Node3D
 @export var animation_tree: AnimationTree
+
+# Variables for AnimationTree expressions
+var chanelling_done: bool
 
 
 func _ready() -> void:
 	if !multiplayer.is_server():
 		return
 
-	hero.jumped.connect(_on_hero_jumped)
-	hero.landed.connect(_on_hero_landed)
-
 	caster.start_casting.connect(_on_caster_start_casting)
+	caster.end_casting.connect(_on_caster_end_casting)
+
+	hero.modifiers.modifier_added.connect(_on_modifier_added, CONNECT_DEFERRED)
+	hero.modifiers.modifier_removing.connect(_on_modifier_removing)
 
 
 func _process(_delta: float) -> void:
 	if !multiplayer.is_server():
 		return
 
-	if not input_controller.move_direction.is_zero_approx():
-		var new_rot := model_root.rotation
-		new_rot.y = -input_controller.move_direction.angle() - PI * 0.5
-		model_root.rotation = new_rot
+	var ground_speed := 0.0
+	if hero.is_on_floor():
+		ground_speed = hero.velocity.length()
 
 	animation_tree.set(
-		&"parameters/Alive/BodyBottomGraph/WalkBlend/blend_position",
-		hero.velocity.length() / WALK_ANIM_SPEED,
-	)
-	animation_tree.set(
-		&"parameters/Alive/BodyBottomGraph/conditions/grounded",
-		hero.is_on_floor(),
+		&"parameters/Alive/WalkBlend/blend_position",
+		ground_speed / WALK_ANIM_SPEED,
 	)
 
 
-func _on_hero_jumped() -> void:
-	animation_tree.set(
-		&"parameters/Alive/BodyBottomGraph/conditions/jumped",
-		true,
-	)
+func _on_caster_start_casting(ability: Ability) -> void:
+	var config := ability._get_cast_config()
+	if config:
+		NetSync.rpc_to_observing_peers(owner, _rpc_start_animation, [config.resource_path])
 
 
-func _on_hero_landed() -> void:
-	animation_tree.set(
-		&"parameters/Alive/BodyBottomGraph/conditions/jumped",
-		false,
-	)
+func _on_caster_end_casting(_ability: Ability) -> void:
+	NetSync.rpc_to_observing_peers(owner, _rpc_end_animation, [])
 
 
-func _on_caster_start_casting(_ability: Ability) -> void:
-	_set_tree_param(
-		&"parameters/Alive/UpperBodyCastAnim/transition_request",
-		"Cast1" if Time.get_ticks_msec() % 2 == 0 else "Cast2",
-	)
-	_set_tree_param(
-		&"parameters/Alive/UpperBodyCasts/request",
-		AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE,
-	)
+func _on_modifier_added(modifier: Modifier) -> void:
+	if modifier.animation_config:
+		NetSync.rpc_to_observing_peers(
+			owner,
+			_rpc_start_animation,
+			[modifier.animation_config.resource_path],
+		)
 
 
-## intended to use to request one shot animations because NetworkSynchronizer
-## can skip window when `*/request` is set and before it unsets by tree
-func _set_tree_param(param: StringName, value: Variant) -> void:
-	NetSync.rpc_to_observing_peers(owner, _rpc_set_tree_param, [param, value])
+func _on_modifier_removing(modifier: Modifier) -> void:
+	if modifier.animation_config:
+		NetSync.rpc_to_observing_peers(owner, _rpc_end_animation, [])
 
 
 @rpc("authority", "reliable", "call_local")
-func _rpc_set_tree_param(param: StringName, value: Variant) -> void:
-	animation_tree.set(param, value)
+func _rpc_start_animation(config_path: String) -> void:
+	chanelling_done = false
+	var cast_config := load(config_path) as AbilityCastConfig
+	cast_config.setup_animation_tree(animation_tree)
+
+
+@rpc("authority", "reliable", "call_local")
+func _rpc_end_animation() -> void:
+	chanelling_done = true

@@ -1,0 +1,78 @@
+[gd_scene load_steps=4 format=3 uid="uid://lk8t3sb4yvdm"]
+
+[ext_resource type="Script" uid="uid://bhvvj3x0p4tta" path="res://scripts/ui/elements/ability_tooltip.gd" id="1_5r5td"]
+[ext_resource type="Texture2D" uid="uid://cmxdoduf1xo0v" path="res://assets/icons/cooldown.svg" id="1_nwfou"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_5r5td"]
+font_size = 13
+font_color = Color(0.85, 0.85, 0.85, 1)
+
+[node name="AbilityTooltip" type="VBoxContainer"]
+custom_minimum_size = Vector2(400, 0)
+offset_right = 160.0
+offset_bottom = 36.0
+mouse_filter = 2
+script = ExtResource("1_5r5td")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="AbilityName" type="Label" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "AbilityName"
+
+[node name="Control" type="Control" parent="HBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="HBoxContainer"]
+visible = false
+texture_filter = 2
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+texture = ExtResource("1_nwfou")
+expand_mode = 4
+stretch_mode = 5
+
+[node name="Cooldown" type="Label" parent="HBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "2s"
+
+[node name="HSeparator" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Label" type="Label" parent="HBoxContainer2"]
+layout_mode = 2
+text = "ability_tooltip_cast_method"
+label_settings = SubResource("LabelSettings_5r5td")
+
+[node name="Label2" type="Label" parent="HBoxContainer2"]
+layout_mode = 2
+text = ": "
+label_settings = SubResource("LabelSettings_5r5td")
+
+[node name="CastMethod" type="Label" parent="HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+label_settings = SubResource("LabelSettings_5r5td")
+
+[node name="HSeparator2" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="Description" type="RichTextLabel" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 1
+bbcode_enabled = true
+fit_content = true
+tab_size = 2

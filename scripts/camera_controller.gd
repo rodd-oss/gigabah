@@ -30,7 +30,7 @@ func _ready() -> void:
 	var cl := owner as NetworkClient
 	if cl and cl.name.to_int() != multiplayer.get_unique_id():
 		_local_client = false
-		set_process_unhandled_input(false)
+		set_process_input(false)
 
 
 func _process(delta: float) -> void:
@@ -55,7 +55,7 @@ func _process(delta: float) -> void:
 		_handle_input(delta)
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	match event:
 		_ when event.is_action(&"mouse_camera_rotation") and not event.is_echo():
 			if _mouse_rotating_cam != event.is_pressed():
@@ -73,13 +73,13 @@ func _unhandled_input(event: InputEvent) -> void:
 					Input.warp_mouse(_mouse_prev_pos)
 
 			_mouse_rotating_cam = event.is_pressed()
+			get_viewport().set_input_as_handled()
 		_ when event is InputEventMouseMotion:
 			var mouse_motion := event as InputEventMouseMotion
-			_mouse_delta += mouse_motion.relative
-		_:
-			return
 
-	get_viewport().set_input_as_handled()
+			if _mouse_rotating_cam:
+				_mouse_delta += mouse_motion.relative
+				get_viewport().set_input_as_handled()
 
 
 func _handle_input(delta: float) -> void:

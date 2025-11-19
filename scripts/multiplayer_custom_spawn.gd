@@ -9,11 +9,11 @@ const META_CUSTOM_SPAWN_INSTANCE_ID = &"multiplayer_custom_spawn_instid"
 var _spawn_target: Node
 
 
-static func try_custom_spawn(spawn_parent: Node, scene_path: String, data: Variant) -> Node:
+static func try_custom_spawn(spawn_parent: Node, create_node: Callable, data: Variant) -> Node:
 	if not is_instance_valid(spawn_parent):
 		return null
 
-	var meta_instid: Variant = spawn_parent.get_meta(META_CUSTOM_SPAWN_INSTANCE_ID)
+	var meta_instid: Variant = spawn_parent.get_meta(META_CUSTOM_SPAWN_INSTANCE_ID, false)
 	if meta_instid is not int:
 		return null
 
@@ -25,7 +25,7 @@ static func try_custom_spawn(spawn_parent: Node, scene_path: String, data: Varia
 	if not custom_spawn.spawn_function.is_valid():
 		return null
 
-	return custom_spawn.spawn_function.call(scene_path, data)
+	return custom_spawn.spawn_function.call(create_node, data)
 
 
 func _ready() -> void:

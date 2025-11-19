@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="ModifiablesMap" load_steps=13 format=3 uid="uid://c1jowsxyc18ua"]
+
+[ext_resource type="Script" uid="uid://u7e4sfwdey11" path="res://scripts/modifiable_property.gd" id="1_f033b"]
+[ext_resource type="Script" uid="uid://b7jokyu7ej1lf" path="res://scripts/modifiable_float.gd" id="2_tc541"]
+[ext_resource type="Script" uid="uid://dl53q5w3sn2cs" path="res://scripts/modifiable_boolean.gd" id="3_04tia"]
+[ext_resource type="Script" uid="uid://b0kualwwgd06d" path="res://scripts/modifiables_map.gd" id="4_pm18p"]
+
+[sub_resource type="Resource" id="Resource_04tia"]
+script = ExtResource("3_04tia")
+metadata/_custom_type_script = "uid://dl53q5w3sn2cs"
+
+[sub_resource type="Resource" id="Resource_f033b"]
+script = ExtResource("3_04tia")
+metadata/_custom_type_script = "uid://dl53q5w3sn2cs"
+
+[sub_resource type="Resource" id="Resource_tc541"]
+script = ExtResource("3_04tia")
+metadata/_custom_type_script = "uid://dl53q5w3sn2cs"
+
+[sub_resource type="Resource" id="Resource_7leqn"]
+script = ExtResource("2_tc541")
+min_value = 0.0
+metadata/_custom_type_script = "uid://b7jokyu7ej1lf"
+
+[sub_resource type="Resource" id="Resource_788tj"]
+script = ExtResource("2_tc541")
+min_value = 0.0
+metadata/_custom_type_script = "uid://b7jokyu7ej1lf"
+
+[sub_resource type="Resource" id="Resource_sh67h"]
+script = ExtResource("2_tc541")
+min_value = -1.0
+metadata/_custom_type_script = "uid://b7jokyu7ej1lf"
+
+[sub_resource type="Resource" id="Resource_pm18p"]
+script = ExtResource("2_tc541")
+min_value = 0.0
+metadata/_custom_type_script = "uid://b7jokyu7ej1lf"
+
+[sub_resource type="Resource" id="Resource_x8ked"]
+script = ExtResource("3_04tia")
+metadata/_custom_type_script = "uid://dl53q5w3sn2cs"
+
+[resource]
+script = ExtResource("4_pm18p")
+properties = Dictionary[StringName, ExtResource("1_f033b")]({
+&"cant_cast": SubResource("Resource_04tia"),
+&"cant_move": SubResource("Resource_f033b"),
+&"cant_turn": SubResource("Resource_tc541"),
+&"hp_regen": SubResource("Resource_7leqn"),
+&"move_speed": SubResource("Resource_788tj"),
+&"no_gravity": SubResource("Resource_x8ked"),
+&"reverse_speed_factor": SubResource("Resource_sh67h"),
+&"turn_rate": SubResource("Resource_pm18p")
+})
+metadata/_custom_type_script = "uid://b0kualwwgd06d"

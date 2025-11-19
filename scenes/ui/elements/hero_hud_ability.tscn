@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://65inlkqkago4"]
+[gd_scene load_steps=8 format=3 uid="uid://65inlkqkago4"]
 
 [ext_resource type="Texture2D" uid="uid://deh02p1nn7or4" path="res://assets/textures/ui/ability_icons/DevBall.png" id="1_6bsxh"]
 [ext_resource type="Script" uid="uid://ddxhsm8ypown" path="res://scripts/ui/elements/hud_ability.gd" id="1_ho8f7"]
@@ -32,6 +32,14 @@ colors = PackedColorArray(0, 0, 0, 0.3647059)
 gradient = SubResource("Gradient_6bsxh")
 width = 1
 
+[sub_resource type="Gradient" id="Gradient_ho8f7"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0, 1, 0, 0.0627451)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_6l8gm"]
+gradient = SubResource("Gradient_ho8f7")
+width = 1
+
 [node name="Control" type="Control"]
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 3
@@ -51,6 +59,7 @@ stretch_mode = 1
 
 [node name="PanelContainer" type="PanelContainer" parent="AspectRatioContainer"]
 layout_mode = 2
+mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_ho8f7")
 
 [node name="AbilityIcon" type="TextureRect" parent="AspectRatioContainer/PanelContainer"]
@@ -72,6 +81,17 @@ value = 93.0
 fill_mode = 5
 nine_patch_stretch = true
 texture_progress = SubResource("GradientTexture1D_ho8f7")
+
+[node name="CastingBar" type="TextureProgressBar" parent="AspectRatioContainer/PanelContainer"]
+unique_name_in_owner = true
+visible = false
+show_behind_parent = true
+layout_mode = 2
+step = 0.001
+value = 11.14
+fill_mode = 5
+nine_patch_stretch = true
+texture_progress = SubResource("GradientTexture1D_6l8gm")
 
 [node name="CooldownNumber" type="Label" parent="AspectRatioContainer/PanelContainer"]
 unique_name_in_owner = true

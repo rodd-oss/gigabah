@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bqwuvc6fmwno3"
+
+[deps]
+
+files=["res://i18n/abilities.ru.translation"]
+
+source_file="res://i18n/abilities.csv"
+dest_files=["res://i18n/abilities.ru.translation"]
+
+[params]
+
+compress=true
+delimiter=0

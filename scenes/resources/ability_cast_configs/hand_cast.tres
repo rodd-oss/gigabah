@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="AbilityCastConfig" load_steps=2 format=3 uid="uid://dh2e4ekmdnymf"]
+
+[ext_resource type="Script" uid="uid://cg7jutrjo5cuh" path="res://scripts/ability_cast_config.gd" id="1_3y1fy"]
+
+[resource]
+script = ExtResource("1_3y1fy")
+animation_kind = 1
+animation_name = "Cast1"
+cast_point = 0.165
+metadata/_custom_type_script = "uid://cg7jutrjo5cuh"

@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://c7okt7nw7o44y"]
+
+[ext_resource type="Script" uid="uid://dv2eh41l77yyf" path="res://scripts/abilities/inner_spirit.gd" id="1_l2f6y"]
+
+[node name="InnerSpirit" type="Node"]
+script = ExtResource("1_l2f6y")
+metadata/_custom_type_script = "uid://dv2eh41l77yyf"

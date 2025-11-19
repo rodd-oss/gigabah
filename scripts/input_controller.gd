@@ -51,8 +51,9 @@ func _process(_delta: float) -> void:
 
 		if camera:
 			var mouse_dir := camera.project_ray_normal(get_viewport().get_mouse_position())
+			var target_global_pos := cursor_raycast.global_position + mouse_dir * 1000.0
 			cursor_raycast.global_position = camera.global_position
-			cursor_raycast.target_position = cursor_raycast.global_position + mouse_dir * 1000.0
+			cursor_raycast.target_position = cursor_raycast.to_local(target_global_pos)
 			cursor_raycast.force_raycast_update()
 
 			if not cursor_raycast.is_colliding():

@@ -1,11 +1,15 @@
-[gd_scene load_steps=6 format=3 uid="uid://bde2flq2egpcv"]
+[gd_scene load_steps=10 format=3 uid="uid://bde2flq2egpcv"]
 
 [ext_resource type="Script" uid="uid://f0ylqu4wka2x" path="res://scripts/player_spawner.gd" id="2_hhnvu"]
 [ext_resource type="PackedScene" uid="uid://dmp8nc3aenbut" path="res://scenes/player.tscn" id="3_8s3bs"]
 [ext_resource type="PackedScene" uid="uid://fyvnqbdfgw0q" path="res://scenes/Testing_arena.tscn" id="5_8s3bs"]
 [ext_resource type="PackedScene" uid="uid://dxtxfb21jpq0" path="res://scenes/ui/in_game_menu.tscn" id="5_ingamemenu"]
-
+[ext_resource type="PackedScene" uid="uid://ytyta0dtvgah" path="res://scenes/crystal_aura.tscn" id="6_khbhx"]
 [ext_resource type="PackedScene" uid="uid://dvghod301bs4s" path="res://scenes/ui/hud/hero_hud.tscn" id="7_eao86"]
+[ext_resource type="Script" uid="uid://dh2ghf6exg7ai" path="res://scripts/modifier_aura.gd" id="7_vc6rt"]
+[ext_resource type="Script" uid="uid://nud8vshdtvgq" path="res://scripts/modifiers/instakill.gd" id="8_tsphw"]
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_w3g1x"]
 
 [node name="Index3d" type="Node3D"]
 
@@ -22,3 +26,36 @@ metadata/_custom_type_script = "uid://f0ylqu4wka2x"
 [node name="HeroHud" parent="HUD" instance=ExtResource("7_eao86")]
 
 [node name="Index3d" parent="." instance=ExtResource("5_8s3bs")]
+
+[node name="CrystalAura_8oclock" parent="." instance=ExtResource("6_khbhx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.778639, 3.0116632, 51.79099)
+
+[node name="CrystalAura_5oclock" parent="." instance=ExtResource("6_khbhx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.64528, 3.0116632, 51.79099)
+
+[node name="CrystalAura_3oclock" parent="." instance=ExtResource("6_khbhx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 61.24404, 3.0116632, 1.8763165)
+
+[node name="CrystalAura_1oclock" parent="." instance=ExtResource("6_khbhx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29.007368, 3.0116632, -56.06273)
+
+[node name="CrystalAura_11oclock" parent="." instance=ExtResource("6_khbhx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.34903, 3.0116632, -56.15392)
+
+[node name="CrystalAura_9oclock" parent="." instance=ExtResource("6_khbhx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -60.502956, 3.0116632, 1.9911823)
+
+[node name="BottomKillbox" type="Area3D" parent="." node_paths=PackedStringArray("modifier")]
+collision_layer = 8
+collision_mask = 2
+monitorable = false
+script = ExtResource("7_vc6rt")
+modifier = NodePath("InstaKillModifier")
+metadata/_custom_type_script = "uid://dh2ghf6exg7ai"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BottomKillbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -10, 0)
+shape = SubResource("WorldBoundaryShape3D_w3g1x")
+
+[node name="InstaKillModifier" type="Node" parent="BottomKillbox"]
+script = ExtResource("8_tsphw")
